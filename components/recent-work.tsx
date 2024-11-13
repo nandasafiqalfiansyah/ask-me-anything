@@ -19,11 +19,11 @@ const posts = [
     link: 'https://www.linkedin.com/company/bangkit-academy/'
   },
   {
-    title: 'Software Engineer',
+    title: 'Ponorogo District Government Development Administration Section',
     summary:
-      'Worked on the Google Search team to improve search results for users.',
-    publishedAt: '2020-06-01',
-    logo: 'https://media.licdn.com/dms/image/v2/C560BAQEVREspL4ipDQ/company-logo_100_100/company-logo_100_100/0/1630661916225/bangkit_academy_logo?e=1737590400&v=beta&t=wynG8aNPeWscmfCtqIUjnGDZVDRI0pDLh-s1Mtngbak',
+      'During a 3-month internship, I served as a full-stack developer for the Ponorogo District Development',
+    publishedAt: '2023-08-01',
+    logo: 'https://w7.pngwing.com/pngs/329/450/png-transparent-dinas-pendidikan-ponorogo-logo-regency-reog-padi-kapas-city-ponorogo-regency-padi-kapas.png',
     link: 'https://www.linkedin.com/company/bangkit-academy/'
   }
 ]

@@ -3,28 +3,11 @@ import Link from 'next/link'
 // Array of post data
 const posts = [
   {
-    title: 'Software Engineer',
-    summary:
-      'Worked on the Google Search team to improve search results for users.',
-    publishedAt: '2020-06-01',
-    logo: 'https://media.licdn.com/dms/image/v2/C560BAQEVREspL4ipDQ/company-logo_100_100/company-logo_100_100/0/1630661916225/bangkit_academy_logo?e=1737590400&v=beta&t=wynG8aNPeWscmfCtqIUjnGDZVDRI0pDLh-s1Mtngbak',
-    link: 'https://www.linkedin.com/company/bangkit-academy/'
-  },
-  {
-    title: 'Software Engineer',
-    summary:
-      'Worked on the Google Search team to improve search results for users.',
-    publishedAt: '2020-06-01',
-    logo: 'https://media.licdn.com/dms/image/v2/C560BAQEVREspL4ipDQ/company-logo_100_100/company-logo_100_100/0/1630661916225/bangkit_academy_logo?e=1737590400&v=beta&t=wynG8aNPeWscmfCtqIUjnGDZVDRI0pDLh-s1Mtngbak',
-    link: 'https://www.linkedin.com/company/bangkit-academy/'
-  },
-  {
-    title: 'Software Engineer',
-    summary:
-      'Worked on the Google Search team to improve search results for users.',
-    publishedAt: '2020-06-01',
-    logo: 'https://media.licdn.com/dms/image/v2/C560BAQEVREspL4ipDQ/company-logo_100_100/company-logo_100_100/0/1630661916225/bangkit_academy_logo?e=1737590400&v=beta&t=wynG8aNPeWscmfCtqIUjnGDZVDRI0pDLh-s1Mtngbak',
-    link: 'https://www.linkedin.com/company/bangkit-academy/'
+    title: 'Universitas Muhammadiyah Ponorogo',
+    summary: 'Higher Education Institution in Ponorogo, East Java, Indonesia',
+    publishedAt: '11-13-2024',
+    logo: 'https://media.licdn.com/dms/image/v2/C560BAQFnc-z5aubSFw/company-logo_200_200/company-logo_200_200/0/1646043826382/universitas_muhammadiyah_ponorogo_logo?e=1739404800&v=beta&t=Foxvx4y7N2RVSVaKDiJe8gR6BQ8DoDQcW0rKf0eswsE',
+    link: 'https://www.linkedin.com/school/universitas-muhammadiyah-ponorogo'
   }
 ]
 
