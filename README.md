@@ -1,6 +1,6 @@
 # ask-me-anything
 
-I am a back-end developer that does a lot of serverless things in AWS. You can find out more about me here or on https://neverendingqs.com/.
+I am a back-end developer that does a lot of serverless things in AWS. You can find out more about me here or on https://ndav.my.id/.
 
 Got a question for me? Throw it into a [discussion topic](https://github.com/nandasafiqalfiansyah/ask-me-anything/discussions) and I'll try to get back to you as soon as possible!
 
