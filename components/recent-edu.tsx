@@ -33,7 +33,7 @@ export default function RecentEdu() {
   return (
     <section className='pb-24'>
       <div>
-        <h2 className='mb-12 text-center text-3xl font-bold md:text-left'>
+        <h2 className='mb-12 text-left text-3xl font-bold md:text-left'>
           Education
         </h2>
 
