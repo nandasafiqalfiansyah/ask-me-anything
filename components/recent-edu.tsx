@@ -1,8 +1,12 @@
 'use client'
 
-import React from 'react'
 import Link from 'next/link'
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import * as Collapsible from '@radix-ui/react-collapsible'
+import { RowSpacingIcon, Cross2Icon } from '@radix-ui/react-icons'
+import React, { useState } from 'react'
+import ReactMarkdown from 'react-markdown'
+import { describe } from 'node:test'
+
 // Array of post data
 const posts = [
   {
@@ -11,11 +15,10 @@ const posts = [
     publishedAt: '11-13-2024',
     logo: 'https://umpo.ac.id/web-con/app/app-upload/images/files/1686106386-UMPO-logo-resmi.png',
     link: 'https://www.linkedin.com/school/universitas-muhammadiyah-ponorogo',
-    tasks: [
-      'Conducted student counseling sessions',
-      'Managed academic events and workshops',
-      'Developed e-learning materials'
-    ]
+    describe: `
+    - Iconic IT 2024 Runner-up in a national competition and seminar.
+    - IT Comfest 2022 Runner-up in a local campus competition.
+  `
   }
 ]
 
@@ -29,53 +32,75 @@ function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString(undefined, options)
 }
 
-export default function RecentEdu() {
+export default function RecentWork() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
+
   return (
     <section className='pb-24'>
       <div>
-        <h2 className='mb-12 text-left text-3xl font-bold md:text-left'>
-          Education
+        <h2 className='mb-12 text-left text-3xl font-bold sm:text-4xl'>
+          Experience
         </h2>
 
         <ul className='flex flex-col gap-8'>
-          {posts.map(post => (
+          {posts.map((post, index) => (
             <li
               key={post.link}
-              className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'
+              className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'
             >
               {/* Main Content */}
-              <div className='flex flex-col gap-4 md:flex-row md:items-center md:gap-6'>
+              <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6'>
                 <img
                   src={post.logo}
                   alt={`${post.title} logo`}
-                  className='h-16 w-16 flex-shrink-0 object-contain md:h-20 md:w-20'
+                  className='h-16 w-16 flex-shrink-0 object-contain sm:h-20 sm:w-20'
                 />
+
                 <div>
-                  <p className='text-lg font-semibold'>{post.title}</p>
-                  <p className='mt-1 text-sm font-light text-muted-foreground'>
-                    {post.summary}
-                  </p>
+                  <Collapsible.Root
+                    open={openIndex === index}
+                    onOpenChange={() =>
+                      setOpenIndex(openIndex === index ? null : index)
+                    }
+                  >
+                    <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                      <div>
+                        <span className='text-lg font-semibold text-white'>
+                          {post.title}
+                        </span>
+                        <Collapsible.Trigger asChild>
+                          <button className='IconButton ml-2'>
+                            {openIndex === index ? (
+                              <Cross2Icon />
+                            ) : (
+                              <RowSpacingIcon />
+                            )}
+                          </button>
+                        </Collapsible.Trigger>
+                        <p className='mt-1 text-sm font-light text-muted-foreground'>
+                          {post.summary}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Collapsible.Content className='mt-2'>
+                      <ReactMarkdown className='mt-1 text-sm font-light text-muted-foreground'>
+                        {post.describe}
+                      </ReactMarkdown>
+                    </Collapsible.Content>
+                  </Collapsible.Root>
                 </div>
               </div>
 
               {/* Date */}
               {post.publishedAt && (
-                <p className='text-sm font-light text-gray-500 md:text-right'>
+                <p className='text-sm font-light text-gray-500 sm:text-right'>
                   {formatDate(post.publishedAt)}
                 </p>
               )}
             </li>
           ))}
         </ul>
-
-        <div className='mt-8 text-center md:text-left'>
-          <Link
-            href='/'
-            className='inline-flex items-center gap-2 text-sm font-medium text-muted-foreground underline decoration-1 underline-offset-2 transition-colors hover:text-foreground'
-          >
-            <span>All Education Experience</span>
-          </Link>
-        </div>
       </div>
     </section>
   )

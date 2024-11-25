@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import { ProjectMetadata } from '@/lib/projects'
 import { formatDate } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
 
 export default function Projects({
   projects
@@ -34,6 +35,19 @@ export default function Projects({
               <p className='line-clamp-1 text-sm text-muted-foreground'>
                 {project.summary}
               </p>
+              {project.tags && (
+                <div className='mb-1 mt-2 flex flex-wrap gap-0.5'>
+                  {project.tags.map(tag => (
+                    <Badge
+                      key={tag}
+                      className='text-xs font-normal'
+                      variant='secondary'
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
               <p className='text-xs font-light text-muted-foreground'>
                 {formatDate(project.publishedAt ?? '')}
               </p>
