@@ -42,7 +42,7 @@ const posts = [
     `
   },
   {
-    title: 'Lintasarta Cloudeka Digischool 2023',
+    title: 'Lintasarta Cloudeka 2023',
     summary: 'Machine Learning developer',
     publishedAt: '2023-10-30',
     logo: 'https://media.licdn.com/dms/image/C560BAQEuItk7F_3JPQ/company-logo_200_200/0/1630645857701/lintasartacloudeka_logo?e=2147483647&v=beta&t=IdNaLjKgzVCTi4-BKH5Guud4VlRqjkRKrKarPgB9954',
@@ -141,9 +141,7 @@ export default function RecentWork() {
                   >
                     <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
                       <div>
-                        <span className='text-lg font-semibold text-white'>
-                          {post.title}
-                        </span>
+                        <span className='font-semibold'>{post.title}</span>
                         <Collapsible.Trigger asChild>
                           <button className='IconButton ml-2'>
                             {openIndex === index ? (
