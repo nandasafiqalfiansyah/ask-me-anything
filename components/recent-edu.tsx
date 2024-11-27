@@ -1,11 +1,8 @@
 'use client'
-
-import Link from 'next/link'
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { RowSpacingIcon, Cross2Icon } from '@radix-ui/react-icons'
 import React, { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { describe } from 'node:test'
 
 // Array of post data
 const posts = [
@@ -39,7 +36,7 @@ export default function RecentWork() {
     <section className='pb-24'>
       <div>
         <h2 className='mb-12 text-left text-3xl font-bold sm:text-4xl'>
-          Experience
+          Education
         </h2>
 
         <ul className='flex flex-col gap-8'>
