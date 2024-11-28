@@ -1,4 +1,4 @@
-export default function Component() {
+export default function PrivacyPage() {
   return (
     <div className='py-6 pb-24 pt-40'>
       <div className='container grid max-w-2xl gap-10 px-4 md:px-6 lg:gap-16 xl:max-w-3xl xl:gap-20'>
