@@ -62,7 +62,7 @@ export default function RecentWork() {
                   >
                     <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
                       <div>
-                        <span className='text-lg font-semibold text-white'>
+                        <span className='text-lg font-semibold'>
                           {post.title}
                         </span>
                         <Collapsible.Trigger asChild>
