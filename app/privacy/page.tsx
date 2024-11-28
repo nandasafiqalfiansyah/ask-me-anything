@@ -78,7 +78,7 @@ export default function PrivacyPage() {
             <h2 className='text-2xl font-bold tracking-tight'>User Rights</h2>
             <p className='text-gray-500 dark:text-gray-400'>
               You have the right to make a complaint at any time to the
-              Information Commissioner's Office (ICO), the UK supervisory
+              Information Commissioner&apos;s Office (ICO), the UK supervisory
               authority for data protection issues
             </p>
           </div>
