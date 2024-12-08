@@ -16,6 +16,11 @@ export default function Header() {
             <Link href='/posts'>Blog</Link>
           </li>
           <li className='transition-colors hover:text-foreground'>
+            <Link href='https://lynk.id/nandasafiqalfiansyah' target='_blank'>
+              E-books
+            </Link>
+          </li>
+          <li className='transition-colors hover:text-foreground'>
             <Link href='/projects'>Projects</Link>
           </li>
           <li className='transition-colors hover:text-foreground'>
