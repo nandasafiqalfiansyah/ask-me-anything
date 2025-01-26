@@ -1,4 +1,4 @@
----
+<!-- ---
   title: NextJs MDX Portfolio
   summary: A portfolio website built with NextJs and MDX.
   image: /images/projects/next-mdx-portfolio.jpg
@@ -53,4 +53,4 @@ to Vercel and deploy the project with a single click.
 This portfolio website is a great example of how you can use NextJs and MDX to
 build a modern website with dynamic content. By combining the power of NextJs
 and MDX, you can create interactive and engaging websites that are easy to
-maintain and update.
+maintain and update. -->

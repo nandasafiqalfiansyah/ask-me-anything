@@ -59,7 +59,7 @@ const posts = [
     title: 'Bangkit Academy 2023',
     summary: 'Cloud Computing developer &  Assistant Mentor',
     publishedAt: '2023-08-01',
-    logo: 'https://media.licdn.com/dms/image/v2/C560BAQEVREspL4ipDQ/company-logo_100_100/company-logo_100_100/0/1630661916225/bangkit_academy_logo?e=1737590400&v=beta&t=wynG8aNPeWscmfCtqIUjnGDZVDRI0pDLh-s1Mtngbak',
+    logo: 'https://media.licdn.com/dms/image/v2/C560BAQEVREspL4ipDQ/company-logo_200_200/company-logo_200_200/0/1630661916225/bangkit_academy_logo?e=2147483647&v=beta&t=m6uy-IMO31_-1cigjl17cDsCyFj6lVEit0WT4DmQOyg',
     link: 'https://www.linkedin.com/company/bangkit-academy/',
     describe: `
       - Mentored students in cloud computing tracks.

@@ -1,4 +1,4 @@
----
+<!-- ---
   title: Ecommerce Store
   summary: A full-stack ecommerce store built with NextJs and Stripe.
   image: /images/projects/ecommerce-store.jpg
@@ -55,4 +55,4 @@ to Vercel and deploy the project with a single click.
 This ecommerce store is a great example of how you can build a full-stack
 application with NextJs and Stripe. By integrating the Stripe API with NextJs,
 you can create a seamless shopping experience for your customers and manage
-payments securely and efficiently.
+payments securely and efficiently. -->

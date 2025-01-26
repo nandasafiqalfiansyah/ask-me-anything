@@ -10,8 +10,8 @@ const posts = [
     title: 'Universitas Muhammadiyah Ponorogo',
     summary: 'Higher Education Institution in Ponorogo, East Java, Indonesia',
     publishedAt: '11-13-2024',
-    logo: 'https://umpo.ac.id/web-con/app/app-upload/images/files/1686106386-UMPO-logo-resmi.png',
-    link: 'https://www.linkedin.com/school/universitas-muhammadiyah-ponorogo',
+    logo: 'https://dianisa.com/wp-content/uploads/2024/09/Logo-Universitas-Muhammadiyah-Ponorogo-Dianisa.com_.png',
+    link: 'https://www.linkedin.com/school/universitas-muhammadiyah-ponorogo-',
     describe: `
     - Iconic IT 2024 Runner-up in a national competition and seminar.
     - IT Comfest 2022 Runner-up in a local campus competition.
