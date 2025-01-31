@@ -10,7 +10,7 @@ const posts = [
     title: 'Universitas Muhammadiyah Ponorogo',
     summary: 'Higher Education Institution in Ponorogo, East Java, Indonesia',
     publishedAt: '11-13-2024',
-    logo: 'https://dianisa.com/wp-content/uploads/2024/09/Logo-Universitas-Muhammadiyah-Ponorogo-Dianisa.com_.png',
+    logo: '/public/images/umpo.png',
     link: 'https://www.linkedin.com/school/universitas-muhammadiyah-ponorogo-',
     describe: `
     - Iconic IT 2024 Runner-up in a national competition and seminar.
