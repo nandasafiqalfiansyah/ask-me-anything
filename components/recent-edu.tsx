@@ -10,8 +10,8 @@ const posts = [
     title: 'Universitas Muhammadiyah Ponorogo',
     summary: 'Higher Education Institution in Ponorogo, East Java, Indonesia',
     publishedAt: '11-13-2024',
-    logo: '/public/images/umpo.png',
-    link: 'https://www.linkedin.com/school/universitas-muhammadiyah-ponorogo-',
+    logo: '/images/umpo.png',
+    link: 'https://www.linkedin.com/school/universitas-muhammadiyah-ponorogo',
     describe: `
     - Iconic IT 2024 Runner-up in a national competition and seminar.
     - IT Comfest 2022 Runner-up in a local campus competition.
@@ -52,7 +52,6 @@ export default function RecentWork() {
                   alt={`${post.title} logo`}
                   className='h-16 w-16 flex-shrink-0 object-contain sm:h-20 sm:w-20'
                 />
-
                 <div>
                   <Collapsible.Root
                     open={openIndex === index}
