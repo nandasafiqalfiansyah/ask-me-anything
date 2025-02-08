@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ThemeToggle } from './theme-toggle'
+import { Project } from '../lib/projects'
 
 export default function Header() {
   return (
@@ -11,23 +12,20 @@ export default function Header() {
           </Link>
         </div>
 
-        <ul className='flex items-center gap-3 text-sm font-light text-muted-foreground sm:gap-8'>
+        <ul className='ml-2 flex items-center gap-2 text-sm font-light text-muted-foreground sm:gap-8'>
           <li className='transition-colors hover:text-foreground'>
             <Link href='/posts'>Blog</Link>
           </li>
           <li className='transition-colors hover:text-foreground'>
-            <Link href='https://lynk.id/nandasafiqalfiansyah' target='_blank'>
-              Books
-            </Link>
+            <Link href='/certificate'>Certificate</Link>
           </li>
           <li className='transition-colors hover:text-foreground'>
-            <Link href='/projects'>Projects</Link>
+            <Link href='/projects'>Project</Link>
           </li>
           <li className='transition-colors hover:text-foreground'>
             <Link href='/contact'>Contact</Link>
           </li>
         </ul>
-
         <div>
           <ThemeToggle />
         </div>
