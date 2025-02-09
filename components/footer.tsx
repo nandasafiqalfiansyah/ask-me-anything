@@ -88,8 +88,13 @@ export default function Footer() {
           </div>
           <div className='mt-8 md:order-1 md:mt-0'>
             <p className='text-center text-xs leading-5 text-muted-foreground'>
-              &copy; {new Date().getFullYear()} Nanda Safiq Alfiansyah. All rights
-              reserved.
+              &copy; {new Date().getFullYear()} Nanda Safiq Alfiansyah.{' '}
+              <a
+                href='/api/v1/docs'
+                className='font-medium text-muted-foreground underline hover:text-foreground'
+              >
+                API Documentation
+              </a>
             </p>
           </div>
         </div>
