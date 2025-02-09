@@ -1,4 +1,5 @@
 'use client'
+
 import { useEffect, useState, useRef } from 'react'
 
 export default function CertificateCatalog() {
@@ -22,25 +23,29 @@ export default function CertificateCatalog() {
   }, [])
 
   // Intersection Observer setup for lazy loading images
-  const observer = useRef(
-    new IntersectionObserver(
-      (entries, observer) => {
+  const observerRef = useRef<IntersectionObserver | null>(null)
+
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const img = entry.target as HTMLImageElement
             img.src = img.dataset.src as string
-            observer.unobserve(img)
+            observerRef.current?.unobserve(img)
           }
         })
       },
       { threshold: 0.1 }
     )
-  )
+
+    return () => observerRef.current?.disconnect() // Cleanup observer saat komponen unmount
+  }, [])
 
   // Lazy loading images when they are in the viewport
-  const handleImageRef = (node: HTMLImageElement) => {
-    if (node) {
-      observer.current.observe(node)
+  const handleImageRef = (node: HTMLImageElement | null) => {
+    if (node && observerRef.current) {
+      observerRef.current.observe(node)
     }
   }
 
@@ -48,10 +53,7 @@ export default function CertificateCatalog() {
   const handleImageError = (
     e: React.SyntheticEvent<HTMLImageElement, Event>
   ) => {
-    // On error, we can either remove the image or replace it with a placeholder
-    e.currentTarget.style.display = 'none' // Hide the image on error
-    // Optionally, you can also replace with a placeholder:
-    // e.currentTarget.src = 'path_to_placeholder_image.jpg';
+    e.currentTarget.style.display = 'none' // Hide image if it fails to load
   }
 
   return (
