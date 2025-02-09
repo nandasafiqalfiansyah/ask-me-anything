@@ -21,8 +21,6 @@ export default function CertificateCatalog() {
     }
     loadFiles()
   }, [])
-
-  // Intersection Observer setup for lazy loading images
   const observerRef = useRef<IntersectionObserver | null>(null)
 
   useEffect(() => {
@@ -38,22 +36,18 @@ export default function CertificateCatalog() {
       },
       { threshold: 0.1 }
     )
-
-    return () => observerRef.current?.disconnect() // Cleanup observer saat komponen unmount
+    return () => observerRef.current?.disconnect()
   }, [])
 
-  // Lazy loading images when they are in the viewport
   const handleImageRef = (node: HTMLImageElement | null) => {
     if (node && observerRef.current) {
       observerRef.current.observe(node)
     }
   }
-
-  // Error handler for images
   const handleImageError = (
     e: React.SyntheticEvent<HTMLImageElement, Event>
   ) => {
-    e.currentTarget.style.display = 'none' // Hide image if it fails to load
+    e.currentTarget.style.display = 'none'
   }
 
   return (
@@ -80,6 +74,19 @@ export default function CertificateCatalog() {
                       thumbnailLink: string
                     }) => (
                       <li key={file.id} className='flex items-center gap-4 p-2'>
+                        {file.thumbnailLink ? (
+                          <img
+                            ref={handleImageRef}
+                            data-src={file.thumbnailLink}
+                            alt={file.id}
+                            loading='lazy'
+                            className='h-auto w-20 rounded-lg shadow-lg'
+                            onClick={() => setSelectedImage(file.thumbnailLink)}
+                            onError={handleImageError}
+                          />
+                        ) : (
+                          <span className='text-gray-400'>No thumbnail</span>
+                        )}
                         <a
                           href={`https://drive.google.com/file/d/${file.id}/view`}
                           target='_blank'
@@ -88,19 +95,6 @@ export default function CertificateCatalog() {
                         >
                           {file.name.replace(/\.pdf$/i, '')}
                         </a>
-                        {file.thumbnailLink ? (
-                          <img
-                            ref={handleImageRef} // Lazy load image
-                            data-src={file.thumbnailLink} // Store image source
-                            alt={file.id}
-                            loading='lazy'
-                            className='h-auto w-20 rounded-lg shadow-lg'
-                            onClick={() => setSelectedImage(file.thumbnailLink)}
-                            onError={handleImageError} // Handle image error
-                          />
-                        ) : (
-                          <span className='text-gray-400'>No thumbnail</span>
-                        )}
                       </li>
                     )
                   )
