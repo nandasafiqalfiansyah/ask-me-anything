@@ -9,13 +9,24 @@ import ReactMarkdown from 'react-markdown'
 // Array of post data
 const posts = [
   {
+    title: 'Coding Camp powered by DBS Foundation ',
+    summary: 'Fullstack developer',
+    publishedAt: '2025-03-06',
+    logo: 'https://media.licdn.com/dms/image/v2/D560BAQEONBPsiZnU8w/company-logo_100_100/company-logo_100_100/0/1729482329489?e=1749081600&v=beta&t=9LB4cdoJU75BmoDVxKSZtR4sG-Spoy72GjfVo_-Sel8',
+    link: 'https://www.linkedin.com/company/coding-camp-powered-by-dbs-foundation/',
+    describe: `
+      - soon.
+    `
+  },
+  {
     title: 'Upwork',
     summary: 'Backend developer',
     publishedAt: '2024-04-07',
-    logo: 'https://media.licdn.com/dms/image/v2/D560BAQHByMAPjhg12Q/company-logo_200_200/company-logo_200_200/0/1700412231756?e=1740614400&v=beta&t=AYYgjyN7uOejLkvPYVlyuS5FgCHdrikPqC-t74Hsugw',
+    logo: 'https://media.licdn.com/dms/image/v2/D560BAQEWoTnM6mLBvg/company-logo_100_100/company-logo_100_100/0/1738994670720/upworkbd_logo?e=1749081600&v=beta&t=GXn7VQMy_Yvw6D-cKns8TcmmJOv4D_kXRWECmCWX-n4',
     link: 'https://www.linkedin.com/company/ruangguru/',
     describe: `
       - Make golang to backend service for client.
+      - Shopify Store Setup and Customization.
       - Developed and maintained backend services.
       - Collaborates with English-speaking clients.
       - Conducted code reviews and pair programming sessions
@@ -24,13 +35,14 @@ const posts = [
       - Setting docker to deploy service.
       - make microservice with golang.
       - make documentation with swager or postman.
+      - soon.
     `
   },
   {
     title: 'Ruangguru',
     summary: 'Backend developer & Assistant Mentor',
     publishedAt: '2024-01-07',
-    logo: 'https://media.licdn.com/dms/image/v2/C560BAQEIu6Alk0BuZA/company-logo_200_200/company-logo_200_200/0/1630621231627/ruangguru_com_logo?e=1740614400&v=beta&t=d1-ldF6Fsf58fBlcB4eEzduSh9Lj3MWXnH_3Ee1_p-A',
+    logo: 'https://media.licdn.com/dms/image/v2/C560BAQEIu6Alk0BuZA/company-logo_100_100/company-logo_100_100/0/1630621231627/ruangguru_com_logo?e=1749081600&v=beta&t=RjEe-es5nR6fhvA1O__LK6pj8RINd-MF5pOyUIZN3t8',
     link: 'https://www.linkedin.com/company/ruangguru/',
     describe: `
       - Finished Golang backend development course.
@@ -62,7 +74,7 @@ const posts = [
     logo: 'https://media.licdn.com/dms/image/v2/C560BAQEVREspL4ipDQ/company-logo_200_200/company-logo_200_200/0/1630661916225/bangkit_academy_logo?e=2147483647&v=beta&t=m6uy-IMO31_-1cigjl17cDsCyFj6lVEit0WT4DmQOyg',
     link: 'https://www.linkedin.com/company/bangkit-academy/',
     describe: `
-      - Mentored students in cloud computing tracks.
+      - Asistent Mentor students in cloud computing tracks.
       - Delivered cloud computing courses.
       - Collaborated with the team to deliver project requirements.
       - Make backend service with express js and prisma.

@@ -80,7 +80,7 @@ export default function RecentWork() {
                     </div>
 
                     <Collapsible.Content className='mt-2'>
-                      <ReactMarkdown className='mt-1 overflow-scroll text-sm font-light text-muted-foreground'>
+                      <ReactMarkdown className='mt-1  text-sm font-light text-muted-foreground'>
                         {post.describe}
                       </ReactMarkdown>
                     </Collapsible.Content>
