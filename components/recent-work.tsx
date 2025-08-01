@@ -6,14 +6,14 @@ import { RowSpacingIcon, Cross2Icon } from '@radix-ui/react-icons'
 import React, { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
-// Array of post data
+// Array of post dataß
 const posts = [
   {
-    title: 'Coding Camp powered by DBS Foundation ',
-    summary: 'Fullstack developer',
-    publishedAt: '2025-03-06',
-    logo: 'https://media.licdn.com/dms/image/v2/D560BAQEONBPsiZnU8w/company-logo_100_100/company-logo_100_100/0/1729482329489?e=1749081600&v=beta&t=9LB4cdoJU75BmoDVxKSZtR4sG-Spoy72GjfVo_-Sel8',
-    link: 'https://www.linkedin.com/company/coding-camp-powered-by-dbs-foundation/',
+    title: 'Google Cloud Arcade Facilitator Program',
+    summary: 'Facilitator Program',
+    publishedAt: '2025-08-01',
+    logo: 'https://media.licdn.com/dms/image/v2/D560BAQGvvDRt8hosXw/company-logo_100_100/company-logo_100_100/0/1727865896280/google_cloud_arcade_facilitator_program_india_logo?e=1756944000&v=beta&t=0fRU_Wo_ZQ5mbD-iw0rzCatLIrSm21GtPRyRQlxSGHk',
+    link: 'https://www.linkedin.com/company/bni/',
     describe: `
       - soon.
     `
@@ -22,8 +22,8 @@ const posts = [
     title: 'Upwork',
     summary: 'Backend developer',
     publishedAt: '2024-04-07',
-    logo: 'https://media.licdn.com/dms/image/v2/D560BAQEWoTnM6mLBvg/company-logo_100_100/company-logo_100_100/0/1738994670720/upworkbd_logo?e=1749081600&v=beta&t=GXn7VQMy_Yvw6D-cKns8TcmmJOv4D_kXRWECmCWX-n4',
-    link: 'https://www.linkedin.com/company/ruangguru/',
+    logo: 'https://media.licdn.com/dms/image/v2/D560BAQEWoTnM6mLBvg/company-logo_100_100/company-logo_100_100/0/1738994670720/upworkbd_logo?e=1756944000&v=beta&t=CyznJydMAnrCwFO_nYFgS6cEiW8TIdMHYOF8IuBxBIM',
+    link: 'https://www.linkedin.com/company/upwork/',
     describe: `
       - Make golang to backend service for client.
       - Shopify Store Setup and Customization.
@@ -39,10 +39,29 @@ const posts = [
     `
   },
   {
+    title: 'Coding Camp powered by DBS Foundation ',
+    summary: 'Fullstack developer',
+    publishedAt: '2025-03-06',
+    logo: 'https://media.licdn.com/dms/image/v2/D560BAQEONBPsiZnU8w/company-logo_100_100/company-logo_100_100/0/1729482329489?e=1756944000&v=beta&t=0WncNN33bwjp5BgywjE60OWYHDWT9L_QRUUoQzKNBsE',
+    link: 'https://www.linkedin.com/company/coding-camp-powered-by-dbs-foundation/',
+    describe: `
+      - Developed a full-stack web application using Next.js and Prisma.
+      - Implemented RESTful APIs for data management.
+      - Collaborated with a team of developers to deliver project requirements.
+      - Conducted code reviews and pair programming sessions.
+      - Participated in team meetings and brainstorming sessions.
+      - Asisted in mentorin fullstack developer students.
+      - Setting docker to deploy backend service.
+      - Setting docker to deploy model service.
+      - Collaborated with the team to deliver project requirements.
+      - Conducted code reviews and pair programming sessions.
+    `
+  },
+  {
     title: 'Ruangguru',
     summary: 'Backend developer & Assistant Mentor',
     publishedAt: '2024-01-07',
-    logo: 'https://media.licdn.com/dms/image/v2/C560BAQEIu6Alk0BuZA/company-logo_100_100/company-logo_100_100/0/1630621231627/ruangguru_com_logo?e=1749081600&v=beta&t=RjEe-es5nR6fhvA1O__LK6pj8RINd-MF5pOyUIZN3t8',
+    logo: 'https://media.licdn.com/dms/image/v2/C560BAQEIu6Alk0BuZA/company-logo_100_100/company-logo_100_100/0/1630621231627/ruangguru_com_logo?e=1756944000&v=beta&t=igZxzQsgAo9ceE9_KaKH36JUi3SWtnnsjFgCL1mskM8',
     link: 'https://www.linkedin.com/company/ruangguru/',
     describe: `
       - Finished Golang backend development course.
