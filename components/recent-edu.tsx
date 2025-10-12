@@ -35,7 +35,7 @@ export default function RecentWork() {
   return (
     <section className='pb-24'>
       <div>
-        <h2 className='mb-12 text-left text-3xl font-bold sm:text-4xl'>
+        <h2 className='title mb-12 text-left text-3xl font-bold sm:text-4xl'>
           Education
         </h2>
 
