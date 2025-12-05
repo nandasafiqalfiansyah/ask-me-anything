@@ -307,19 +307,16 @@ export default function CrudExperiences() {
       const newExperiences = arrayMove(experiences, oldIndex, newIndex)
       setExperiences(newExperiences)
 
-      // Update sort_order in database
+      // Update sort_order in database using Promise.all for parallel updates
       setLoading(true)
-      const updates = newExperiences.map((exp, index) => ({
-        id: exp.id,
-        sort_order: index
-      }))
-
-      for (const update of updates) {
-        await supabase
+      const updates = newExperiences.map((exp, index) =>
+        supabase
           .from('experiences')
-          .update({ sort_order: update.sort_order })
-          .eq('id', update.id)
-      }
+          .update({ sort_order: index })
+          .eq('id', exp.id)
+      )
+
+      await Promise.all(updates)
 
       setLoading(false)
     }
