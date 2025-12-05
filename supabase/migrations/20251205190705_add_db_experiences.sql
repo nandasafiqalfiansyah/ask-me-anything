@@ -1,0 +1,21 @@
+-- supabase/migrations/20251205190705_add_db_experiences.sql
+
+-- Create experiences table
+create table if not exists experiences (
+  id serial primary key,
+  title text not null,
+  summary text not null,
+  published_at date not null,
+  logo_url text,
+  link text,
+  description text,
+  sort_order integer not null default 0,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+
+-- Create index for ordering
+create index if not exists experiences_sort_order_idx on experiences(sort_order);
+
+-- Create storage bucket for experience logos (run manually in Supabase dashboard or via supabase CLI)
+-- insert into storage.buckets (id, name, public) values ('experience-logos', 'experience-logos', true);
