@@ -23,7 +23,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-type Experience = {
+type Education = {
   id: number
   title: string
   summary: string
@@ -34,7 +34,7 @@ type Experience = {
   sort_order: number
 }
 
-type ExperienceFormData = {
+type EducationFormData = {
   title: string
   summary: string
   published_at: string
@@ -43,7 +43,7 @@ type ExperienceFormData = {
   description: string
 }
 
-const initialFormData: ExperienceFormData = {
+const initialFormData: EducationFormData = {
   title: '',
   summary: '',
   published_at: '',
@@ -52,19 +52,19 @@ const initialFormData: ExperienceFormData = {
   description: ''
 }
 
-function SortableExperienceItem({
-  experience,
+function SortableEducationItem({
+  education,
   onEdit,
   onDelete,
   loading
 }: {
-  experience: Experience
-  onEdit: (exp: Experience) => void
+  education: Education
+  onEdit: (edu: Education) => void
   onDelete: (id: number) => void
   loading: boolean
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: experience.id })
+    useSortable({ id: education.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -102,21 +102,21 @@ function SortableExperienceItem({
         </svg>
       </div>
 
-      {experience.logo_url && (
+      {education.logo_url && (
         <img
-          src={experience.logo_url}
-          alt={`${experience.title} logo`}
+          src={education.logo_url}
+          alt={`${education.title} logo`}
           className='h-12 w-12 flex-shrink-0 rounded object-contain'
         />
       )}
 
       <div className='flex-1 min-w-0'>
-        <div className='font-semibold truncate'>{experience.title}</div>
+        <div className='font-semibold truncate'>{education.title}</div>
         <div className='text-sm text-muted-foreground truncate'>
-          {experience.summary}
+          {education.summary}
         </div>
         <div className='text-xs text-muted-foreground'>
-          {new Date(experience.published_at).toLocaleDateString()}
+          {new Date(education.published_at).toLocaleDateString()}
         </div>
       </div>
 
@@ -124,7 +124,7 @@ function SortableExperienceItem({
         <Button
           size='sm'
           variant='secondary'
-          onClick={() => onEdit(experience)}
+          onClick={() => onEdit(education)}
           disabled={loading}
         >
           Edit
@@ -132,7 +132,7 @@ function SortableExperienceItem({
         <Button
           size='sm'
           variant='destructive'
-          onClick={() => onDelete(experience.id)}
+          onClick={() => onDelete(education.id)}
           disabled={loading}
         >
           Delete
@@ -142,11 +142,11 @@ function SortableExperienceItem({
   )
 }
 
-export default function CrudExperiences() {
-  const [experiences, setExperiences] = useState<Experience[]>([])
+export default function CrudEducation() {
+  const [education, setEducation] = useState<Education[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [formData, setFormData] = useState<ExperienceFormData>(initialFormData)
+  const [formData, setFormData] = useState<EducationFormData>(initialFormData)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -158,22 +158,22 @@ export default function CrudExperiences() {
     })
   )
 
-  const fetchExperiences = useCallback(async () => {
+  const fetchEducation = useCallback(async () => {
     setLoading(true)
     setError(null)
     const { data, error } = await supabase
-      .from('experiences')
+      .from('education')
       .select('*')
       .order('sort_order', { ascending: true })
 
     if (error) setError(error.message)
-    if (data) setExperiences(data as Experience[])
+    if (data) setEducation(data as Education[])
     setLoading(false)
   }, [])
 
   useEffect(() => {
-    fetchExperiences()
-  }, [fetchExperiences])
+    fetchEducation()
+  }, [fetchEducation])
 
   const uploadLogo = async (file: File): Promise<string | null> => {
     // Validate file type
@@ -196,7 +196,7 @@ export default function CrudExperiences() {
 
     setUploading(true)
     const { error: uploadError } = await supabase.storage
-      .from('experience-logos')
+      .from('education-logos')
       .upload(filePath, file)
 
     if (uploadError) {
@@ -207,7 +207,7 @@ export default function CrudExperiences() {
 
     const {
       data: { publicUrl }
-    } = supabase.storage.from('experience-logos').getPublicUrl(filePath)
+    } = supabase.storage.from('education-logos').getPublicUrl(filePath)
 
     setUploading(false)
     return publicUrl
@@ -229,7 +229,7 @@ export default function CrudExperiences() {
       }
     }
 
-    const experienceData = {
+    const educationData = {
       title: formData.title.trim(),
       summary: formData.summary.trim(),
       published_at: formData.published_at,
@@ -240,8 +240,8 @@ export default function CrudExperiences() {
 
     if (editingId) {
       const { error } = await supabase
-        .from('experiences')
-        .update({ ...experienceData, updated_at: new Date().toISOString() })
+        .from('education')
+        .update({ ...educationData, updated_at: new Date().toISOString() })
         .eq('id', editingId)
 
       if (error) {
@@ -250,16 +250,16 @@ export default function CrudExperiences() {
         setEditingId(null)
         setFormData(initialFormData)
         setLogoFile(null)
-        await fetchExperiences()
+        await fetchEducation()
       }
     } else {
       const maxSortOrder =
-        experiences.length > 0
-          ? Math.max(...experiences.map(e => e.sort_order))
+        education.length > 0
+          ? Math.max(...education.map(e => e.sort_order))
           : -1
 
-      const { error } = await supabase.from('experiences').insert({
-        ...experienceData,
+      const { error } = await supabase.from('education').insert({
+        ...educationData,
         sort_order: maxSortOrder + 1
       })
 
@@ -268,38 +268,38 @@ export default function CrudExperiences() {
       } else {
         setFormData(initialFormData)
         setLogoFile(null)
-        await fetchExperiences()
+        await fetchEducation()
       }
     }
 
     setLoading(false)
   }
 
-  const handleEdit = (exp: Experience) => {
-    setEditingId(exp.id)
+  const handleEdit = (edu: Education) => {
+    setEditingId(edu.id)
     setFormData({
-      title: exp.title,
-      summary: exp.summary,
-      published_at: exp.published_at,
-      logo_url: exp.logo_url || '',
-      link: exp.link || '',
-      description: exp.description || ''
+      title: edu.title,
+      summary: edu.summary,
+      published_at: edu.published_at,
+      logo_url: edu.logo_url || '',
+      link: edu.link || '',
+      description: edu.description || ''
     })
     setLogoFile(null)
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this experience?')) return
+    if (!confirm('Are you sure you want to delete this education entry?')) return
 
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.from('experiences').delete().eq('id', id)
+    const { error } = await supabase.from('education').delete().eq('id', id)
 
     if (error) {
       setError(error.message)
     } else {
-      await fetchExperiences()
+      await fetchEducation()
     }
 
     setLoading(false)
@@ -315,19 +315,19 @@ export default function CrudExperiences() {
     const { active, over } = event
 
     if (over && active.id !== over.id) {
-      const oldIndex = experiences.findIndex(e => e.id === active.id)
-      const newIndex = experiences.findIndex(e => e.id === over.id)
+      const oldIndex = education.findIndex(e => e.id === active.id)
+      const newIndex = education.findIndex(e => e.id === over.id)
 
-      const newExperiences = arrayMove(experiences, oldIndex, newIndex)
-      setExperiences(newExperiences)
+      const newEducation = arrayMove(education, oldIndex, newIndex)
+      setEducation(newEducation)
 
       // Update sort_order in database using Promise.all for parallel updates
       setLoading(true)
-      const updates = newExperiences.map((exp, index) =>
+      const updates = newEducation.map((edu, index) =>
         supabase
-          .from('experiences')
+          .from('education')
           .update({ sort_order: index })
-          .eq('id', exp.id)
+          .eq('id', edu.id)
       )
 
       await Promise.all(updates)
@@ -341,10 +341,10 @@ export default function CrudExperiences() {
       <div className='flex items-end justify-between gap-3'>
         <div>
           <h3 className='title text-left text-2xl font-bold sm:text-3xl'>
-            Experience
+            Education
           </h3>
           <p className='mt-3 text-sm text-muted-foreground'>
-            Kelola experience dengan drag & drop untuk mengatur urutan ✨
+            Kelola education dengan drag & drop untuk mengatur urutan ✨
           </p>
         </div>
         {(loading || uploading) && (
@@ -363,14 +363,14 @@ export default function CrudExperiences() {
       {/* Form */}
       <form onSubmit={handleSubmit} className='space-y-4 rounded-lg border p-4'>
         <h4 className='font-semibold'>
-          {editingId ? 'Edit Experience' : 'Add New Experience'}
+          {editingId ? 'Edit Education' : 'Add New Education'}
         </h4>
 
         <div className='grid gap-4 sm:grid-cols-2'>
           <div>
-            <label className='mb-1 block text-sm font-medium'>Title *</label>
+            <label className='mb-1 block text-sm font-medium'>Institution *</label>
             <Input
-              placeholder='Company/Organization name'
+              placeholder='University/School name'
               value={formData.title}
               onChange={e =>
                 setFormData(prev => ({ ...prev, title: e.target.value }))
@@ -380,9 +380,9 @@ export default function CrudExperiences() {
             />
           </div>
           <div>
-            <label className='mb-1 block text-sm font-medium'>Summary *</label>
+            <label className='mb-1 block text-sm font-medium'>Program *</label>
             <Input
-              placeholder='Job title/role'
+              placeholder='Degree/Program name'
               value={formData.summary}
               onChange={e =>
                 setFormData(prev => ({ ...prev, summary: e.target.value }))
@@ -396,7 +396,7 @@ export default function CrudExperiences() {
         <div className='grid gap-4 sm:grid-cols-2'>
           <div>
             <label className='mb-1 block text-sm font-medium'>
-              Published Date *
+              Date *
             </label>
             <Input
               type='date'
@@ -411,7 +411,7 @@ export default function CrudExperiences() {
           <div>
             <label className='mb-1 block text-sm font-medium'>Link</label>
             <Input
-              placeholder='https://linkedin.com/company/...'
+              placeholder='https://university.edu/...'
               value={formData.link}
               onChange={e =>
                 setFormData(prev => ({ ...prev, link: e.target.value }))
@@ -455,7 +455,7 @@ export default function CrudExperiences() {
         <div>
           <label className='mb-1 block text-sm font-medium'>Description</label>
           <Textarea
-            placeholder='Job description (supports markdown)...'
+            placeholder='Achievements, courses, etc. (supports markdown)...'
             value={formData.description}
             onChange={e =>
               setFormData(prev => ({ ...prev, description: e.target.value }))
@@ -475,7 +475,7 @@ export default function CrudExperiences() {
               !formData.summary.trim()
             }
           >
-            {editingId ? 'Update' : 'Add'} Experience
+            {editingId ? 'Update' : 'Add'} Education
           </Button>
           {editingId && (
             <Button
@@ -492,21 +492,21 @@ export default function CrudExperiences() {
 
       {/* List with Drag and Drop */}
       <div className='space-y-2'>
-        <h4 className='font-semibold'>Experience List (Drag to reorder)</h4>
+        <h4 className='font-semibold'>Education List (Drag to reorder)</h4>
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={experiences.map(e => e.id)}
+            items={education.map(e => e.id)}
             strategy={verticalListSortingStrategy}
           >
             <div className='space-y-2'>
-              {experiences.map(experience => (
-                <SortableExperienceItem
-                  key={experience.id}
-                  experience={experience}
+              {education.map(edu => (
+                <SortableEducationItem
+                  key={edu.id}
+                  education={edu}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   loading={loading}
@@ -516,9 +516,9 @@ export default function CrudExperiences() {
           </SortableContext>
         </DndContext>
 
-        {experiences.length === 0 && !loading && (
+        {education.length === 0 && !loading && (
           <p className='py-4 text-center text-sm text-muted-foreground'>
-            No experiences yet. Add one above!
+            No education entries yet. Add one above!
           </p>
         )}
       </div>
