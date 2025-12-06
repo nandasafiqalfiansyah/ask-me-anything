@@ -6,9 +6,11 @@ import { supabase } from '../../lib/supabaseClient'
 import { Button } from '@/components/ui/button'
 import CrudSkills from '@/components/crud-skills'
 import CrudExperiences from '@/components/crud-experiences'
+import CrudEducation from '@/components/crud-education'
+import CrudUsers from '@/components/crud-users'
 import { OverviewDummy } from '@/components/crud-overview'
 
-type PageKey = 'overview' | 'skills' | 'experiences' | 'users' | 'settings'
+type PageKey = 'overview' | 'skills' | 'experiences' | 'education' | 'users' | 'settings'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -36,6 +38,7 @@ export default function DashboardPage() {
       { key: 'overview', label: 'Overview' },
       { key: 'skills', label: 'Skills' },
       { key: 'experiences', label: 'Experiences' },
+      { key: 'education', label: 'Education' },
       { key: 'users', label: 'Users' },
       { key: 'settings', label: 'Settings' }
     ],
@@ -111,7 +114,17 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {active === 'users' && <UsersDummy />}
+          {active === 'education' && (
+            <div className='rounded-2xl border p-6'>
+              <CrudEducation />
+            </div>
+          )}
+
+          {active === 'users' && (
+            <div className='rounded-2xl border p-6'>
+              <CrudUsers />
+            </div>
+          )}
 
           {active === 'settings' && <SettingsDummy />}
         </div>
@@ -124,22 +137,7 @@ export default function DashboardPage() {
    Dummy Pages (swap target)
    ========================= */
 
-function UsersDummy() {
-  return (
-    <div className='rounded-2xl border p-6'>
-      <h3 className='mb-2 text-lg font-semibold'>Users</h3>
-      <p className='text-sm text-muted-foreground'>
-        Dummy list user di sini. Nanti sambung ke tabel <code>profiles</code>{' '}
-        atau semacamnya.
-      </p>
-      <div className='mt-4 space-y-2 text-sm'>
-        <div className='rounded-lg border p-3'>User A — a@example.com</div>
-        <div className='rounded-lg border p-3'>User B — b@example.com</div>
-        <div className='rounded-lg border p-3'>User C — c@example.com</div>
-      </div>
-    </div>
-  )
-}
+
 
 function SettingsDummy() {
   return (
@@ -162,11 +160,4 @@ function SettingsDummy() {
   )
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className='rounded-xl border p-4'>
-      <div className='text-xs uppercase text-muted-foreground'>{label}</div>
-      <div className='mt-1 text-2xl font-semibold'>{value}</div>
-    </div>
-  )
-}
+
