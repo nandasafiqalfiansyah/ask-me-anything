@@ -20,5 +20,8 @@ create index if not exists certificates_sort_order_idx on certificates(sort_orde
 -- Create index for company (for grouping)
 create index if not exists certificates_company_idx on certificates(company);
 
--- Create storage bucket for certificate images (run manually in Supabase dashboard or via supabase CLI)
--- insert into storage.buckets (id, name, public) values ('certificate-images', 'certificate-images', true);
+-- Create storage bucket for certificate images
+-- IMPORTANT: This must be created manually after running the migration
+-- Run this SQL in Supabase dashboard or via supabase CLI:
+-- insert into storage.buckets (id, name, public) values ('certificate-images', 'certificate-images', true)
+-- on conflict (id) do nothing;
