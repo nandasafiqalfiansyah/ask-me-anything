@@ -38,7 +38,7 @@ export default function RecentEdu() {
   const fetchEducation = async () => {
     const { data, error } = await supabase
       .from('education')
-      .select('*')
+      .select('id, title, summary, published_at, logo_url, link, description, sort_order')
       .order('sort_order', { ascending: true })
 
     if (!error && data) {

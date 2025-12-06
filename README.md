@@ -22,4 +22,49 @@ upvote one to request one!
   [workflow templates](https://github.com/nandasafiqalfiansyah/.github/tree/master/workflow-templates)
   I maintain
 
+## Setup for New Features
+
+This project includes a dashboard for managing your portfolio content including Skills, Experiences, Education, and Users.
+
+### Database Setup
+
+After deploying to Supabase, you'll need to:
+
+1. Run the database migrations:
+   ```bash
+   npm run mig
+   ```
+
+2. Create storage buckets in Supabase Dashboard:
+   - Create `experience-logos` bucket (set as public)
+   - Create `education-logos` bucket (set as public)
+   
+   Or run these SQL commands in your Supabase SQL editor:
+   ```sql
+   insert into storage.buckets (id, name, public) 
+   values ('experience-logos', 'experience-logos', true);
+   
+   insert into storage.buckets (id, name, public) 
+   values ('education-logos', 'education-logos', true);
+   ```
+
+3. Configure RLS (Row Level Security) policies for the storage buckets if needed.
+
+### Dashboard Features
+
+Access the dashboard at `/dashboard` (requires authentication):
+
+- **Overview**: Dashboard statistics and summary
+- **Skills**: Manage your tech stack skills
+- **Experiences**: Manage work experience entries with drag & drop ordering
+- **Education**: Manage education entries with drag & drop ordering
+- **Users**: View and manage registered users
+- **Settings**: Configure dashboard settings
+
+### Logo Upload Options
+
+For both Experiences and Education, you can:
+- Enter a URL directly for externally hosted logos
+- Upload an image file which will be stored in Supabase storage
+
   

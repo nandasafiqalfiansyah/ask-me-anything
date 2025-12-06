@@ -13,6 +13,15 @@ type User = {
   role?: string
 }
 
+/**
+ * CrudUsers component for managing user accounts.
+ * 
+ * SECURITY NOTE: This component uses Supabase admin API methods which require
+ * proper authentication and authorization. Ensure:
+ * 1. This component is only rendered within an authenticated dashboard
+ * 2. Supabase RLS policies restrict admin operations to authorized users
+ * 3. Service role key is properly secured and not exposed to clients
+ */
 export default function CrudUsers() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)

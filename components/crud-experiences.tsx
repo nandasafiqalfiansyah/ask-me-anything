@@ -176,6 +176,20 @@ export default function CrudExperiences() {
   }, [fetchExperiences])
 
   const uploadLogo = async (file: File): Promise<string | null> => {
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      setError('Invalid file type. Please upload an image (JPEG, PNG, GIF, or WebP).')
+      return null
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+    if (file.size > maxSize) {
+      setError('File too large. Maximum size is 5MB.')
+      return null
+    }
+
     const fileExt = file.name.split('.').pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
     const filePath = `logos/${fileName}`
