@@ -47,7 +47,7 @@ export default function CrudUsers() {
         id: user.id,
         email: user.email || 'No email',
         created_at: user.created_at,
-        last_sign_in_at: user.last_sign_in_at,
+        last_sign_in_at: user.last_sign_in_at ?? null,
         role: user.role
       }))
       setUsers(formattedUsers)
