@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabaseClient'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import DragDropImageUpload from '@/components/drag-drop-image-upload'
 import {
   DndContext,
   closestCenter,
@@ -421,35 +422,18 @@ export default function CrudExperiences() {
           </div>
         </div>
 
-        <div className='grid gap-4 sm:grid-cols-2'>
-          <div>
-            <label className='mb-1 block text-sm font-medium'>Logo URL</label>
-            <Input
-              placeholder='https://example.com/logo.png'
-              value={formData.logo_url}
-              onChange={e =>
-                setFormData(prev => ({ ...prev, logo_url: e.target.value }))
-              }
-              disabled={loading || !!logoFile}
-            />
-          </div>
-          <div>
-            <label className='mb-1 block text-sm font-medium'>
-              Or Upload Logo
-            </label>
-            <Input
-              type='file'
-              accept='image/*'
-              onChange={e => {
-                const file = e.target.files?.[0] || null
-                setLogoFile(file)
-                if (file) {
-                  setFormData(prev => ({ ...prev, logo_url: '' }))
-                }
-              }}
-              disabled={loading}
-            />
-          </div>
+        <div>
+          <DragDropImageUpload
+            onImageSelect={file => {
+              setLogoFile(file)
+              setFormData(prev => ({ ...prev, logo_url: '' }))
+            }}
+            currentImageUrl={formData.logo_url}
+            disabled={loading}
+          />
+          <p className='mt-1 text-xs text-muted-foreground'>
+            Max 1 image. Drag and drop or click to upload.
+          </p>
         </div>
 
         <div>

@@ -24,48 +24,48 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-type Education = {
+type Certificate = {
   id: number
   title: string
-  summary: string
-  published_at: string
-  logo_url: string | null
-  link: string | null
+  company: string
+  issued_date: string
+  certificate_url: string | null
+  image_url: string | null
   description: string | null
   sort_order: number
 }
 
-type EducationFormData = {
+type CertificateFormData = {
   title: string
-  summary: string
-  published_at: string
-  logo_url: string
-  link: string
+  company: string
+  issued_date: string
+  certificate_url: string
+  image_url: string
   description: string
 }
 
-const initialFormData: EducationFormData = {
+const initialFormData: CertificateFormData = {
   title: '',
-  summary: '',
-  published_at: '',
-  logo_url: '',
-  link: '',
+  company: '',
+  issued_date: '',
+  certificate_url: '',
+  image_url: '',
   description: ''
 }
 
-function SortableEducationItem({
-  education,
+function SortableCertificateItem({
+  certificate,
   onEdit,
   onDelete,
   loading
 }: {
-  education: Education
-  onEdit: (edu: Education) => void
+  certificate: Certificate
+  onEdit: (cert: Certificate) => void
   onDelete: (id: number) => void
   loading: boolean
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: education.id })
+    useSortable({ id: certificate.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -103,21 +103,21 @@ function SortableEducationItem({
         </svg>
       </div>
 
-      {education.logo_url && (
+      {certificate.image_url && (
         <img
-          src={education.logo_url}
-          alt={`${education.title} logo`}
-          className='h-12 w-12 flex-shrink-0 rounded object-contain'
+          src={certificate.image_url}
+          alt={`${certificate.title} certificate`}
+          className='h-12 w-12 flex-shrink-0 rounded object-cover'
         />
       )}
 
       <div className='flex-1 min-w-0'>
-        <div className='font-semibold truncate'>{education.title}</div>
+        <div className='font-semibold truncate'>{certificate.title}</div>
         <div className='text-sm text-muted-foreground truncate'>
-          {education.summary}
+          {certificate.company}
         </div>
         <div className='text-xs text-muted-foreground'>
-          {new Date(education.published_at).toLocaleDateString()}
+          {new Date(certificate.issued_date).toLocaleDateString()}
         </div>
       </div>
 
@@ -125,7 +125,7 @@ function SortableEducationItem({
         <Button
           size='sm'
           variant='secondary'
-          onClick={() => onEdit(education)}
+          onClick={() => onEdit(certificate)}
           disabled={loading}
         >
           Edit
@@ -133,7 +133,7 @@ function SortableEducationItem({
         <Button
           size='sm'
           variant='destructive'
-          onClick={() => onDelete(education.id)}
+          onClick={() => onDelete(certificate.id)}
           disabled={loading}
         >
           Delete
@@ -143,14 +143,15 @@ function SortableEducationItem({
   )
 }
 
-export default function CrudEducation() {
-  const [education, setEducation] = useState<Education[]>([])
+export default function CrudCertificates() {
+  const [certificates, setCertificates] = useState<Certificate[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [formData, setFormData] = useState<EducationFormData>(initialFormData)
+  const [formData, setFormData] = useState<CertificateFormData>(initialFormData)
   const [editingId, setEditingId] = useState<number | null>(null)
-  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [groupByCompany, setGroupByCompany] = useState(true)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -159,33 +160,31 @@ export default function CrudEducation() {
     })
   )
 
-  const fetchEducation = useCallback(async () => {
+  const fetchCertificates = useCallback(async () => {
     setLoading(true)
     setError(null)
     const { data, error } = await supabase
-      .from('education')
+      .from('certificates')
       .select('*')
       .order('sort_order', { ascending: true })
 
     if (error) setError(error.message)
-    if (data) setEducation(data as Education[])
+    if (data) setCertificates(data as Certificate[])
     setLoading(false)
   }, [])
 
   useEffect(() => {
-    fetchEducation()
-  }, [fetchEducation])
+    fetchCertificates()
+  }, [fetchCertificates])
 
-  const uploadLogo = async (file: File): Promise<string | null> => {
-    // Validate file type
+  const uploadImage = async (file: File): Promise<string | null> => {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(file.type)) {
       setError('Invalid file type. Please upload an image (JPEG, PNG, GIF, or WebP).')
       return null
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+    const maxSize = 5 * 1024 * 1024
     if (file.size > maxSize) {
       setError('File too large. Maximum size is 5MB.')
       return null
@@ -193,11 +192,11 @@ export default function CrudEducation() {
 
     const fileExt = file.name.split('.').pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
-    const filePath = `logos/${fileName}`
+    const filePath = `certificates/${fileName}`
 
     setUploading(true)
     const { error: uploadError } = await supabase.storage
-      .from('education-logos')
+      .from('certificate-images')
       .upload(filePath, file)
 
     if (uploadError) {
@@ -208,7 +207,7 @@ export default function CrudEducation() {
 
     const {
       data: { publicUrl }
-    } = supabase.storage.from('education-logos').getPublicUrl(filePath)
+    } = supabase.storage.from('certificate-images').getPublicUrl(filePath)
 
     setUploading(false)
     return publicUrl
@@ -216,33 +215,33 @@ export default function CrudEducation() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.title.trim() || !formData.summary.trim()) return
+    if (!formData.title.trim() || !formData.company.trim()) return
 
     setLoading(true)
     setError(null)
 
-    let logoUrl = formData.logo_url
+    let imageUrl = formData.image_url
 
-    if (logoFile) {
-      const uploadedUrl = await uploadLogo(logoFile)
+    if (imageFile) {
+      const uploadedUrl = await uploadImage(imageFile)
       if (uploadedUrl) {
-        logoUrl = uploadedUrl
+        imageUrl = uploadedUrl
       }
     }
 
-    const educationData = {
+    const certificateData = {
       title: formData.title.trim(),
-      summary: formData.summary.trim(),
-      published_at: formData.published_at,
-      logo_url: logoUrl || null,
-      link: formData.link.trim() || null,
+      company: formData.company.trim(),
+      issued_date: formData.issued_date,
+      certificate_url: formData.certificate_url.trim() || null,
+      image_url: imageUrl || null,
       description: formData.description.trim() || null
     }
 
     if (editingId) {
       const { error } = await supabase
-        .from('education')
-        .update({ ...educationData, updated_at: new Date().toISOString() })
+        .from('certificates')
+        .update({ ...certificateData, updated_at: new Date().toISOString() })
         .eq('id', editingId)
 
       if (error) {
@@ -250,17 +249,17 @@ export default function CrudEducation() {
       } else {
         setEditingId(null)
         setFormData(initialFormData)
-        setLogoFile(null)
-        await fetchEducation()
+        setImageFile(null)
+        await fetchCertificates()
       }
     } else {
       const maxSortOrder =
-        education.length > 0
-          ? Math.max(...education.map(e => e.sort_order))
+        certificates.length > 0
+          ? Math.max(...certificates.map(c => c.sort_order))
           : -1
 
-      const { error } = await supabase.from('education').insert({
-        ...educationData,
+      const { error } = await supabase.from('certificates').insert({
+        ...certificateData,
         sort_order: maxSortOrder + 1
       })
 
@@ -268,39 +267,39 @@ export default function CrudEducation() {
         setError(error.message)
       } else {
         setFormData(initialFormData)
-        setLogoFile(null)
-        await fetchEducation()
+        setImageFile(null)
+        await fetchCertificates()
       }
     }
 
     setLoading(false)
   }
 
-  const handleEdit = (edu: Education) => {
-    setEditingId(edu.id)
+  const handleEdit = (cert: Certificate) => {
+    setEditingId(cert.id)
     setFormData({
-      title: edu.title,
-      summary: edu.summary,
-      published_at: edu.published_at,
-      logo_url: edu.logo_url || '',
-      link: edu.link || '',
-      description: edu.description || ''
+      title: cert.title,
+      company: cert.company,
+      issued_date: cert.issued_date,
+      certificate_url: cert.certificate_url || '',
+      image_url: cert.image_url || '',
+      description: cert.description || ''
     })
-    setLogoFile(null)
+    setImageFile(null)
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this education entry?')) return
+    if (!confirm('Are you sure you want to delete this certificate?')) return
 
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.from('education').delete().eq('id', id)
+    const { error } = await supabase.from('certificates').delete().eq('id', id)
 
     if (error) {
       setError(error.message)
     } else {
-      await fetchEducation()
+      await fetchCertificates()
     }
 
     setLoading(false)
@@ -309,43 +308,50 @@ export default function CrudEducation() {
   const handleCancel = () => {
     setEditingId(null)
     setFormData(initialFormData)
-    setLogoFile(null)
+    setImageFile(null)
   }
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
 
     if (over && active.id !== over.id) {
-      const oldIndex = education.findIndex(e => e.id === active.id)
-      const newIndex = education.findIndex(e => e.id === over.id)
+      const oldIndex = certificates.findIndex(c => c.id === active.id)
+      const newIndex = certificates.findIndex(c => c.id === over.id)
 
-      const newEducation = arrayMove(education, oldIndex, newIndex)
-      setEducation(newEducation)
+      const newCertificates = arrayMove(certificates, oldIndex, newIndex)
+      setCertificates(newCertificates)
 
-      // Update sort_order in database using Promise.all for parallel updates
       setLoading(true)
-      const updates = newEducation.map((edu, index) =>
+      const updates = newCertificates.map((cert, index) =>
         supabase
-          .from('education')
+          .from('certificates')
           .update({ sort_order: index })
-          .eq('id', edu.id)
+          .eq('id', cert.id)
       )
 
       await Promise.all(updates)
-
       setLoading(false)
     }
   }
+
+  // Group certificates by company
+  const groupedCertificates = certificates.reduce((acc, cert) => {
+    if (!acc[cert.company]) {
+      acc[cert.company] = []
+    }
+    acc[cert.company].push(cert)
+    return acc
+  }, {} as Record<string, Certificate[]>)
 
   return (
     <div className='space-y-6'>
       <div className='flex items-end justify-between gap-3'>
         <div>
           <h3 className='title text-left text-2xl font-bold sm:text-3xl'>
-            Education
+            Certificates
           </h3>
           <p className='mt-3 text-sm text-muted-foreground'>
-            Kelola education dengan drag & drop untuk mengatur urutan ✨
+            Manage certificates with drag & drop to reorder. Group by company (e.g., Dicoding, Coursera) ✨
           </p>
         </div>
         {(loading || uploading) && (
@@ -364,14 +370,14 @@ export default function CrudEducation() {
       {/* Form */}
       <form onSubmit={handleSubmit} className='space-y-4 rounded-lg border p-4'>
         <h4 className='font-semibold'>
-          {editingId ? 'Edit Education' : 'Add New Education'}
+          {editingId ? 'Edit Certificate' : 'Add New Certificate'}
         </h4>
 
         <div className='grid gap-4 sm:grid-cols-2'>
           <div>
-            <label className='mb-1 block text-sm font-medium'>Institution *</label>
+            <label className='mb-1 block text-sm font-medium'>Certificate Title *</label>
             <Input
-              placeholder='University/School name'
+              placeholder='e.g., Machine Learning Specialization'
               value={formData.title}
               onChange={e =>
                 setFormData(prev => ({ ...prev, title: e.target.value }))
@@ -381,12 +387,12 @@ export default function CrudEducation() {
             />
           </div>
           <div>
-            <label className='mb-1 block text-sm font-medium'>Program *</label>
+            <label className='mb-1 block text-sm font-medium'>Company/Issuer *</label>
             <Input
-              placeholder='Degree/Program name'
-              value={formData.summary}
+              placeholder='e.g., Dicoding, Coursera, Google'
+              value={formData.company}
               onChange={e =>
-                setFormData(prev => ({ ...prev, summary: e.target.value }))
+                setFormData(prev => ({ ...prev, company: e.target.value }))
               }
               disabled={loading}
               required
@@ -397,25 +403,25 @@ export default function CrudEducation() {
         <div className='grid gap-4 sm:grid-cols-2'>
           <div>
             <label className='mb-1 block text-sm font-medium'>
-              Date *
+              Issued Date *
             </label>
             <Input
               type='date'
-              value={formData.published_at}
+              value={formData.issued_date}
               onChange={e =>
-                setFormData(prev => ({ ...prev, published_at: e.target.value }))
+                setFormData(prev => ({ ...prev, issued_date: e.target.value }))
               }
               disabled={loading}
               required
             />
           </div>
           <div>
-            <label className='mb-1 block text-sm font-medium'>Link</label>
+            <label className='mb-1 block text-sm font-medium'>Certificate URL</label>
             <Input
-              placeholder='https://university.edu/...'
-              value={formData.link}
+              placeholder='https://coursera.org/verify/...'
+              value={formData.certificate_url}
               onChange={e =>
-                setFormData(prev => ({ ...prev, link: e.target.value }))
+                setFormData(prev => ({ ...prev, certificate_url: e.target.value }))
               }
               disabled={loading}
             />
@@ -425,27 +431,27 @@ export default function CrudEducation() {
         <div>
           <DragDropImageUpload
             onImageSelect={file => {
-              setLogoFile(file)
-              setFormData(prev => ({ ...prev, logo_url: '' }))
+              setImageFile(file)
+              setFormData(prev => ({ ...prev, image_url: '' }))
             }}
-            currentImageUrl={formData.logo_url}
+            currentImageUrl={formData.image_url}
             disabled={loading}
           />
           <p className='mt-1 text-xs text-muted-foreground'>
-            Max 1 image. Drag and drop or click to upload.
+            Max 1 image. Drag and drop or click to upload certificate image.
           </p>
         </div>
 
         <div>
           <label className='mb-1 block text-sm font-medium'>Description</label>
           <Textarea
-            placeholder='Achievements, courses, etc. (supports markdown)...'
+            placeholder='Description or notes about the certificate...'
             value={formData.description}
             onChange={e =>
               setFormData(prev => ({ ...prev, description: e.target.value }))
             }
             disabled={loading}
-            rows={4}
+            rows={3}
           />
         </div>
 
@@ -456,10 +462,10 @@ export default function CrudEducation() {
               loading ||
               uploading ||
               !formData.title.trim() ||
-              !formData.summary.trim()
+              !formData.company.trim()
             }
           >
-            {editingId ? 'Update' : 'Add'} Education
+            {editingId ? 'Update' : 'Add'} Certificate
           </Button>
           {editingId && (
             <Button
@@ -474,35 +480,82 @@ export default function CrudEducation() {
         </div>
       </form>
 
-      {/* List with Drag and Drop */}
-      <div className='space-y-2'>
-        <h4 className='font-semibold'>Education List (Drag to reorder)</h4>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
+      {/* Toggle View */}
+      <div className='flex items-center gap-2'>
+        <label className='text-sm font-medium'>Group by Company:</label>
+        <Button
+          variant={groupByCompany ? 'default' : 'outline'}
+          size='sm'
+          onClick={() => setGroupByCompany(!groupByCompany)}
         >
-          <SortableContext
-            items={education.map(e => e.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            <div className='space-y-2'>
-              {education.map(edu => (
-                <SortableEducationItem
-                  key={edu.id}
-                  education={edu}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  loading={loading}
-                />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+          {groupByCompany ? 'Yes' : 'No'}
+        </Button>
+      </div>
 
-        {education.length === 0 && !loading && (
+      {/* List with Drag and Drop */}
+      <div className='space-y-4'>
+        <h4 className='font-semibold'>Certificate List (Drag to reorder)</h4>
+        
+        {groupByCompany ? (
+          // Grouped view by company
+          <div className='space-y-6'>
+            {Object.entries(groupedCertificates).map(([company, certs]) => (
+              <div key={company} className='space-y-2'>
+                <h5 className='text-lg font-semibold text-primary'>{company}</h5>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={certs.map(c => c.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className='space-y-2'>
+                      {certs.map(cert => (
+                        <SortableCertificateItem
+                          key={cert.id}
+                          certificate={cert}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                          loading={loading}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Ungrouped view
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={certificates.map(c => c.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className='space-y-2'>
+                {certificates.map(cert => (
+                  <SortableCertificateItem
+                    key={cert.id}
+                    certificate={cert}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    loading={loading}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
+
+        {certificates.length === 0 && !loading && (
           <p className='py-4 text-center text-sm text-muted-foreground'>
-            No education entries yet. Add one above!
+            No certificates yet. Add one above!
           </p>
         )}
       </div>

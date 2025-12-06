@@ -33,24 +33,43 @@ export default function CrudUsers() {
     setLoading(true)
     setError(null)
     
-    // Fetch users from auth.users through admin API
-    const { data: { users: authUsers }, error: usersError } = await supabase.auth.admin.listUsers()
+    try {
+      // Get current session for auth token
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        setError('Not authenticated')
+        setLoading(false)
+        return
+      }
 
-    if (usersError) {
-      setError(usersError.message)
-      setLoading(false)
-      return
-    }
+      // Fetch users through API route
+      const response = await fetch('/api/v1/users', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      })
 
-    if (authUsers) {
-      const formattedUsers = authUsers.map(user => ({
-        id: user.id,
-        email: user.email || 'No email',
-        created_at: user.created_at,
-        last_sign_in_at: user.last_sign_in_at ?? null,
-        role: user.role
-      }))
-      setUsers(formattedUsers)
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || 'Failed to fetch users')
+        setLoading(false)
+        return
+      }
+
+      if (data.users) {
+        const formattedUsers = data.users.map((user: any) => ({
+          id: user.id,
+          email: user.email || 'No email',
+          created_at: user.created_at,
+          last_sign_in_at: user.last_sign_in_at ?? null,
+          role: user.role
+        }))
+        setUsers(formattedUsers)
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch users')
     }
     
     setLoading(false)
@@ -66,12 +85,31 @@ export default function CrudUsers() {
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.admin.deleteUser(id)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        setError('Not authenticated')
+        setLoading(false)
+        return
+      }
 
-    if (error) {
-      setError(error.message)
-    } else {
-      await fetchUsers()
+      const response = await fetch(`/api/v1/users?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || 'Failed to delete user')
+      } else {
+        await fetchUsers()
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete user')
     }
 
     setLoading(false)
@@ -93,16 +131,38 @@ export default function CrudUsers() {
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.admin.updateUserById(editingId, {
-      email: editEmail.trim()
-    })
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        setError('Not authenticated')
+        setLoading(false)
+        return
+      }
 
-    if (error) {
-      setError(error.message)
-    } else {
-      setEditingId(null)
-      setEditEmail('')
-      await fetchUsers()
+      const response = await fetch('/api/v1/users', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: editingId,
+          email: editEmail.trim()
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || 'Failed to update user')
+      } else {
+        setEditingId(null)
+        setEditEmail('')
+        await fetchUsers()
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to update user')
     }
 
     setLoading(false)
