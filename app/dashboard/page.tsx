@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabaseClient'
 import { Button } from '@/components/ui/button'
 import CrudSkills from '@/components/crud-skills'
+import CrudExperiences from '@/components/crud-experiences'
 import { OverviewDummy } from '@/components/crud-overview'
 
-type PageKey = 'overview' | 'skills' | 'users' | 'settings'
+type PageKey = 'overview' | 'skills' | 'experiences' | 'users' | 'settings'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -34,6 +35,7 @@ export default function DashboardPage() {
     () => [
       { key: 'overview', label: 'Overview' },
       { key: 'skills', label: 'Skills' },
+      { key: 'experiences', label: 'Experiences' },
       { key: 'users', label: 'Users' },
       { key: 'settings', label: 'Settings' }
     ],
@@ -100,6 +102,12 @@ export default function DashboardPage() {
           {active === 'skills' && (
             <div className='rounded-2xl border p-6'>
               <CrudSkills />
+            </div>
+          )}
+
+          {active === 'experiences' && (
+            <div className='rounded-2xl border p-6'>
+              <CrudExperiences />
             </div>
           )}
 

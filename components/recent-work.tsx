@@ -3,141 +3,20 @@
 import Link from 'next/link'
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { RowSpacingIcon, Cross2Icon } from '@radix-ui/react-icons'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
+import { supabase } from '../lib/supabaseClient'
 
-// Array of post dataß
-const posts = [
-  {
-    title: 'Asah Lead By Dicoding',
-    summary: 'Fullstack developer',
-    publishedAt: '2025-09-01',
-    logo: 'https://media.licdn.com/dms/image/v2/D560BAQH0UsHUeiGDfw/company-logo_100_100/B56ZjAPNxWHUAU-/0/1755571872357?e=1761177600&v=beta&t=1pvHo8puCR36DumSYsBq0QsR_PXiGsMQcL8e2sQWYYw',
-    link: 'https://www.linkedin.com/company/',
-    describe: `
-      - soon.
-    `
-  },
-  {
-    title: 'Google Cloud Arcade Facilitator Program',
-    summary: 'Facilitator Program',
-    publishedAt: '2025-08-01',
-    logo: 'https://media.licdn.com/dms/image/v2/D560BAQE-l0EkmOf4eQ/company-logo_100_100/B56Zjq2fNhH8AY-/0/1756286809566/devrhylme1_logo?e=1761177600&v=beta&t=vMq05F-HvMhVcZQgVrrNHvTt9eRblfrO12EK3fAGZpk',
-    link: 'https://www.linkedin.com/company/',
-    describe: `
-      - soon.
-    `
-  },
-  {
-    title: 'Upwork',
-    summary: 'Backend developer',
-    publishedAt: '2024-04-07',
-    logo: 'https://media.licdn.com/dms/image/v2/D560BAQEWoTnM6mLBvg/company-logo_100_100/company-logo_100_100/0/1738994670720/upworkbd_logo?e=1761177600&v=beta&t=OVw6PwezXOrT0WgLHyVqXWDT1wgj-1jZl10ZxlTEXTM',
-    link: 'https://www.linkedin.com/company/upwork/',
-    describe: `
-      - Make golang to backend service for client.
-      - Shopify Store Setup and Customization.
-      - Developed and maintained backend services.
-      - Collaborates with English-speaking clients.
-      - Conducted code reviews and pair programming sessions
-      - Participated in team meetings with clients.
-      - deploy service to production make aws & alibaba cloud.
-      - Setting docker to deploy service.
-      - make microservice with golang.
-      - make documentation with swager or postman.
-      - soon.
-    `
-  },
-  {
-    title: 'Coding Camp powered by DBS Foundation ',
-    summary: 'Fullstack developer',
-    publishedAt: '2025-03-06',
-    logo: 'https://media.licdn.com/dms/image/v2/D560BAQEONBPsiZnU8w/company-logo_100_100/company-logo_100_100/0/1729482329489?e=1761177600&v=beta&t=w4k0eXyxFXZMO2MNqmJAIimNId42NanfQ9LKKN44I3k',
-    link: 'https://www.linkedin.com/company/coding-camp-powered-by-dbs-foundation/',
-    describe: `
-      - Developed a full-stack web application using Next.js and Prisma.
-      - Implemented RESTful APIs for data management.
-      - Collaborated with a team of developers to deliver project requirements.
-      - Conducted code reviews and pair programming sessions.
-      - Participated in team meetings and brainstorming sessions.
-      - Asisted in mentorin fullstack developer students.
-      - Setting docker to deploy backend service.
-      - Setting docker to deploy model service.
-      - Collaborated with the team to deliver project requirements.
-      - Conducted code reviews and pair programming sessions.
-    `
-  },
-  {
-    title: 'Ruangguru',
-    summary: 'Backend developer & Assistant Mentor',
-    publishedAt: '2024-01-07',
-    logo: 'https://media.licdn.com/dms/image/v2/C560BAQEIu6Alk0BuZA/company-logo_100_100/company-logo_100_100/0/1630621231627/ruangguru_com_logo?e=1761177600&v=beta&t=1-JF29t-iWd9Umae0QBNRcUVrGK3mI7lNt633SLhlfU',
-    link: 'https://www.linkedin.com/company/ruangguru/',
-    describe: `
-      - Finished Golang backend development course.
-      - Developed and maintained backend services.
-      - Mentored students in the Golang track.
-      - Collaborated with the team to deliver project requirements.
-      - Conducted code reviews and pair programming sessions.
-      - Participated in team meetings and brainstorming sessions.
-    `
-  },
-  {
-    title: 'Lintasarta Cloudeka 2023',
-    summary: 'Machine Learning developer',
-    publishedAt: '2023-10-30',
-    logo: 'https://media.licdn.com/dms/image/C560BAQEuItk7F_3JPQ/company-logo_200_200/0/1630645857701/lintasartacloudeka_logo?e=2147483647&v=beta&t=IdNaLjKgzVCTi4-BKH5Guud4VlRqjkRKrKarPgB9954',
-    link: 'https://www.linkedin.com/company/lintasarta-cloudeka/',
-    describe: `
-      - Finish dicoding exspert machine learning Course.
-      - Focused on machine learning make tensorflow.
-      - Monitoring make grafana and prometheus.
-      - deploy model to production make cloudeka cloud.
-      - setting docker to deploy model.
-    `
-  },
-  {
-    title: 'Bangkit Academy 2023',
-    summary: 'Cloud Computing developer &  Assistant Mentor',
-    publishedAt: '2023-08-01',
-    logo: 'https://media.licdn.com/dms/image/v2/C560BAQEVREspL4ipDQ/company-logo_200_200/company-logo_200_200/0/1630661916225/bangkit_academy_logo?e=2147483647&v=beta&t=m6uy-IMO31_-1cigjl17cDsCyFj6lVEit0WT4DmQOyg',
-    link: 'https://www.linkedin.com/company/bangkit-academy/',
-    describe: `
-      - Asistent Mentor students in cloud computing tracks.
-      - Delivered cloud computing courses.
-      - Collaborated with the team to deliver project requirements.
-      - Make backend service with express js and prisma.
-      - Setting docker to deploy backend service.
-      - Seting docker to deploy model service.
-      - Collaborated with the team to deliver project requirements.
-    `
-  },
-  {
-    title: 'Kariermu',
-    summary: 'English Course students intern',
-    publishedAt: '2023-08-01',
-    logo: 'https://cdn.sekolah.mu/upload/branding--4df889fc3ca549f692d8f354b155b1561644804821.png',
-    link: 'https://www.linkedin.com/company/kariermu/',
-    describe: `
-      - Conducted English courses for students.
-      - Facilitated career development sessions.
-      - Collaborated with the team to deliver project requirements.
-      - Conducted code reviews and pair programming sessions.
-    `
-  },
-  {
-    title: 'Ponorogo District Government',
-    summary: 'Full Stack developer intern',
-    publishedAt: '2023-07-01',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/4/4b/Lambang_Kabupaten_Ponorogo.png',
-    link: 'https://www.linkedin.com/company/ponorogo-district/',
-    describe: `
-      - Led a team intern of developers in building a web application.
-      - Designed and developed a website for the Ponorogo District Government.
-      - Collaborated with stakeholders to meet local government requirements.
-    `
-  }
-]
+type Experience = {
+  id: number
+  title: string
+  summary: string
+  published_at: string
+  logo_url: string | null
+  link: string | null
+  description: string | null
+  sort_order: number
+}
 
 // Utility function to format date
 function formatDate(dateString: string) {
@@ -151,6 +30,50 @@ function formatDate(dateString: string) {
 
 export default function RecentWork() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
+  const [experiences, setExperiences] = useState<Experience[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchExperiences()
+  }, [])
+
+  const fetchExperiences = async () => {
+    const { data, error } = await supabase
+      .from('experiences')
+      .select('*')
+      .order('sort_order', { ascending: true })
+
+    if (!error && data) {
+      setExperiences(data as Experience[])
+    }
+    setLoading(false)
+  }
+
+  if (loading) {
+    return (
+      <section className='pb-24'>
+        <div>
+          <h2 className='mb-12 text-left text-3xl font-bold sm:text-4xl title'>
+            Experience
+          </h2>
+          <p className='text-sm text-muted-foreground'>Loading experiences...</p>
+        </div>
+      </section>
+    )
+  }
+
+  if (experiences.length === 0) {
+    return (
+      <section className='pb-24'>
+        <div>
+          <h2 className='mb-12 text-left text-3xl font-bold sm:text-4xl title'>
+            Experience
+          </h2>
+          <p className='text-sm text-muted-foreground'>No experiences yet.</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className='pb-24'>
@@ -160,18 +83,20 @@ export default function RecentWork() {
         </h2>
 
         <ul className='flex flex-col gap-8'>
-          {posts.map((post, index) => (
+          {experiences.map((experience, index) => (
             <li
-              key={post.link}
+              key={experience.id}
               className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'
             >
               {/* Main Content */}
               <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6'>
-                <img
-                  src={post.logo}
-                  alt={`${post.title} logo`}
-                  className='h-16 w-16 flex-shrink-0 object-contain sm:h-20 sm:w-20'
-                />
+                {experience.logo_url && (
+                  <img
+                    src={experience.logo_url}
+                    alt={`${experience.title} logo`}
+                    className='h-16 w-16 flex-shrink-0 object-contain sm:h-20 sm:w-20'
+                  />
+                )}
 
                 <div>
                   <Collapsible.Root
@@ -182,35 +107,39 @@ export default function RecentWork() {
                   >
                     <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
                       <div>
-                        <span className='font-semibold'>{post.title}</span>
-                        <Collapsible.Trigger asChild>
-                          <button className='IconButton ml-2'>
-                            {openIndex === index ? (
-                              <Cross2Icon />
-                            ) : (
-                              <RowSpacingIcon />
-                            )}
-                          </button>
-                        </Collapsible.Trigger>
+                        <span className='font-semibold'>{experience.title}</span>
+                        {experience.description && (
+                          <Collapsible.Trigger asChild>
+                            <button className='IconButton ml-2'>
+                              {openIndex === index ? (
+                                <Cross2Icon />
+                              ) : (
+                                <RowSpacingIcon />
+                              )}
+                            </button>
+                          </Collapsible.Trigger>
+                        )}
                         <p className='mt-1 text-sm font-light text-muted-foreground'>
-                          {post.summary}
+                          {experience.summary}
                         </p>
                       </div>
                     </div>
 
-                    <Collapsible.Content className='mt-2'>
-                      <ReactMarkdown className='mt-1 text-sm font-light text-muted-foreground'>
-                        {post.describe}
-                      </ReactMarkdown>
-                    </Collapsible.Content>
+                    {experience.description && (
+                      <Collapsible.Content className='mt-2'>
+                        <ReactMarkdown className='mt-1 text-sm font-light text-muted-foreground'>
+                          {experience.description}
+                        </ReactMarkdown>
+                      </Collapsible.Content>
+                    )}
                   </Collapsible.Root>
                 </div>
               </div>
 
               {/* Date */}
-              {post.publishedAt && (
+              {experience.published_at && (
                 <p className='text-sm font-light text-gray-500 sm:text-right'>
-                  {formatDate(post.publishedAt)}
+                  {formatDate(experience.published_at)}
                 </p>
               )}
             </li>
