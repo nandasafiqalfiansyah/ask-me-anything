@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/collapsible"
 import { IoChevronDown } from 'react-icons/io5'
 
+const CONTENT_PREVIEW_LENGTH = 200
+
 type Project = {
   slug: string
   metadata: {
@@ -269,7 +271,7 @@ export default function CrudProjects() {
                 placeholder='my-awesome-project'
                 value={formData.slug}
                 onChange={e => setFormData({ ...formData, slug: e.target.value })}
-                disabled={loading || !isCreating}
+                disabled={loading}
               />
               <p className='mt-1 text-xs text-muted-foreground'>
                 Lowercase letters, numbers, and hyphens only
@@ -343,7 +345,9 @@ export default function CrudProjects() {
               <label className='text-sm font-medium'>Content (MDX)</label>
               <textarea
                 className='min-h-[300px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-                placeholder='## Your MDX content here&#10;&#10;Write your project description using Markdown...'
+                placeholder={`## Your MDX content here
+
+Write your project description using Markdown...`}
                 value={formData.content}
                 onChange={e => setFormData({ ...formData, content: e.target.value })}
                 disabled={loading}
@@ -433,7 +437,7 @@ export default function CrudProjects() {
                 )}
                 <div className='mt-2 rounded bg-muted p-2 text-xs font-mono'>
                   <div className='max-h-40 overflow-y-auto'>
-                    {project.content.substring(0, 200)}...
+                    {project.content.substring(0, CONTENT_PREVIEW_LENGTH)}...
                   </div>
                 </div>
               </div>

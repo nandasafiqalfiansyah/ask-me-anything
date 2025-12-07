@@ -4,6 +4,11 @@ import path from 'path'
 import matter from 'gray-matter'
 
 const projectsDir = path.join(process.cwd(), 'content', 'projects')
+const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+function validateSlug(slug: string): boolean {
+  return SLUG_REGEX.test(slug)
+}
 
 // GET all projects
 export async function GET() {
@@ -50,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     // Validate slug format (kebab-case)
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+    if (!validateSlug(slug)) {
       return NextResponse.json(
         { error: 'Invalid slug format. Use lowercase letters, numbers, and hyphens only.' },
         { status: 400 }
@@ -109,7 +114,7 @@ export async function PUT(request: Request) {
 
     // If slug is changing, validate new slug
     if (newSlug && newSlug !== slug) {
-      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(newSlug)) {
+      if (!validateSlug(newSlug)) {
         return NextResponse.json(
           { error: 'Invalid slug format. Use lowercase letters, numbers, and hyphens only.' },
           { status: 400 }
