@@ -62,6 +62,19 @@ After deploying to Supabase, you'll need to:
 
 3. Configure RLS (Row Level Security) policies for the storage buckets if needed.
 
+4. Seed the projects data:
+   
+   **Option A - Using SQL migration (Recommended):**
+   The migration file `20251207102600_seed_projects.sql` will automatically populate the projects table with existing MDX content when you run `npm run mig`.
+   
+   **Option B - Using the seed script:**
+   If you prefer to use the API-based seeding script:
+   ```bash
+   npm run seed:projects
+   ```
+   
+   This will read all MDX files from `content/projects/` and insert them into the database.
+
 ### Dashboard Features
 
 Access the dashboard at `/dashboard` (requires authentication):
