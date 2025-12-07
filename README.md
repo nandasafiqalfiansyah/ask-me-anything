@@ -40,6 +40,7 @@ After deploying to Supabase, you'll need to:
    - Create `education-logos` bucket (set as public)
    - Create `certificate-images` bucket (set as public)
    - Create `certificate-pdfs` bucket (set as public)
+   - Create `project-images` bucket (set as public)
    
    Or run these SQL commands in your Supabase SQL editor:
    ```sql
@@ -54,6 +55,9 @@ After deploying to Supabase, you'll need to:
    
    insert into storage.buckets (id, name, public) 
    values ('certificate-pdfs', 'certificate-pdfs', true);
+   
+   insert into storage.buckets (id, name, public) 
+   values ('project-images', 'project-images', true);
    ```
 
 3. Configure RLS (Row Level Security) policies for the storage buckets if needed.
@@ -75,18 +79,20 @@ Access the dashboard at `/dashboard` (requires authentication):
   - Upload certificate images or PDFs
   - Group by company/issuer
   - Drag & drop reordering
-- **Projects**: Manage project MDX files with integrated editor
+- **Projects**: Manage projects dynamically with Supabase database and storage
   - Create, edit, and delete projects
   - MDX content editor with live preview
   - Full metadata management (title, summary, tags, etc.)
+  - Image upload to Supabase storage
   - Slug validation and renaming support
+  - Dynamic content from database (no more static MDX files)
   - See [Projects Dashboard Documentation](docs/PROJECTS_DASHBOARD.md) for details
 - **Users**: View and manage registered users
 - **Settings**: Configure dashboard settings
 
 ### Logo and File Upload Options
 
-For Experiences, Education, and Certificates, you can:
+For Experiences, Education, Certificates, and Projects, you can:
 - Enter a URL directly for externally hosted files
 - Upload an image file which will be stored in Supabase storage
 - Upload PDF files for certificates (max 10MB)
