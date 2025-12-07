@@ -50,6 +50,11 @@ export default function CrudProjects() {
     setError(null)
     try {
       const res = await fetch('/api/v1/projects')
+      if (!res.ok) {
+        setError(`Failed to fetch projects: ${res.statusText}`)
+        setLoading(false)
+        return
+      }
       const data = await res.json()
       if (data.error) {
         setError(data.error)
@@ -437,7 +442,8 @@ Write your project description using Markdown...`}
                 )}
                 <div className='mt-2 rounded bg-muted p-2 text-xs font-mono'>
                   <div className='max-h-40 overflow-y-auto'>
-                    {project.content.substring(0, CONTENT_PREVIEW_LENGTH)}...
+                    {project.content.substring(0, CONTENT_PREVIEW_LENGTH)}
+                    {project.content.length > CONTENT_PREVIEW_LENGTH && '...'}
                   </div>
                 </div>
               </div>

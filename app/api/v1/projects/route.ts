@@ -13,6 +13,11 @@ function validateSlug(slug: string): boolean {
 // GET all projects
 export async function GET() {
   try {
+    // Check if projects directory exists
+    if (!fs.existsSync(projectsDir)) {
+      return NextResponse.json({ projects: [] })
+    }
+
     const files = fs.readdirSync(projectsDir)
     const projects = files
       .filter(file => file.endsWith('.mdx'))
@@ -28,8 +33,9 @@ export async function GET() {
         }
       })
       .sort((a, b) => {
-        const dateA = new Date(a.metadata.publishedAt ?? '')
-        const dateB = new Date(b.metadata.publishedAt ?? '')
+        // Handle missing or invalid dates
+        const dateA = a.metadata.publishedAt ? new Date(a.metadata.publishedAt) : new Date(0)
+        const dateB = b.metadata.publishedAt ? new Date(b.metadata.publishedAt) : new Date(0)
         return dateB.getTime() - dateA.getTime()
       })
 
