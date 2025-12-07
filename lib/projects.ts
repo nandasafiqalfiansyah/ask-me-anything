@@ -1,8 +1,4 @@
-import fs from 'fs'
-import path from 'path'
-import matter from 'gray-matter'
-
-const rootDirectory = path.join(process.cwd(), 'content', 'projects')
+import { supabaseAdmin } from './supabaseAdmin'
 
 export type Project = {
   metadata: ProjectMetadata
@@ -21,39 +17,69 @@ export type ProjectMetadata = {
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
   try {
-    const filePath = path.join(rootDirectory, `${slug}.mdx`)
-    const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' })
-    const { data, content } = matter(fileContent)
-    return { metadata: { ...data, slug }, content }
+    const { data: project, error } = await supabaseAdmin
+      .from('projects')
+      .select('*')
+      .eq('slug', slug)
+      .single()
+
+    if (error || !project) {
+      return null
+    }
+
+    return {
+      metadata: {
+        title: project.title,
+        summary: project.summary,
+        image: project.image_url,
+        author: project.author,
+        tags: project.tags || [],
+        publishedAt: project.published_at,
+        slug: project.slug
+      },
+      content: project.content
+    }
   } catch (error) {
+    console.error('Error fetching project by slug:', error)
     return null
   }
 }
 
 export async function getProjects(limit?: number): Promise<ProjectMetadata[]> {
-  const files = fs.readdirSync(rootDirectory)
+  try {
+    let query = supabaseAdmin
+      .from('projects')
+      .select('*')
+      .order('published_at', { ascending: false })
 
-  const projects = files
-    .map(file => getProjectMetadata(file))
-    .sort((a, b) => {
-      if (new Date(a.publishedAt ?? '') < new Date(b.publishedAt ?? '')) {
-        return 1
-      } else {
-        return -1
-      }
-    })
+    if (limit) {
+      query = query.limit(limit)
+    }
 
-  if (limit) {
-    return projects.slice(0, limit)
+    const { data: projects, error } = await query
+
+    if (error) {
+      console.error('Error fetching projects:', error)
+      return []
+    }
+
+    return (projects || []).map(project => ({
+      title: project.title,
+      summary: project.summary,
+      image: project.image_url,
+      author: project.author,
+      tags: project.tags || [],
+      publishedAt: project.published_at,
+      slug: project.slug
+    }))
+  } catch (error) {
+    console.error('Error fetching projects:', error)
+    return []
   }
-
-  return projects
 }
 
 export function getProjectMetadata(filepath: string): ProjectMetadata {
-  const slug = filepath.replace(/\.mdx$/, '')
-  const filePath = path.join(rootDirectory, filepath)
-  const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' })
-  const { data } = matter(fileContent)
-  return { ...data, slug }
+  // This function is deprecated and kept for backward compatibility
+  // In the new system, use getProjectBySlug or getProjects instead
+  throw new Error('getProjectMetadata is deprecated, use getProjects or getProjectBySlug instead')
 }

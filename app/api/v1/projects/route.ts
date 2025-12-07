@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-import matter from 'gray-matter'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
-const projectsDir = path.join(process.cwd(), 'content', 'projects')
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 function validateSlug(slug: string): boolean {
@@ -13,34 +10,36 @@ function validateSlug(slug: string): boolean {
 // GET all projects
 export async function GET() {
   try {
-    // Check if projects directory exists
-    if (!fs.existsSync(projectsDir)) {
-      return NextResponse.json({ projects: [] })
+    const { data: projects, error } = await supabaseAdmin
+      .from('projects')
+      .select('*')
+      .order('published_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching projects:', error)
+      return NextResponse.json(
+        { error: 'Failed to load projects' },
+        { status: 500 }
+      )
     }
 
-    const files = fs.readdirSync(projectsDir)
-    const projects = files
-      .filter(file => file.endsWith('.mdx'))
-      .map(file => {
-        const slug = file.replace(/\.mdx$/, '')
-        const filePath = path.join(projectsDir, file)
-        const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' })
-        const { data, content } = matter(fileContent)
-        return {
-          slug,
-          metadata: data,
-          content
-        }
-      })
-      .sort((a, b) => {
-        // Handle missing or invalid dates
-        const dateA = a.metadata.publishedAt ? new Date(a.metadata.publishedAt) : new Date(0)
-        const dateB = b.metadata.publishedAt ? new Date(b.metadata.publishedAt) : new Date(0)
-        return dateB.getTime() - dateA.getTime()
-      })
+    // Transform to match frontend expectations
+    const transformedProjects = (projects || []).map(project => ({
+      slug: project.slug,
+      metadata: {
+        title: project.title,
+        summary: project.summary,
+        image: project.image_url,
+        author: project.author,
+        tags: project.tags || [],
+        publishedAt: project.published_at
+      },
+      content: project.content
+    }))
 
-    return NextResponse.json({ projects })
+    return NextResponse.json({ projects: transformedProjects })
   } catch (error) {
+    console.error('Error in GET /api/v1/projects:', error)
     return NextResponse.json(
       { error: 'Failed to load projects' },
       { status: 500 }
@@ -60,6 +59,13 @@ export async function POST(request: Request) {
       )
     }
 
+    if (!metadata.title || !metadata.publishedAt) {
+      return NextResponse.json(
+        { error: 'Title and publishedAt are required in metadata' },
+        { status: 400 }
+      )
+    }
+
     // Validate slug format (kebab-case)
     if (!validateSlug(slug)) {
       return NextResponse.json(
@@ -68,24 +74,60 @@ export async function POST(request: Request) {
       )
     }
 
-    const filePath = path.join(projectsDir, `${slug}.mdx`)
+    // Check if slug already exists
+    const { data: existingProject } = await supabaseAdmin
+      .from('projects')
+      .select('slug')
+      .eq('slug', slug)
+      .single()
 
-    // Check if file already exists
-    if (fs.existsSync(filePath)) {
+    if (existingProject) {
       return NextResponse.json(
         { error: 'Project with this slug already exists' },
         { status: 409 }
       )
     }
 
-    // Create MDX content with frontmatter
-    const mdxContent = matter.stringify(content, metadata)
-    fs.writeFileSync(filePath, mdxContent, 'utf8')
+    // Get the highest sort_order to append new project at the end
+    const { data: maxSortOrder } = await supabaseAdmin
+      .from('projects')
+      .select('sort_order')
+      .order('sort_order', { ascending: false })
+      .limit(1)
+      .single()
+
+    const nextSortOrder = (maxSortOrder?.sort_order ?? -1) + 1
+
+    // Insert into database
+    const { data: newProject, error } = await supabaseAdmin
+      .from('projects')
+      .insert({
+        slug,
+        title: metadata.title,
+        summary: metadata.summary || null,
+        image_url: metadata.image || null,
+        author: metadata.author || 'ndav',
+        tags: metadata.tags || [],
+        published_at: metadata.publishedAt,
+        content,
+        sort_order: nextSortOrder
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating project:', error)
+      return NextResponse.json(
+        { error: 'Failed to create project in database' },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json({ 
       success: true, 
       message: 'Project created successfully',
-      slug 
+      slug,
+      project: newProject
     })
   } catch (error) {
     console.error('Error creating project:', error)
@@ -108,10 +150,21 @@ export async function PUT(request: Request) {
       )
     }
 
-    const oldFilePath = path.join(projectsDir, `${slug}.mdx`)
+    if (!metadata.title || !metadata.publishedAt) {
+      return NextResponse.json(
+        { error: 'Title and publishedAt are required in metadata' },
+        { status: 400 }
+      )
+    }
 
-    // Check if original file exists
-    if (!fs.existsSync(oldFilePath)) {
+    // Check if original project exists
+    const { data: existingProject } = await supabaseAdmin
+      .from('projects')
+      .select('*')
+      .eq('slug', slug)
+      .single()
+
+    if (!existingProject) {
       return NextResponse.json(
         { error: 'Project not found' },
         { status: 404 }
@@ -119,6 +172,8 @@ export async function PUT(request: Request) {
     }
 
     // If slug is changing, validate new slug
+    const finalSlug = newSlug && newSlug !== slug ? newSlug : slug
+    
     if (newSlug && newSlug !== slug) {
       if (!validateSlug(newSlug)) {
         return NextResponse.json(
@@ -127,37 +182,55 @@ export async function PUT(request: Request) {
         )
       }
 
-      const newFilePath = path.join(projectsDir, `${newSlug}.mdx`)
-      
       // Check if new slug already exists
-      if (fs.existsSync(newFilePath)) {
+      const { data: duplicateProject } = await supabaseAdmin
+        .from('projects')
+        .select('slug')
+        .eq('slug', newSlug)
+        .single()
+
+      if (duplicateProject) {
         return NextResponse.json(
           { error: 'A project with the new slug already exists' },
           { status: 409 }
         )
       }
-
-      // Create new file and delete old one
-      const mdxContent = matter.stringify(content, metadata)
-      fs.writeFileSync(newFilePath, mdxContent, 'utf8')
-      fs.unlinkSync(oldFilePath)
-
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Project updated and renamed successfully',
-        slug: newSlug 
-      })
-    } else {
-      // Just update the existing file
-      const mdxContent = matter.stringify(content, metadata)
-      fs.writeFileSync(oldFilePath, mdxContent, 'utf8')
-
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Project updated successfully',
-        slug 
-      })
     }
+
+    // Update the project
+    const { data: updatedProject, error } = await supabaseAdmin
+      .from('projects')
+      .update({
+        slug: finalSlug,
+        title: metadata.title,
+        summary: metadata.summary || null,
+        image_url: metadata.image || null,
+        author: metadata.author || 'ndav',
+        tags: metadata.tags || [],
+        published_at: metadata.publishedAt,
+        content,
+        updated_at: new Date().toISOString()
+      })
+      .eq('slug', slug)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating project:', error)
+      return NextResponse.json(
+        { error: 'Failed to update project in database' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      message: newSlug && newSlug !== slug 
+        ? 'Project updated and renamed successfully' 
+        : 'Project updated successfully',
+      slug: finalSlug,
+      project: updatedProject
+    })
   } catch (error) {
     console.error('Error updating project:', error)
     return NextResponse.json(
@@ -179,18 +252,45 @@ export async function DELETE(request: Request) {
       )
     }
 
-    const filePath = path.join(projectsDir, `${slug}.mdx`)
+    // Check if project exists
+    const { data: existingProject } = await supabaseAdmin
+      .from('projects')
+      .select('id, image_url')
+      .eq('slug', slug)
+      .single()
 
-    // Check if file exists
-    if (!fs.existsSync(filePath)) {
+    if (!existingProject) {
       return NextResponse.json(
         { error: 'Project not found' },
         { status: 404 }
       )
     }
 
-    // Delete the file
-    fs.unlinkSync(filePath)
+    // If there's an image stored in Supabase storage, delete it
+    if (existingProject.image_url && existingProject.image_url.includes('supabase')) {
+      try {
+        const urlParts = existingProject.image_url.split('/')
+        const fileName = urlParts[urlParts.length - 1]
+        await supabaseAdmin.storage.from('project-images').remove([fileName])
+      } catch (storageError) {
+        console.error('Error deleting image from storage:', storageError)
+        // Continue with project deletion even if image deletion fails
+      }
+    }
+
+    // Delete the project
+    const { error } = await supabaseAdmin
+      .from('projects')
+      .delete()
+      .eq('slug', slug)
+
+    if (error) {
+      console.error('Error deleting project:', error)
+      return NextResponse.json(
+        { error: 'Failed to delete project from database' },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json({ 
       success: true, 

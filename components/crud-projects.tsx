@@ -304,13 +304,56 @@ export default function CrudProjects() {
             </div>
 
             <div>
-              <label className='text-sm font-medium'>Image URL</label>
-              <Input
-                placeholder='https://example.com/image.jpg'
-                value={formData.image}
-                onChange={e => setFormData({ ...formData, image: e.target.value })}
-                disabled={loading}
-              />
+              <label className='text-sm font-medium'>Image</label>
+              <div className='space-y-2'>
+                <Input
+                  placeholder='Enter URL or upload an image'
+                  value={formData.image}
+                  onChange={e => setFormData({ ...formData, image: e.target.value })}
+                  disabled={loading}
+                />
+                <div className='flex items-center gap-2'>
+                  <Input
+                    type='file'
+                    accept='image/*'
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        setLoading(true)
+                        try {
+                          const formData = new FormData()
+                          formData.append('file', file)
+                          const res = await fetch('/api/v1/projects/upload', {
+                            method: 'POST',
+                            body: formData
+                          })
+                          const data = await res.json()
+                          if (data.error) {
+                            setError(data.error)
+                          } else {
+                            setFormData(prev => ({ ...prev, image: data.url }))
+                          }
+                        } catch (err) {
+                          setError('Failed to upload image')
+                        }
+                        setLoading(false)
+                      }
+                    }}
+                    disabled={loading}
+                    className='flex-1'
+                  />
+                  {formData.image && (
+                    <a
+                      href={formData.image}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-xs text-primary hover:underline'
+                    >
+                      Preview
+                    </a>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div>
