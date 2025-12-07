@@ -31,6 +31,7 @@ type Certificate = {
   issued_date: string
   certificate_url: string | null
   image_url: string | null
+  pdf_url: string | null
   description: string | null
   sort_order: number
 }
@@ -41,6 +42,7 @@ type CertificateFormData = {
   issued_date: string
   certificate_url: string
   image_url: string
+  pdf_url: string
   description: string
 }
 
@@ -50,6 +52,7 @@ const initialFormData: CertificateFormData = {
   issued_date: '',
   certificate_url: '',
   image_url: '',
+  pdf_url: '',
   description: ''
 }
 
@@ -150,6 +153,7 @@ export default function CrudCertificates() {
   const [formData, setFormData] = useState<CertificateFormData>(initialFormData)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
+  const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [groupByCompany, setGroupByCompany] = useState(true)
 
@@ -213,6 +217,40 @@ export default function CrudCertificates() {
     return publicUrl
   }
 
+  const uploadPDF = async (file: File): Promise<string | null> => {
+    if (file.type !== 'application/pdf') {
+      setError('Invalid file type. Please upload a PDF file.')
+      return null
+    }
+
+    const maxSize = 10 * 1024 * 1024 // 10MB for PDFs
+    if (file.size > maxSize) {
+      setError('PDF too large. Maximum size is 10MB.')
+      return null
+    }
+
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.pdf`
+    const filePath = `certificates/${fileName}`
+
+    setUploading(true)
+    const { error: uploadError } = await supabase.storage
+      .from('certificate-pdfs')
+      .upload(filePath, file)
+
+    if (uploadError) {
+      setError(`PDF upload failed: ${uploadError.message}`)
+      setUploading(false)
+      return null
+    }
+
+    const {
+      data: { publicUrl }
+    } = supabase.storage.from('certificate-pdfs').getPublicUrl(filePath)
+
+    setUploading(false)
+    return publicUrl
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.title.trim() || !formData.company.trim()) return
@@ -221,11 +259,19 @@ export default function CrudCertificates() {
     setError(null)
 
     let imageUrl = formData.image_url
+    let pdfUrl = formData.pdf_url
 
     if (imageFile) {
       const uploadedUrl = await uploadImage(imageFile)
       if (uploadedUrl) {
         imageUrl = uploadedUrl
+      }
+    }
+
+    if (pdfFile) {
+      const uploadedPdfUrl = await uploadPDF(pdfFile)
+      if (uploadedPdfUrl) {
+        pdfUrl = uploadedPdfUrl
       }
     }
 
@@ -235,6 +281,7 @@ export default function CrudCertificates() {
       issued_date: formData.issued_date,
       certificate_url: formData.certificate_url.trim() || null,
       image_url: imageUrl || null,
+      pdf_url: pdfUrl || null,
       description: formData.description.trim() || null
     }
 
@@ -250,6 +297,7 @@ export default function CrudCertificates() {
         setEditingId(null)
         setFormData(initialFormData)
         setImageFile(null)
+        setPdfFile(null)
         await fetchCertificates()
       }
     } else {
@@ -268,6 +316,7 @@ export default function CrudCertificates() {
       } else {
         setFormData(initialFormData)
         setImageFile(null)
+        setPdfFile(null)
         await fetchCertificates()
       }
     }
@@ -283,9 +332,11 @@ export default function CrudCertificates() {
       issued_date: cert.issued_date,
       certificate_url: cert.certificate_url || '',
       image_url: cert.image_url || '',
+      pdf_url: cert.pdf_url || '',
       description: cert.description || ''
     })
     setImageFile(null)
+    setPdfFile(null)
   }
 
   const handleDelete = async (id: number) => {
@@ -309,6 +360,7 @@ export default function CrudCertificates() {
     setEditingId(null)
     setFormData(initialFormData)
     setImageFile(null)
+    setPdfFile(null)
   }
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -439,6 +491,42 @@ export default function CrudCertificates() {
           />
           <p className='mt-1 text-xs text-muted-foreground'>
             Max 1 image. Drag and drop or click to upload certificate image.
+          </p>
+        </div>
+
+        <div>
+          <label className='mb-1 block text-sm font-medium'>Certificate PDF</label>
+          <Input
+            type='file'
+            accept='application/pdf'
+            onChange={e => {
+              const file = e.target.files?.[0]
+              if (file) {
+                setPdfFile(file)
+                setFormData(prev => ({ ...prev, pdf_url: '' }))
+              }
+            }}
+            disabled={loading}
+          />
+          {formData.pdf_url && !pdfFile && (
+            <div className='mt-2 flex items-center gap-2'>
+              <a
+                href={formData.pdf_url}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-sm text-primary hover:underline'
+              >
+                View current PDF
+              </a>
+            </div>
+          )}
+          {pdfFile && (
+            <p className='mt-1 text-xs text-muted-foreground'>
+              Selected: {pdfFile.name} ({(pdfFile.size / 1024 / 1024).toFixed(2)} MB)
+            </p>
+          )}
+          <p className='mt-1 text-xs text-muted-foreground'>
+            Upload PDF certificate (max 10MB). Will be automatically stored.
           </p>
         </div>
 

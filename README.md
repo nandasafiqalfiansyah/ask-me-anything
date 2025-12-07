@@ -38,6 +38,8 @@ After deploying to Supabase, you'll need to:
 2. Create storage buckets in Supabase Dashboard:
    - Create `experience-logos` bucket (set as public)
    - Create `education-logos` bucket (set as public)
+   - Create `certificate-images` bucket (set as public)
+   - Create `certificate-pdfs` bucket (set as public)
    
    Or run these SQL commands in your Supabase SQL editor:
    ```sql
@@ -46,6 +48,12 @@ After deploying to Supabase, you'll need to:
    
    insert into storage.buckets (id, name, public) 
    values ('education-logos', 'education-logos', true);
+   
+   insert into storage.buckets (id, name, public) 
+   values ('certificate-images', 'certificate-images', true);
+   
+   insert into storage.buckets (id, name, public) 
+   values ('certificate-pdfs', 'certificate-pdfs', true);
    ```
 
 3. Configure RLS (Row Level Security) policies for the storage buckets if needed.
@@ -54,17 +62,40 @@ After deploying to Supabase, you'll need to:
 
 Access the dashboard at `/dashboard` (requires authentication):
 
-- **Overview**: Dashboard statistics and summary
+- **Overview**: Dashboard statistics with interactive charts
+  - Real-time statistics for all content types
+  - Bar chart for content distribution
+  - Pie chart for skills by category
+  - Line chart for certificate acquisition timeline
+  - Quick insights and metrics
 - **Skills**: Manage your tech stack skills
 - **Experiences**: Manage work experience entries with drag & drop ordering
 - **Education**: Manage education entries with drag & drop ordering
+- **Certificates**: Manage certificates with image and PDF upload support
+  - Upload certificate images or PDFs
+  - Group by company/issuer
+  - Drag & drop reordering
 - **Users**: View and manage registered users
 - **Settings**: Configure dashboard settings
 
-### Logo Upload Options
+### Logo and File Upload Options
 
-For both Experiences and Education, you can:
-- Enter a URL directly for externally hosted logos
+For Experiences, Education, and Certificates, you can:
+- Enter a URL directly for externally hosted files
 - Upload an image file which will be stored in Supabase storage
+- Upload PDF files for certificates (max 10MB)
+
+### Certificate Page
+
+View all certificates at `/certificate`:
+- Beautiful card-based layout
+- Group by company or view all
+- Click to preview certificates in modal
+- Support for both image and PDF certificates
+- Direct links to verify certificates
+
+### Analytics
+
+This project includes Vercel Analytics integration for tracking page views and visitor statistics.
 
   
