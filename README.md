@@ -75,6 +75,12 @@ Access the dashboard at `/dashboard` (requires authentication):
   - Upload certificate images or PDFs
   - Group by company/issuer
   - Drag & drop reordering
+- **Projects**: Manage project MDX files with integrated editor
+  - Create, edit, and delete projects
+  - MDX content editor with live preview
+  - Full metadata management (title, summary, tags, etc.)
+  - Slug validation and renaming support
+  - See [Projects Dashboard Documentation](docs/PROJECTS_DASHBOARD.md) for details
 - **Users**: View and manage registered users
 - **Settings**: Configure dashboard settings
 

@@ -9,9 +9,10 @@ import CrudExperiences from '@/components/crud-experiences'
 import CrudEducation from '@/components/crud-education'
 import CrudUsers from '@/components/crud-users'
 import CrudCertificates from '@/components/crud-certificates'
+import CrudProjects from '@/components/crud-projects'
 import { OverviewDummy } from '@/components/crud-overview'
 
-type PageKey = 'overview' | 'skills' | 'experiences' | 'education' | 'certificates' | 'users' | 'settings'
+type PageKey = 'overview' | 'skills' | 'experiences' | 'education' | 'certificates' | 'projects' | 'users' | 'settings'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -41,6 +42,7 @@ export default function DashboardPage() {
       { key: 'experiences', label: 'Experiences' },
       { key: 'education', label: 'Education' },
       { key: 'certificates', label: 'Certificates' },
+      { key: 'projects', label: 'Projects' },
       { key: 'users', label: 'Users' },
       { key: 'settings', label: 'Settings' }
     ],
@@ -125,6 +127,12 @@ export default function DashboardPage() {
           {active === 'certificates' && (
             <div className='rounded-2xl border p-6'>
               <CrudCertificates />
+            </div>
+          )}
+
+          {active === 'projects' && (
+            <div className='rounded-2xl border p-6'>
+              <CrudProjects />
             </div>
           )}
 
