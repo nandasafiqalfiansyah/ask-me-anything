@@ -1,27 +1,53 @@
+'use client'
+
 import Image from 'next/image'
+import { motion } from 'framer-motion'
 import authorImage from '@/public/images/authors/ndav.png'
 
 export default function Intro() {
   return (
     <section className='flex flex-col-reverse items-start gap-x-10 gap-y-4 pb-24 md:flex-row md:items-center'>
-      <div className='mt-2 flex-1 md:mt-0'>
-        <h1 className='title no-underline'>Hey, I&#39;m Nanda Safiq.</h1>
-        <p className='mt-3 font-light text-muted-foreground'>
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
+        className='mt-2 flex-1 md:mt-0'
+      >
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className='title no-underline'
+        >
+          Hey, I&#39;m Nanda Safiq.
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className='mt-3 font-light text-muted-foreground'
+        >
           I&#39;m a software engineer based in East java, Indonesia. I&#39;m
           passionate about learning new technologies and sharing knowledge with
           others.
-        </p>
-      </div>
-      <div className='relative'>
+        </motion.p>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        transition={{ duration: 0.8, delay: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
+        whileHover={{ scale: 1.05, rotate: 2 }}
+        className='relative'
+      >
         <Image
-          className='flex-1 rounded-lg grayscale'
+          className='flex-1 rounded-lg grayscale transition-all duration-300 hover:grayscale-0'
           src={authorImage}
           alt='Nanda Safiq Alfiansyah'
           width={190}
           height={175}
           priority
         />
-      </div>
+      </motion.div>
     </section>
   )
 }

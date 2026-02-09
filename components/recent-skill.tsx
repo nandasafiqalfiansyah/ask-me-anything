@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabaseClient'
 import { Badge } from '@/components/ui/badge'
 
@@ -22,18 +23,62 @@ export default function RecentSkill() {
     }
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.8, y: 20 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        duration: 0.4
+      }
+    }
+  }
+
   return (
-    <section className='pb-24'>
+    <motion.section
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-100px' }}
+      transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
+      className='pb-24'
+    >
       <div>
-        <h2 className='title mb-12'>Tech Stack</h2>
-        <div className='flex flex-wrap'>
+        <motion.h2
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className='title mb-12'
+        >
+          Tech Stack
+        </motion.h2>
+        <motion.div
+          variants={containerVariants}
+          initial='hidden'
+          whileInView='visible'
+          viewport={{ once: true, margin: '-50px' }}
+          className='flex flex-wrap'
+        >
           {skills.map((skill, index) => (
-            <Badge key={index} className='m-1'>
-              {skill}
-            </Badge>
+            <motion.div key={index} variants={itemVariants}>
+              <Badge className='m-1 cursor-default hover:scale-110 transition-transform'>
+                {skill}
+              </Badge>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   )
 }
