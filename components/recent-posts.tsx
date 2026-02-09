@@ -1,13 +1,14 @@
 import Link from 'next/link'
 import { getPosts } from '@/lib/posts'
 import Posts from '@/components/posts'
+import { MotionWrapper } from '@/components/motion-wrapper'
 
 export default async function RecentPosts() {
   const posts = await getPosts(4)
 
   return (
     <section className='pb-24'>
-      <div>
+      <MotionWrapper delay={0.2}>
         <h2 className='title mb-12'>Recent posts</h2>
         <Posts posts={posts} />
 
@@ -17,7 +18,7 @@ export default async function RecentPosts() {
         >
           <span>All posts</span>
         </Link>
-      </div>
+      </MotionWrapper>
     </section>
   )
 }

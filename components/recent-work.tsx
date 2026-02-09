@@ -5,6 +5,7 @@ import * as Collapsible from '@radix-ui/react-collapsible'
 import { RowSpacingIcon, Cross2Icon } from '@radix-ui/react-icons'
 import React, { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
+import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../lib/supabaseClient'
 
 type Experience = {
@@ -76,22 +77,44 @@ export default function RecentWork() {
   }
 
   return (
-    <section className='pb-24'>
+    <motion.section
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-100px' }}
+      transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
+      className='pb-24'
+    >
       <div>
-        <h2 className='mb-12 text-left text-3xl font-bold sm:text-4xl title'>
+        <motion.h2
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className='mb-12 text-left text-3xl font-bold sm:text-4xl title'
+        >
           Experience
-        </h2>
+        </motion.h2>
 
         <ul className='flex flex-col gap-8'>
           {experiences.map((experience, index) => (
-            <li
+            <motion.li
               key={experience.id}
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ x: 10 }}
               className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'
             >
               {/* Main Content */}
               <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6'>
                 {experience.logo_url && (
-                  <img
+                  <motion.img
+                    initial={{ scale: 0, rotate: -180 }}
+                    whileInView={{ scale: 1, rotate: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 + 0.2 }}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
                     src={experience.logo_url}
                     alt={`${experience.title} logo`}
                     className='h-16 w-16 flex-shrink-0 object-contain sm:h-20 sm:w-20'
@@ -110,13 +133,35 @@ export default function RecentWork() {
                         <span className='font-semibold'>{experience.title}</span>
                         {experience.description && (
                           <Collapsible.Trigger asChild>
-                            <button className='IconButton ml-2'>
-                              {openIndex === index ? (
-                                <Cross2Icon />
-                              ) : (
-                                <RowSpacingIcon />
-                              )}
-                            </button>
+                            <motion.button
+                              whileHover={{ scale: 1.2, rotate: 180 }}
+                              whileTap={{ scale: 0.9 }}
+                              className='IconButton ml-2'
+                            >
+                              <AnimatePresence mode='wait'>
+                                {openIndex === index ? (
+                                  <motion.div
+                                    key='cross'
+                                    initial={{ rotate: -90, opacity: 0 }}
+                                    animate={{ rotate: 0, opacity: 1 }}
+                                    exit={{ rotate: 90, opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                  >
+                                    <Cross2Icon />
+                                  </motion.div>
+                                ) : (
+                                  <motion.div
+                                    key='row'
+                                    initial={{ rotate: -90, opacity: 0 }}
+                                    animate={{ rotate: 0, opacity: 1 }}
+                                    exit={{ rotate: 90, opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                  >
+                                    <RowSpacingIcon />
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </motion.button>
                           </Collapsible.Trigger>
                         )}
                         <p className='mt-1 text-sm font-light text-muted-foreground'>
@@ -125,13 +170,23 @@ export default function RecentWork() {
                       </div>
                     </div>
 
-                    {experience.description && (
-                      <Collapsible.Content className='mt-2'>
-                        <ReactMarkdown className='mt-1 text-sm font-light text-muted-foreground'>
-                          {experience.description}
-                        </ReactMarkdown>
-                      </Collapsible.Content>
-                    )}
+                    <AnimatePresence>
+                      {experience.description && openIndex === index && (
+                        <Collapsible.Content asChild forceMount>
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className='overflow-hidden'
+                          >
+                            <ReactMarkdown className='mt-2 text-sm font-light text-muted-foreground'>
+                              {experience.description}
+                            </ReactMarkdown>
+                          </motion.div>
+                        </Collapsible.Content>
+                      )}
+                    </AnimatePresence>
                   </Collapsible.Root>
                 </div>
               </div>
@@ -142,19 +197,25 @@ export default function RecentWork() {
                   {formatDate(experience.published_at)}
                 </p>
               )}
-            </li>
+            </motion.li>
           ))}
         </ul>
 
-        <div className='mt-8 text-left'>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className='mt-8 text-left'
+        >
           <Link
             href='https://www.linkedin.com/in/nanda-safiq-alfiansyah'
             className='inline-flex gap-2 text-sm font-medium text-muted-foreground underline decoration-1 underline-offset-2 transition-colors hover:text-foreground'
           >
             <span>All Work Experience</span>
           </Link>
-        </div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   )
 }

@@ -1,13 +1,14 @@
 import Link from 'next/link'
 import { getProjects } from '@/lib/projects'
 import Projects from '@/components/projects'
+import { MotionWrapper } from '@/components/motion-wrapper'
 
 export default async function RecentProjects() {
   const projects = await getProjects(2)
 
   return (
     <section className='pb-24'>
-      <div>
+      <MotionWrapper delay={0.2}>
         <h2 className='title mb-12'>Recent projects</h2>
         <Projects projects={projects} />
         <Link
@@ -16,7 +17,7 @@ export default async function RecentProjects() {
         >
           <span>All projects</span>
         </Link>
-      </div>
+      </MotionWrapper>
     </section>
   )
 }
