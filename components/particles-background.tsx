@@ -29,41 +29,17 @@ export default function ParticlesBackground() {
           value: 'transparent'
         }
       },
-      fpsLimit: 120,
+      fpsLimit: 60,
       interactivity: {
         events: {
-          onClick: {
-            enable: true,
-            mode: 'push'
-          },
-          onHover: {
-            enable: true,
-            mode: 'repulse'
-          },
           resize: {
             enable: true
-          }
-        },
-        modes: {
-          push: {
-            quantity: 4
-          },
-          repulse: {
-            distance: 100,
-            duration: 0.4
           }
         }
       },
       particles: {
         color: {
-          value: theme === 'dark' ? '#ffffff' : '#000000'
-        },
-        links: {
-          color: theme === 'dark' ? '#ffffff' : '#000000',
-          distance: 150,
-          enable: true,
-          opacity: 0.2,
-          width: 1
+          value: theme === 'dark' ? '#ffffff' : '#888888'
         },
         move: {
           direction: 'none',
@@ -71,26 +47,32 @@ export default function ParticlesBackground() {
           outModes: {
             default: 'bounce'
           },
-          random: false,
-          speed: 1,
+          random: true,
+          speed: 0.3,
           straight: false
         },
         number: {
           density: {
             enable: true,
-            height: 800,
-            width: 800
+            height: 1000,
+            width: 1000
           },
-          value: 80
+          value: 50
         },
         opacity: {
-          value: 0.3
+          value: { min: 0.1, max: 0.8 },
+          animation: {
+            enable: true,
+            speed: 0.5,
+            minimumValue: 0.1,
+            sync: false
+          }
         },
         shape: {
           type: 'circle'
         },
         size: {
-          value: { min: 1, max: 3 }
+          value: { min: 0.5, max: 2 }
         }
       },
       detectRetina: true
