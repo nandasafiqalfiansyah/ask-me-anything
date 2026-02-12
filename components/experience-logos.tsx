@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
 type Experience = {
@@ -14,11 +14,7 @@ export default function ExperienceLogos() {
   const [experiences, setExperiences] = useState<Experience[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchExperiences()
-  }, [])
-
-  const fetchExperiences = async () => {
+  const fetchExperiences = useCallback(async () => {
     const { data, error } = await supabase
       .from('experiences')
       .select('id, title, logo_url')
@@ -31,7 +27,11 @@ export default function ExperienceLogos() {
       setExperiences(experiencesWithLogos)
     }
     setLoading(false)
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchExperiences()
+  }, [fetchExperiences])
 
   if (loading || experiences.length === 0) {
     return null
@@ -39,6 +39,10 @@ export default function ExperienceLogos() {
 
   // Duplicate the logos for seamless infinite scroll
   const duplicatedLogos = [...experiences, ...experiences, ...experiences]
+  
+  // Calculate animation distance: number of logos * (estimated width + gap)
+  // Using 115px average width + 48px gap (gap-12 = 3rem = 48px)
+  const animationDistance = experiences.length * 163
 
   return (
     <section className='relative overflow-hidden pb-24'>
@@ -66,7 +70,7 @@ export default function ExperienceLogos() {
         <motion.div
           className='flex gap-12 whitespace-nowrap'
           animate={{
-            x: [0, -100 * experiences.length]
+            x: [0, -animationDistance]
           }}
           transition={{
             x: {
@@ -84,12 +88,14 @@ export default function ExperienceLogos() {
               whileHover={{ scale: 1.1 }}
               transition={{ duration: 0.2 }}
             >
-              <img
-                src={experience.logo_url!}
-                alt={experience.title}
-                className='h-16 w-auto object-contain grayscale transition-all duration-300 hover:grayscale-0 sm:h-20'
-                style={{ minWidth: '80px', maxWidth: '150px' }}
-              />
+              {experience.logo_url && (
+                <img
+                  src={experience.logo_url}
+                  alt={experience.title}
+                  className='h-16 w-auto object-contain grayscale transition-all duration-300 hover:grayscale-0 sm:h-20'
+                  style={{ minWidth: '80px', maxWidth: '150px' }}
+                />
+              )}
             </motion.div>
           ))}
         </motion.div>
