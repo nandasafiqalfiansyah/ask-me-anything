@@ -76,7 +76,7 @@ export default function RecentSkill() {
         >
           {skills.map((skill, index) => (
             <motion.div key={index} variants={itemVariants}>
-              <Badge className='m-1 cursor-default hover:scale-110 transition-transform'>
+              <Badge className='m-1 cursor-default transition-transform hover:scale-110'>
                 {skill}
               </Badge>
             </motion.div>
