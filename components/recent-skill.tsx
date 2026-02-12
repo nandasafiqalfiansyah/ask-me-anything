@@ -45,6 +45,10 @@ export default function RecentSkill() {
     }
   }
 
+  if (skills.length === 0) {
+    return null
+  }
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 50 }}
