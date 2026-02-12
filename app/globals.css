@@ -85,13 +85,18 @@
 
   /* Smooth theme transition */
   html {
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body {
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   * {
     transition-property: background-color, border-color, color, fill, stroke;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 300ms;
+    transition-duration: 400ms;
   }
 
   .title {
