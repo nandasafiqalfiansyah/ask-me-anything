@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 
 type DragDropImageUploadProps = {
@@ -118,10 +119,13 @@ export default function DragDropImageUpload({
       >
         {preview ? (
           <div className='relative w-full'>
-            <img
+            <Image
               src={preview}
               alt='Preview'
+              width={400}
+              height={180}
               className='mx-auto max-h-[180px] rounded object-contain'
+              unoptimized
             />
             {!disabled && (
               <Button

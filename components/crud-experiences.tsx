@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import Image from 'next/image'
 import { supabase } from '../lib/supabaseClient'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -104,10 +105,13 @@ function SortableExperienceItem({
       </div>
 
       {experience.logo_url && (
-        <img
+        <Image
           src={experience.logo_url}
           alt={`${experience.title} logo`}
+          width={48}
+          height={48}
           className='h-12 w-12 flex-shrink-0 rounded object-contain'
+          unoptimized
         />
       )}
 
