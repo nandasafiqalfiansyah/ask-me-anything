@@ -62,8 +62,8 @@ export default function ExperienceLogos() {
       </motion.div>
 
       {/* Gradient overlays for fade effect */}
-      <div className='pointer-events-none absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-background to-transparent' />
-      <div className='pointer-events-none absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-background to-transparent' />
+      {/* <div className='pointer-events-none absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-background to-transparent' />
+      <div className='pointer-events-none absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-background to-transparent' /> */}
 
       {/* Scrolling container */}
       <div className='relative flex overflow-hidden'>
