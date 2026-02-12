@@ -88,7 +88,7 @@ export default function RecentEdu() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className='title mb-12 text-left text-3xl font-bold sm:text-4xl'
+          className='title mb-12 text-left text-3xl font-bold sm:text-4xl bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent'
         >
           Education
         </motion.h2>

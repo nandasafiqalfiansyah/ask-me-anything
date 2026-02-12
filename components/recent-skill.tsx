@@ -59,7 +59,7 @@ export default function RecentSkill() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className='title mb-12'
+          className='title mb-12 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent'
         >
           Tech Stack
         </motion.h2>

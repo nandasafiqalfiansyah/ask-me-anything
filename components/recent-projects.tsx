@@ -9,7 +9,7 @@ export default async function RecentProjects() {
   return (
     <section className='pb-24'>
       <MotionWrapper delay={0.2}>
-        <h2 className='title mb-12'>Recent projects</h2>
+        <h2 className='title mb-12 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent'>Recent projects</h2>
         <Projects projects={projects} />
         <Link
           href='/projects'

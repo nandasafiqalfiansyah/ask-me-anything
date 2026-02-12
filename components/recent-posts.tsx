@@ -9,7 +9,7 @@ export default async function RecentPosts() {
   return (
     <section className='pb-24'>
       <MotionWrapper delay={0.2}>
-        <h2 className='title mb-12'>Recent posts</h2>
+        <h2 className='title mb-12 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent'>Recent posts</h2>
         <Posts posts={posts} />
 
         <Link
