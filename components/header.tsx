@@ -17,9 +17,9 @@ export default function Header() {
 
   return (
     <motion.header
-      initial={{ y: -100, opacity: 0 }}
+      initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
       className='fixed inset-x-0 top-0 z-50 bg-background/75 py-6 backdrop-blur-sm'
     >
       <nav className='container flex max-w-3xl items-center justify-between'>
@@ -37,9 +37,9 @@ export default function Header() {
           {navItems.map((item, index) => (
             <motion.li
               key={item.href}
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 * index }}
+              transition={{ duration: 0.3, delay: 0.05 * index }}
               className='relative transition-colors hover:text-foreground'
             >
               <Link href={item.href}>{item.label}</Link>
@@ -54,9 +54,9 @@ export default function Header() {
           ))}
         </ul>
         <motion.div
-          initial={{ opacity: 0, scale: 0 }}
+          initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4, delay: 0.4 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
         >
           <ThemeToggle />
         </motion.div>
