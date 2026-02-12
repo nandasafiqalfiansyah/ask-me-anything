@@ -39,8 +39,10 @@ export default function Intro() {
         whileHover={{ scale: 1.03 }}
         className='relative'
       >
+        {/* Gradient glow effect behind image */}
+        <div className='absolute -inset-4 rounded-xl bg-gradient-to-r from-primary/20 via-purple-500/20 to-primary/20 opacity-70 blur-2xl' />
         <Image
-          className='flex-1 rounded-lg grayscale transition-all duration-300 hover:grayscale-0'
+          className='relative flex-1 rounded-lg grayscale transition-all duration-300 hover:grayscale-0'
           src={authorImage}
           alt='Nanda Safiq Alfiansyah'
           width={190}

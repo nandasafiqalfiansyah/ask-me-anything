@@ -49,7 +49,7 @@ export default function ExperienceLogos() {
         transition={{ duration: 0.6 }}
         className='mb-8 text-center'
       >
-        <h2 className='title text-3xl font-bold sm:text-4xl'>
+        <h2 className='title text-3xl font-bold sm:text-4xl bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent'>
           Experience & Partnerships
         </h2>
         <p className='mt-3 text-sm font-light text-muted-foreground'>
