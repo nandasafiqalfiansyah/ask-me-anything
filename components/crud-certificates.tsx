@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import Image from 'next/image'
 import { supabase } from '../lib/supabaseClient'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -107,10 +108,13 @@ function SortableCertificateItem({
       </div>
 
       {certificate.image_url && (
-        <img
+        <Image
           src={certificate.image_url}
           alt={`${certificate.title} certificate`}
+          width={48}
+          height={48}
           className='h-12 w-12 flex-shrink-0 rounded object-cover'
+          unoptimized
         />
       )}
 

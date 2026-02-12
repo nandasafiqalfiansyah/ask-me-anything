@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { supabase } from '../../lib/supabaseClient'
 import { Button } from '@/components/ui/button'
 
@@ -74,10 +75,12 @@ export default function CertificateCatalog() {
       {/* Certificate Image/Preview */}
       <div className='relative h-48 w-full overflow-hidden bg-muted'>
         {cert.image_url ? (
-          <img
+          <Image
             src={cert.image_url}
             alt={cert.title}
-            className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-110'
+            fill
+            className='object-cover transition-transform duration-300 group-hover:scale-110'
+            unoptimized
           />
         ) : cert.pdf_url ? (
           <div className='flex h-full items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5'>
@@ -262,12 +265,14 @@ export default function CertificateCatalog() {
             {/* Modal Content */}
             <div className='max-h-[90vh] overflow-y-auto'>
               {/* Certificate Preview */}
-              <div className='relative bg-muted'>
+              <div className='relative bg-muted min-h-[400px] max-h-[60vh]'>
                 {selectedCertificate.image_url ? (
-                  <img
+                  <Image
                     src={selectedCertificate.image_url}
                     alt={selectedCertificate.title}
-                    className='h-auto max-h-[60vh] w-full object-contain'
+                    fill
+                    className='object-contain'
+                    unoptimized
                   />
                 ) : selectedCertificate.pdf_url ? (
                   <div className='flex min-h-[400px] items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5'>
