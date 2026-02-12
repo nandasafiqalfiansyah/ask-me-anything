@@ -45,7 +45,7 @@ export default function ParticlesBackground() {
           direction: 'none',
           enable: true,
           outModes: {
-            default: 'out'
+            default: 'bounce'
           },
           random: true,
           speed: 0.3,
