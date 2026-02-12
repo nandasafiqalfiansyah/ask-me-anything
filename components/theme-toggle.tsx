@@ -7,14 +7,27 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { MoonIcon, SunIcon } from '@radix-ui/react-icons'
 
+const RIPPLE_DURATION = 800 // ms
+const RIPPLE_SIZE = 200 // px
+const RIPPLE_OFFSET = -100 // px (half of RIPPLE_SIZE)
+
 export function ThemeToggle() {
   const { setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([])
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const rippleIdRef = useRef(0)
+  const timeoutRef = useRef<NodeJS.Timeout[]>([])
 
   useEffect(() => {
     setMounted(true)
+    
+    return () => {
+      // Cleanup all pending timeouts on unmount
+      const timeouts = timeoutRef.current
+      timeouts.forEach(clearTimeout)
+      timeoutRef.current = []
+    }
   }, [])
 
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -25,12 +38,17 @@ export function ThemeToggle() {
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
 
-    const newRipple = { id: Date.now(), x, y }
-    setRipples([...ripples, newRipple])
+    rippleIdRef.current += 1
+    const newRipple = { id: rippleIdRef.current, x, y }
+    setRipples((prev) => [...prev, newRipple])
 
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       setRipples((prev) => prev.filter((r) => r.id !== newRipple.id))
-    }, 800)
+      // Remove timeout from array after it executes
+      timeoutRef.current = timeoutRef.current.filter(t => t !== timeout)
+    }, RIPPLE_DURATION)
+    
+    timeoutRef.current.push(timeout)
 
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
   }
@@ -57,12 +75,12 @@ export function ThemeToggle() {
           }}
           initial={{ width: 0, height: 0, x: 0, y: 0 }}
           animate={{
-            width: 200,
-            height: 200,
-            x: -100,
-            y: -100,
+            width: RIPPLE_SIZE,
+            height: RIPPLE_SIZE,
+            x: RIPPLE_OFFSET,
+            y: RIPPLE_OFFSET,
           }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: RIPPLE_DURATION / 1000, ease: 'easeOut' }}
         />
       ))}
 

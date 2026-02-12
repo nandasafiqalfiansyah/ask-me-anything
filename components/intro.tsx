@@ -14,16 +14,16 @@ export default function Intro() {
         className='mt-2 flex-1 md:mt-0'
       >
         <motion.h1
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           className='title no-underline'
         >
           Hey, I&#39;m Nanda Safiq.
         </motion.h1>
         <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className='mt-3 font-light text-muted-foreground'
         >
