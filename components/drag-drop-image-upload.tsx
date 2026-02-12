@@ -118,13 +118,12 @@ export default function DragDropImageUpload({
         `}
       >
         {preview ? (
-          <div className='relative w-full'>
+          <div className='relative w-full h-[180px]'>
             <Image
               src={preview}
               alt='Preview'
-              width={400}
-              height={180}
-              className='mx-auto max-h-[180px] rounded object-contain'
+              fill
+              className='rounded object-contain'
               unoptimized
             />
             {!disabled && (

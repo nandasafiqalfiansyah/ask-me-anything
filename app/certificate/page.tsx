@@ -265,14 +265,13 @@ export default function CertificateCatalog() {
             {/* Modal Content */}
             <div className='max-h-[90vh] overflow-y-auto'>
               {/* Certificate Preview */}
-              <div className='relative bg-muted'>
+              <div className='relative bg-muted min-h-[400px] max-h-[60vh]'>
                 {selectedCertificate.image_url ? (
                   <Image
                     src={selectedCertificate.image_url}
                     alt={selectedCertificate.title}
-                    width={800}
-                    height={600}
-                    className='h-auto max-h-[60vh] w-full object-contain'
+                    fill
+                    className='object-contain'
                     unoptimized
                   />
                 ) : selectedCertificate.pdf_url ? (
