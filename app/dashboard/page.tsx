@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabaseClient'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 import CrudSkills from '@/components/crud-skills'
 import CrudExperiences from '@/components/crud-experiences'
 import CrudEducation from '@/components/crud-education'
@@ -12,7 +13,7 @@ import CrudCertificates from '@/components/crud-certificates'
 import CrudProjects from '@/components/crud-projects'
 import { OverviewDummy } from '@/components/crud-overview'
 
-type PageKey = 'overview' | 'skills' | 'experiences' | 'education' | 'certificates' | 'projects' | 'users' | 'settings'
+type PageKey = 'overview' | 'skills' | 'experiences' | 'education' | 'certificates' | 'projects' | 'users'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -43,23 +44,25 @@ export default function DashboardPage() {
       { key: 'education', label: 'Education' },
       { key: 'certificates', label: 'Certificates' },
       { key: 'projects', label: 'Projects' },
-      { key: 'users', label: 'Users' },
-      { key: 'settings', label: 'Settings' }
+      { key: 'users', label: 'Users' }
     ],
     []
   )
 
   if (loading || !user) {
     return (
-      <div className='flex h-[60vh] items-center justify-center text-sm text-muted-foreground'>
-        Loading dashboard...
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='flex flex-col items-center gap-4'>
+          <Spinner size='lg' />
+          <p className='text-sm text-muted-foreground'>Loading dashboard...</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <section className='pb-24 pt-40'>
-      <div className='container flex max-w-3xl flex-col'>
+    <section className='flex min-h-screen flex-col pb-24 pt-40'>
+      <div className='container flex max-w-3xl flex-1 flex-col'>
         {/* Top Bar */}
         <div className='mb-6 flex items-center justify-between gap-4'>
           <div className='space-y-1'>
@@ -141,8 +144,6 @@ export default function DashboardPage() {
               <CrudUsers />
             </div>
           )}
-
-          {active === 'settings' && <SettingsDummy />}
         </div>
       </div>
     </section>
@@ -152,28 +153,3 @@ export default function DashboardPage() {
 /* =========================
    Dummy Pages (swap target)
    ========================= */
-
-
-
-function SettingsDummy() {
-  return (
-    <div className='rounded-2xl border p-6'>
-      <h3 className='mb-2 text-lg font-semibold'>Settings</h3>
-      <p className='text-sm text-muted-foreground'>
-        Dummy settings. Tar lo isi toggle theme, profile, API keys, dsb.
-      </p>
-      <div className='mt-4 grid gap-3'>
-        <div className='flex items-center justify-between rounded-lg border p-3'>
-          <span className='text-sm'>Dark Mode</span>
-          <span className='text-xs text-muted-foreground'>coming soon</span>
-        </div>
-        <div className='flex items-center justify-between rounded-lg border p-3'>
-          <span className='text-sm'>2FA</span>
-          <span className='text-xs text-muted-foreground'>coming soon</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-
