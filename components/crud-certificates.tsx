@@ -118,9 +118,9 @@ function SortableCertificateItem({
         />
       )}
 
-      <div className='flex-1 min-w-0'>
-        <div className='font-semibold truncate'>{certificate.title}</div>
-        <div className='text-sm text-muted-foreground truncate'>
+      <div className='min-w-0 flex-1'>
+        <div className='truncate font-semibold'>{certificate.title}</div>
+        <div className='truncate text-sm text-muted-foreground'>
           {certificate.company}
         </div>
         <div className='text-xs text-muted-foreground'>
@@ -128,7 +128,7 @@ function SortableCertificateItem({
         </div>
       </div>
 
-      <div className='flex gap-2 flex-shrink-0'>
+      <div className='flex flex-shrink-0 gap-2'>
         <Button
           size='sm'
           variant='secondary'
@@ -154,6 +154,8 @@ export default function CrudCertificates() {
   const [certificates, setCertificates] = useState<Certificate[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [importUrl, setImportUrl] = useState('')
+  const [importing, setImporting] = useState(false)
   const [formData, setFormData] = useState<CertificateFormData>(initialFormData)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -185,10 +187,75 @@ export default function CrudCertificates() {
     fetchCertificates()
   }, [fetchCertificates])
 
+  const handleImportDicoding = async () => {
+    const sourceUrl = (importUrl || formData.certificate_url).trim()
+
+    if (!sourceUrl) {
+      setError('Please enter a Dicoding certificate URL first.')
+      return
+    }
+
+    setImporting(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/v1/certificates/dicoding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url: sourceUrl })
+      })
+
+      const payload = await response.json()
+
+      if (!response.ok || !payload?.success) {
+        throw new Error(
+          payload?.error || 'Failed to import Dicoding certificate'
+        )
+      }
+
+      const imported = payload.data as {
+        title?: string
+        company?: string
+        issued_date?: string | null
+        certificate_url?: string
+        pdf_url?: string | null
+        description?: string | null
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        title: imported.title || prev.title,
+        company: imported.company || prev.company || 'Dicoding',
+        issued_date: imported.issued_date || prev.issued_date,
+        certificate_url: imported.certificate_url || sourceUrl,
+        pdf_url: imported.pdf_url || prev.pdf_url,
+        description: imported.description || prev.description
+      }))
+      if (imported.pdf_url) {
+        setPdfFile(null)
+      }
+      setImportUrl(imported.certificate_url || sourceUrl)
+    } catch (err: any) {
+      setError(err?.message || 'Failed to import Dicoding certificate')
+    } finally {
+      setImporting(false)
+    }
+  }
+
   const uploadImage = async (file: File): Promise<string | null> => {
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp'
+    ]
     if (!allowedTypes.includes(file.type)) {
-      setError('Invalid file type. Please upload an image (JPEG, PNG, GIF, or WebP).')
+      setError(
+        'Invalid file type. Please upload an image (JPEG, PNG, GIF, or WebP).'
+      )
       return null
     }
 
@@ -391,13 +458,16 @@ export default function CrudCertificates() {
   }
 
   // Group certificates by company
-  const groupedCertificates = certificates.reduce((acc, cert) => {
-    if (!acc[cert.company]) {
-      acc[cert.company] = []
-    }
-    acc[cert.company].push(cert)
-    return acc
-  }, {} as Record<string, Certificate[]>)
+  const groupedCertificates = certificates.reduce(
+    (acc, cert) => {
+      if (!acc[cert.company]) {
+        acc[cert.company] = []
+      }
+      acc[cert.company].push(cert)
+      return acc
+    },
+    {} as Record<string, Certificate[]>
+  )
 
   return (
     <div className='space-y-6'>
@@ -407,7 +477,8 @@ export default function CrudCertificates() {
             Certificates
           </h3>
           <p className='mt-3 text-sm text-muted-foreground'>
-            Manage certificates with drag & drop to reorder. Group by company (e.g., Dicoding, Coursera) ✨
+            Manage certificates with drag & drop to reorder. Group by company
+            (e.g., Dicoding, Coursera) ✨
           </p>
         </div>
         {(loading || uploading) && (
@@ -429,9 +500,38 @@ export default function CrudCertificates() {
           {editingId ? 'Edit Certificate' : 'Add New Certificate'}
         </h4>
 
+        <div className='rounded-md border border-primary/20 bg-primary/5 p-3'>
+          <label className='mb-1 block text-sm font-medium'>
+            Import from Dicoding URL
+          </label>
+          <div className='flex flex-col gap-2 sm:flex-row'>
+            <Input
+              placeholder='https://www.dicoding.com/certificates/1OP8WLV31XQK'
+              value={importUrl}
+              onChange={e => setImportUrl(e.target.value)}
+              disabled={loading || importing}
+            />
+            <Button
+              type='button'
+              variant='secondary'
+              onClick={handleImportDicoding}
+              disabled={loading || importing}
+              className='sm:w-auto'
+            >
+              {importing ? 'Importing...' : 'Import Dicoding'}
+            </Button>
+          </div>
+          <p className='mt-1 text-xs text-muted-foreground'>
+            Import akan mengisi Title, Issuer, URL, Issued Date, dan PDF URL
+            jika tersedia dari halaman Dicoding.
+          </p>
+        </div>
+
         <div className='grid gap-4 sm:grid-cols-2'>
           <div>
-            <label className='mb-1 block text-sm font-medium'>Certificate Title *</label>
+            <label className='mb-1 block text-sm font-medium'>
+              Certificate Title *
+            </label>
             <Input
               placeholder='e.g., Machine Learning Specialization'
               value={formData.title}
@@ -443,7 +543,9 @@ export default function CrudCertificates() {
             />
           </div>
           <div>
-            <label className='mb-1 block text-sm font-medium'>Company/Issuer *</label>
+            <label className='mb-1 block text-sm font-medium'>
+              Company/Issuer *
+            </label>
             <Input
               placeholder='e.g., Dicoding, Coursera, Google'
               value={formData.company}
@@ -472,12 +574,17 @@ export default function CrudCertificates() {
             />
           </div>
           <div>
-            <label className='mb-1 block text-sm font-medium'>Certificate URL</label>
+            <label className='mb-1 block text-sm font-medium'>
+              Certificate URL
+            </label>
             <Input
               placeholder='https://coursera.org/verify/...'
               value={formData.certificate_url}
               onChange={e =>
-                setFormData(prev => ({ ...prev, certificate_url: e.target.value }))
+                setFormData(prev => ({
+                  ...prev,
+                  certificate_url: e.target.value
+                }))
               }
               disabled={loading}
             />
@@ -499,7 +606,9 @@ export default function CrudCertificates() {
         </div>
 
         <div>
-          <label className='mb-1 block text-sm font-medium'>Certificate PDF</label>
+          <label className='mb-1 block text-sm font-medium'>
+            Certificate PDF
+          </label>
           <Input
             type='file'
             accept='application/pdf'
@@ -526,7 +635,8 @@ export default function CrudCertificates() {
           )}
           {pdfFile && (
             <p className='mt-1 text-xs text-muted-foreground'>
-              Selected: {pdfFile.name} ({(pdfFile.size / 1024 / 1024).toFixed(2)} MB)
+              Selected: {pdfFile.name} (
+              {(pdfFile.size / 1024 / 1024).toFixed(2)} MB)
             </p>
           )}
           <p className='mt-1 text-xs text-muted-foreground'>
@@ -552,6 +662,7 @@ export default function CrudCertificates() {
             type='submit'
             disabled={
               loading ||
+              importing ||
               uploading ||
               !formData.title.trim() ||
               !formData.company.trim()
@@ -587,13 +698,15 @@ export default function CrudCertificates() {
       {/* List with Drag and Drop */}
       <div className='space-y-4'>
         <h4 className='font-semibold'>Certificate List (Drag to reorder)</h4>
-        
+
         {groupByCompany ? (
           // Grouped view by company
           <div className='space-y-6'>
             {Object.entries(groupedCertificates).map(([company, certs]) => (
               <div key={company} className='space-y-2'>
-                <h5 className='text-lg font-semibold text-primary'>{company}</h5>
+                <h5 className='text-lg font-semibold text-primary'>
+                  {company}
+                </h5>
                 <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}
