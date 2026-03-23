@@ -54,11 +54,12 @@ export default function Posts({ posts }: { posts: PostMetadata[] }) {
               </p>
             </div>
 
-            {post.publishedAt && (
-              <p className='mt-1 text-sm font-light'>
-                {formatDate(post.publishedAt)}
+            <div className='mt-1 flex shrink-0 flex-col items-start text-sm font-light sm:items-end'>
+              {post.publishedAt && <p>{formatDate(post.publishedAt)}</p>}
+              <p className='text-xs text-muted-foreground'>
+                {(post.viewCount ?? 0).toLocaleString('en-US')} views
               </p>
-            )}
+            </div>
           </Link>
         </motion.li>
       ))}

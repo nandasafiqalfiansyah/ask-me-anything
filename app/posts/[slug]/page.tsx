@@ -3,10 +3,11 @@ import Image from 'next/image'
 
 import { formatDate } from '@/lib/utils'
 import MDXContent from '@/components/mdx-content'
-import { getPosts, getPostBySlug } from '@/lib/posts'
+import { getPosts, getPostBySlug, getPostViewCount } from '@/lib/posts'
 import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import { notFound } from 'next/navigation'
 import NewsletterForm from '@/components/newsletter-form'
+import PostViewCounter from '@/components/post-view-counter'
 
 export async function generateStaticParams() {
   const posts = await getPosts()
@@ -25,6 +26,7 @@ export default async function Post({ params }: { params: { slug: string } }) {
 
   const { metadata, content } = post
   const { title, image, author, publishedAt } = metadata
+  const initialViewCount = await getPostViewCount(slug)
 
   return (
     <section className='pb-24 pt-32'>
@@ -53,6 +55,11 @@ export default async function Post({ params }: { params: { slug: string } }) {
           <p className='mt-3 text-xs text-muted-foreground'>
             {author} / {formatDate(publishedAt ?? '')}
           </p>
+          <PostViewCounter
+            slug={slug}
+            initialCount={initialViewCount}
+            className='mt-1 text-xs text-muted-foreground'
+          />
         </header>
 
         <main className='prose mt-16 dark:prose-invert'>
