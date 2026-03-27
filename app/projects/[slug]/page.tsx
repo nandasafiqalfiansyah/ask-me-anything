@@ -6,6 +6,8 @@ import MDXContent from '@/components/mdx-content'
 import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import { getProjectBySlug, getProjects } from '@/lib/projects'
 import { notFound } from 'next/navigation'
+import { getPageViewCount } from '@/lib/pageViews'
+import PageViewCounter from '@/components/page-view-counter'
 
 export async function generateStaticParams() {
   const projects = await getProjects()
@@ -28,6 +30,7 @@ export default async function Project({
 
   const { metadata, content } = project
   const { title, image, author, publishedAt } = metadata
+  const initialViewCount = await getPageViewCount(`project-${slug}`)
 
   return (
     <section className='pb-24 pt-32'>
@@ -56,6 +59,11 @@ export default async function Project({
           <p className='mt-3 text-xs text-muted-foreground'>
             {author} / {formatDate(publishedAt ?? '')}
           </p>
+          <PageViewCounter
+            pageKey={`project-${slug}`}
+            initialCount={initialViewCount}
+            className='mt-1 text-xs text-muted-foreground'
+          />
         </header>
 
         <main className='prose mt-16 dark:prose-invert'>
