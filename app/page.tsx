@@ -6,12 +6,8 @@ import RecentWork from '@/components/recent-work'
 import RecentEdu from '@/components/recent-edu'
 import RecentSkill from '@/components/recent-skill'
 import ExperienceLogos from '@/components/experience-logos'
-import { getPageViewCount } from '@/lib/pageViews'
-import PageViewCounter from '@/components/page-view-counter'
 
 export default async function Home() {
-  const initialViewCount = await getPageViewCount('home')
-
   return (
     <section className='relative pb-24 pt-40'>
       {/* Gradient background overlays */}
@@ -27,11 +23,6 @@ export default async function Home() {
         <RecentProjects />
         <RecentPosts />
         <NewsletterForm />
-        <PageViewCounter
-          pageKey='home'
-          initialCount={initialViewCount}
-          className='mt-8 text-sm text-muted-foreground'
-        />
       </div>
     </section>
   )

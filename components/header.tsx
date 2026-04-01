@@ -18,7 +18,8 @@ export default function Header() {
     { href: '/posts', label: 'Blog' },
     { href: '/certificate', label: 'Certificate' },
     { href: '/projects', label: 'Project' },
-    { href: '/contact', label: 'Contact' }
+    { href: '/contact', label: 'Contact' },
+    { href: 'https://docs.ndav.my.id', label: 'Docs' }
   ]
 
   return (
@@ -48,13 +49,25 @@ export default function Header() {
               transition={{ duration: 0.3, delay: 0.05 * index }}
               className='relative transition-colors hover:text-foreground'
             >
-              <Link href={item.href}>{item.label}</Link>
-              {pathname === item.href && (
-                <motion.div
-                  layoutId='activeNav'
-                  className='absolute -bottom-2 left-0 right-0 h-0.5 bg-foreground'
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                />
+              {item.href.startsWith('http') ? (
+                <a href={item.href} target='_blank' rel='noopener noreferrer'>
+                  {item.label}
+                </a>
+              ) : (
+                <>
+                  <Link href={item.href}>{item.label}</Link>
+                  {pathname === item.href && (
+                    <motion.div
+                      layoutId='activeNav'
+                      className='absolute -bottom-2 left-0 right-0 h-0.5 bg-foreground'
+                      transition={{
+                        type: 'spring',
+                        stiffness: 380,
+                        damping: 30
+                      }}
+                    />
+                  )}
+                </>
               )}
             </motion.li>
           ))}
@@ -89,14 +102,27 @@ export default function Header() {
               <ul className='flex flex-col gap-1 text-sm text-muted-foreground'>
                 {navItems.map(item => (
                   <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={`block rounded-lg px-3 py-2 transition-colors hover:bg-muted hover:text-foreground ${
-                        pathname === item.href ? 'bg-muted text-foreground' : ''
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
+                    {item.href.startsWith('http') ? (
+                      <a
+                        href={item.href}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='block rounded-lg px-3 py-2 transition-colors hover:bg-muted hover:text-foreground'
+                      >
+                        {item.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className={`block rounded-lg px-3 py-2 transition-colors hover:bg-muted hover:text-foreground ${
+                          pathname === item.href
+                            ? 'bg-muted text-foreground'
+                            : ''
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

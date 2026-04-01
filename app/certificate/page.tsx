@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { supabase } from '../../lib/supabaseClient'
 import { Button } from '@/components/ui/button'
-import PageViewCounter from '@/components/page-view-counter'
 
 type Certificate = {
   id: number
@@ -168,11 +167,6 @@ export default function CertificateCatalog() {
         {/* Header */}
         <div className='mb-12'>
           <h1 className='title mb-4 text-4xl font-bold'>My Certificates</h1>
-          <PageViewCounter
-            pageKey='certificate'
-            initialCount={0}
-            className='mb-2 text-sm text-muted-foreground'
-          />
           <p className='mb-6 text-muted-foreground'>
             A collection of professional certificates and achievements
           </p>
