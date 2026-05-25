@@ -7,6 +7,8 @@ import RecentEdu from '@/components/recent-edu'
 import RecentSkill from '@/components/recent-skill'
 import ExperienceLogos from '@/components/experience-logos'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   return (
     <section className='relative pb-24 pt-40'>

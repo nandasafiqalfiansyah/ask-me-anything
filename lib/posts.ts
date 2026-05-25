@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { unstable_noStore as noStore } from 'next/cache'
 import { supabaseAdmin } from './supabaseAdmin'
 
 const rootDirectory = path.join(process.cwd(), 'content', 'posts')
@@ -107,6 +108,8 @@ export async function incrementPostViewCount(slug: string): Promise<number> {
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
+  noStore()
+
   try {
     const filePath = path.join(rootDirectory, `${slug}.mdx`)
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' })
@@ -118,6 +121,8 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 }
 
 export async function getPosts(limit?: number): Promise<PostMetadata[]> {
+  noStore()
+
   const files = fs.readdirSync(rootDirectory)
 
   const posts = files

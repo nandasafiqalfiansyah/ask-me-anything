@@ -22,7 +22,7 @@ export default function ExperienceLogos() {
 
     if (!error && data) {
       const experiencesWithLogos = data.filter(
-        (exp) => exp.logo_url
+        exp => exp.logo_url
       ) as Experience[]
       setExperiences(experiencesWithLogos)
     }
@@ -39,7 +39,7 @@ export default function ExperienceLogos() {
 
   // Duplicate the logos for seamless infinite scroll
   const duplicatedLogos = [...experiences, ...experiences, ...experiences]
-  
+
   // Calculate animation distance: number of logos * (estimated width + gap)
   // Using 115px average width + 48px gap (gap-12 = 3rem = 48px)
   const animationDistance = experiences.length * 163
@@ -51,9 +51,9 @@ export default function ExperienceLogos() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className='mb-8 text-center'
+        className='mb-8 text-left'
       >
-        <h2 className='title text-3xl font-bold sm:text-4xl bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent'>
+        <h2 className='title bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-3xl font-bold text-transparent sm:text-4xl'>
           Experience & Partnerships
         </h2>
         <p className='mt-3 text-sm font-light text-muted-foreground'>

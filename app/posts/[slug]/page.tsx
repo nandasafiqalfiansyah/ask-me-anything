@@ -9,6 +9,9 @@ import { notFound } from 'next/navigation'
 import NewsletterForm from '@/components/newsletter-form'
 import PostViewCounter from '@/components/post-view-counter'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function generateStaticParams() {
   const posts = await getPosts()
   const slugs = posts.map(post => ({ slug: post.slug }))

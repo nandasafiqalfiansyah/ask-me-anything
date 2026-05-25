@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getPostViewCount, incrementPostViewCount } from '@/lib/posts'
 
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -37,6 +38,10 @@ export async function POST(request: Request) {
     }
 
     const views = await incrementPostViewCount(slug)
+
+    revalidatePath('/')
+    revalidatePath('/posts')
+    revalidatePath(`/posts/${slug}`)
 
     return NextResponse.json(
       { slug, views },
