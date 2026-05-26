@@ -11,9 +11,10 @@ import CrudEducation from '@/components/crud-education'
 import CrudUsers from '@/components/crud-users'
 import CrudCertificates from '@/components/crud-certificates'
 import CrudProjects from '@/components/crud-projects'
+import CrudPosts from '@/components/crud-posts'
 import { OverviewDummy } from '@/components/crud-overview'
 
-type PageKey = 'overview' | 'skills' | 'experiences' | 'education' | 'certificates' | 'projects' | 'users'
+type PageKey = 'overview' | 'skills' | 'experiences' | 'education' | 'certificates' | 'projects' | 'users' | 'posts'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -44,6 +45,7 @@ export default function DashboardPage() {
       { key: 'education', label: 'Education' },
       { key: 'certificates', label: 'Certificates' },
       { key: 'projects', label: 'Projects' },
+      { key: 'posts', label: 'Posts' },
       { key: 'users', label: 'Users' }
     ],
     []
@@ -106,7 +108,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Page Container */}
-        <div className='mx-auto grid max-w-5xl gap-6'>
+        <div className='w-full mx-auto grid max-w-5xl gap-6'>
           {active === 'overview' && <OverviewDummy />}
 
           {active === 'skills' && (
@@ -136,6 +138,12 @@ export default function DashboardPage() {
           {active === 'projects' && (
             <div className='rounded-2xl border p-6'>
               <CrudProjects />
+            </div>
+          )}
+
+          {active === 'posts' && (
+            <div className='rounded-2xl border p-6'>
+              <CrudPosts />
             </div>
           )}
 
