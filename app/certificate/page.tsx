@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
 import { supabase } from '../../lib/supabaseClient'
 import { Button } from '@/components/ui/button'
 
@@ -11,7 +10,6 @@ type Certificate = {
   company: string
   issued_date: string
   certificate_url: string | null
-  image_url: string | null
   pdf_url: string | null
   description: string | null
   sort_order: number
@@ -35,7 +33,7 @@ export default function CertificateCatalog() {
 
         if (error) throw error
 
-        setCertificates(data || [])
+        setCertificates((data || []).filter(cert => cert.pdf_url))
       } catch (error) {
         console.error('Error fetching certificates:', error)
       } finally {
@@ -72,34 +70,17 @@ export default function CertificateCatalog() {
       className='group relative cursor-pointer overflow-hidden rounded-xl border bg-card transition-all duration-300 hover:scale-105 hover:shadow-lg'
       onClick={() => openPreview(cert)}
     >
-      {/* Certificate Image/Preview */}
+      {/* Certificate PDF Preview */}
       <div className='relative h-48 w-full overflow-hidden bg-muted'>
-        {cert.image_url ? (
-          <Image
-            src={cert.image_url}
-            alt={cert.title}
-            fill
-            className='object-cover transition-transform duration-300 group-hover:scale-110'
-            unoptimized
+        {cert.pdf_url && (
+          <iframe
+            title={`${cert.title} preview`}
+            src={`${cert.pdf_url}#toolbar=0&navpanes=0&scrollbar=0`}
+            className='h-full w-full'
           />
-        ) : cert.pdf_url ? (
-          <div className='flex h-full items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              className='h-16 w-16 text-primary/50'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z'
-              />
-            </svg>
-          </div>
-        ) : (
+        )}
+
+        {!cert.pdf_url && (
           <div className='flex h-full items-center justify-center bg-gradient-to-br from-muted to-background'>
             <svg
               xmlns='http://www.w3.org/2000/svg'
@@ -150,11 +131,6 @@ export default function CertificateCatalog() {
         {cert.pdf_url && (
           <span className='rounded-full bg-primary/90 px-2 py-1 text-xs font-medium text-primary-foreground'>
             PDF
-          </span>
-        )}
-        {cert.image_url && (
-          <span className='rounded-full bg-green-500/90 px-2 py-1 text-xs font-medium text-white'>
-            IMG
           </span>
         )}
       </div>
@@ -266,45 +242,12 @@ export default function CertificateCatalog() {
             <div className='max-h-[90vh] overflow-y-auto'>
               {/* Certificate Preview */}
               <div className='relative max-h-[60vh] min-h-[400px] bg-muted'>
-                {selectedCertificate.image_url ? (
-                  <Image
-                    src={selectedCertificate.image_url}
-                    alt={selectedCertificate.title}
-                    fill
-                    className='object-contain'
-                    unoptimized
+                {selectedCertificate.pdf_url ? (
+                  <iframe
+                    title={`${selectedCertificate.title} PDF preview`}
+                    src={`${selectedCertificate.pdf_url}#toolbar=1`}
+                    className='h-[70vh] w-full'
                   />
-                ) : selectedCertificate.pdf_url ? (
-                  <div className='flex min-h-[400px] items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5'>
-                    <div className='text-center'>
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        className='mx-auto mb-4 h-24 w-24 text-primary/50'
-                        fill='none'
-                        viewBox='0 0 24 24'
-                        stroke='currentColor'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z'
-                        />
-                      </svg>
-                      <p className='mb-4 text-muted-foreground'>
-                        PDF Certificate
-                      </p>
-                      <Button asChild>
-                        <a
-                          href={selectedCertificate.pdf_url}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                        >
-                          Open PDF in New Tab
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
                 ) : (
                   <div className='flex min-h-[400px] items-center justify-center'>
                     <p className='text-muted-foreground'>
@@ -368,17 +311,6 @@ export default function CertificateCatalog() {
                         rel='noopener noreferrer'
                       >
                         View PDF
-                      </a>
-                    </Button>
-                  )}
-                  {selectedCertificate.image_url && (
-                    <Button asChild variant='secondary'>
-                      <a
-                        href={selectedCertificate.image_url}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                      >
-                        View Full Image
                       </a>
                     </Button>
                   )}
