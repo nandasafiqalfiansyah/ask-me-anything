@@ -1,83 +1,165 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-import matter from 'gray-matter'
-import { revalidatePath } from 'next/cache'
-
-const postsDir = path.join(process.cwd(), 'content', 'posts')
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { revalidatePostPaths } from '@/lib/revalidatePosts'
+import {
+  getPostFromDb,
+  hasSupabaseServerConfig,
+  toApiPost,
+  toUserFacingDbError,
+  validateSlug,
+  type DbPost
+} from '@/lib/postsDb'
 
 type Params = { params: { slug: string } }
 
 // GET /api/v1/posts/[slug]
 export async function GET(_req: Request, { params }: Params) {
-  const { slug } = params
-  const filePath = path.join(postsDir, `${slug}.mdx`)
-
-  if (!fs.existsSync(filePath)) {
-    return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+  if (!hasSupabaseServerConfig()) {
+    return NextResponse.json(
+      { error: 'Supabase belum dikonfigurasi' },
+      { status: 503 }
+    )
   }
 
-  const raw = fs.readFileSync(filePath, 'utf8')
-  const { data, content } = matter(raw)
+  const { slug } = params
 
-  return NextResponse.json({ id: slug, slug, ...data, content })
+  if (!validateSlug(slug)) {
+    return NextResponse.json({ error: 'Invalid slug' }, { status: 400 })
+  }
+
+  try {
+    const post = await getPostFromDb(slug, { includeDrafts: true })
+    if (!post) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+    }
+    return NextResponse.json(post)
+  } catch (err) {
+    console.error(err)
+    return NextResponse.json({ error: 'Gagal memuat post' }, { status: 500 })
+  }
 }
 
 // PUT /api/v1/posts/[slug]
 export async function PUT(req: Request, { params }: Params) {
+  if (!hasSupabaseServerConfig()) {
+    return NextResponse.json(
+      { error: 'Supabase belum dikonfigurasi' },
+      { status: 503 }
+    )
+  }
+
   try {
     const { slug } = params
-    const filePath = path.join(postsDir, `${slug}.mdx`)
 
-    if (!fs.existsSync(filePath)) {
+    if (!validateSlug(slug)) {
+      return NextResponse.json({ error: 'Invalid slug' }, { status: 400 })
+    }
+
+    const { data: existing, error: fetchError } = await supabaseAdmin
+      .from('posts')
+      .select('*')
+      .eq('slug', slug)
+      .maybeSingle()
+
+    if (fetchError) {
+      console.error(fetchError)
+      return NextResponse.json(
+        { error: toUserFacingDbError(fetchError) },
+        { status: 500 }
+      )
+    }
+
+    if (!existing) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 })
     }
 
     const body = await req.json()
     const { title, summary, content, author, published, publishedAt } = body
 
-    const existing = matter(fs.readFileSync(filePath, 'utf8'))
-
-    const frontmatter = {
-      title: title ?? existing.data.title,
-      summary: summary ?? existing.data.summary ?? '',
-      author: author ?? existing.data.author ?? 'Admin',
-      publishedAt: publishedAt ?? existing.data.publishedAt,
-      published: published !== undefined ? published : existing.data.published !== false
+    const updates: Record<string, unknown> = {
+      updated_at: new Date().toISOString()
     }
 
-    const fileContent = matter.stringify(content ?? existing.content, frontmatter)
-    fs.writeFileSync(filePath, fileContent, 'utf8')
+    if (title !== undefined) updates.title = title
+    if (summary !== undefined) updates.summary = summary || null
+    if (content !== undefined) updates.content = content
+    if (author !== undefined) updates.author = author
+    if (published !== undefined) updates.published = published
+    if (publishedAt !== undefined) updates.published_at = publishedAt
 
-    revalidatePath('/posts')
-    revalidatePath(`/posts/${slug}`)
-    revalidatePath('/')
+    const { data, error } = await supabaseAdmin
+      .from('posts')
+      .update(updates)
+      .eq('slug', slug)
+      .select()
+      .single()
 
-    return NextResponse.json({ id: slug, slug, ...frontmatter, content: content ?? existing.content })
+    if (error) {
+      console.error(error)
+      return NextResponse.json(
+        { error: toUserFacingDbError(error) },
+        { status: 500 }
+      )
+    }
+
+    revalidatePostPaths(slug)
+
+    return NextResponse.json(toApiPost(data as DbPost))
   } catch (err) {
     console.error(err)
-    return NextResponse.json({ error: 'Failed to update post' }, { status: 500 })
+    const message =
+      err && typeof err === 'object' && 'message' in err
+        ? toUserFacingDbError(err as { message?: string; code?: string })
+        : 'Gagal memperbarui post'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
 // DELETE /api/v1/posts/[slug]
 export async function DELETE(_req: Request, { params }: Params) {
+  if (!hasSupabaseServerConfig()) {
+    return NextResponse.json(
+      { error: 'Supabase belum dikonfigurasi' },
+      { status: 503 }
+    )
+  }
+
   try {
     const { slug } = params
-    const filePath = path.join(postsDir, `${slug}.mdx`)
 
-    if (!fs.existsSync(filePath)) {
+    if (!validateSlug(slug)) {
+      return NextResponse.json({ error: 'Invalid slug' }, { status: 400 })
+    }
+
+    const { data: existing } = await supabaseAdmin
+      .from('posts')
+      .select('slug')
+      .eq('slug', slug)
+      .maybeSingle()
+
+    if (!existing) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 })
     }
 
-    fs.unlinkSync(filePath)
+    const { error } = await supabaseAdmin.from('posts').delete().eq('slug', slug)
 
-    revalidatePath('/posts')
-    revalidatePath('/')
+    if (error) {
+      console.error(error)
+      return NextResponse.json(
+        { error: toUserFacingDbError(error) },
+        { status: 500 }
+      )
+    }
+
+    revalidatePostPaths(slug)
 
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error(err)
-    return NextResponse.json({ error: 'Failed to delete post' }, { status: 500 })
+    const message =
+      err && typeof err === 'object' && 'message' in err
+        ? toUserFacingDbError(err as { message?: string; code?: string })
+        : 'Gagal menghapus post'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
