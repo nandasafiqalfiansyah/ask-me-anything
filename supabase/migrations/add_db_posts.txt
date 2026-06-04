@@ -1,0 +1,30 @@
+-- Migrasi Supabase: tabel posts untuk Blog Dashboard
+-- Cara pakai:
+-- 1. Buka Supabase Dashboard → SQL Editor
+-- 2. Salin seluruh isi file ini, lalu Run
+-- Atau via CLI: npm run mig
+
+create table if not exists posts (
+  id serial primary key,
+  slug text not null unique,
+  title text not null,
+  summary text,
+  image_url text,
+  author text default 'Admin',
+  published_at date not null default current_date,
+  published boolean not null default false,
+  content text not null default '',
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+
+create index if not exists posts_slug_idx on posts(slug);
+create index if not exists posts_published_idx on posts(published);
+create index if not exists posts_published_at_idx on posts(published_at desc);
+
+-- (Opsional) Seed post dari file MDX yang sudah ada:
+-- insert into posts (slug, title, summary, image_url, author, published_at, published, content)
+-- values
+--   ('introduction-to-nextjs', 'Introduction to NextJs', 'NextJs is a powerful React framework...', null, 'ndav', '2024-08-10', true, '...'),
+--   ('introduction-to-mdx', 'Introduction to MDX', 'MDX is a powerful tool...', '/images/posts/introduction-to-mdx.webp', 'ndav', '2024-08-08', true, '...')
+-- on conflict (slug) do nothing;
