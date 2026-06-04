@@ -14,7 +14,15 @@ import CrudProjects from '@/components/crud-projects'
 import CrudPosts from '@/components/crud-posts'
 import { OverviewDummy } from '@/components/crud-overview'
 
-type PageKey = 'overview' | 'skills' | 'experiences' | 'education' | 'certificates' | 'projects' | 'users' | 'posts'
+type PageKey =
+  | 'overview'
+  | 'skills'
+  | 'experiences'
+  | 'education'
+  | 'certificates'
+  | 'projects'
+  | 'users'
+  | 'posts'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -108,47 +116,47 @@ export default function DashboardPage() {
         </div>
 
         {/* Page Container */}
-        <div className='w-full mx-auto grid max-w-5xl gap-6'>
+        <div className='w-full'>
           {active === 'overview' && <OverviewDummy />}
 
           {active === 'skills' && (
-            <div className='rounded-2xl border p-6'>
+            <div className='rounded-2xl border px-4 py-5'>
               <CrudSkills />
             </div>
           )}
 
           {active === 'experiences' && (
-            <div className='rounded-2xl border p-6'>
+            <div className='rounded-2xl border px-4 py-5'>
               <CrudExperiences />
             </div>
           )}
 
           {active === 'education' && (
-            <div className='rounded-2xl border p-6'>
+            <div className='rounded-2xl border px-4 py-5'>
               <CrudEducation />
             </div>
           )}
 
           {active === 'certificates' && (
-            <div className='rounded-2xl border p-6'>
+            <div className='rounded-2xl border px-4 py-5'>
               <CrudCertificates />
             </div>
           )}
 
           {active === 'projects' && (
-            <div className='rounded-2xl border p-6'>
+            <div className='rounded-2xl border px-4 py-5'>
               <CrudProjects />
             </div>
           )}
 
           {active === 'posts' && (
-            <div className='rounded-2xl border p-6'>
+            <div className='rounded-2xl border px-4 py-5'>
               <CrudPosts />
             </div>
           )}
 
           {active === 'users' && (
-            <div className='rounded-2xl border p-6'>
+            <div className='rounded-2xl border px-4 py-5'>
               <CrudUsers />
             </div>
           )}
@@ -157,7 +165,3 @@ export default function DashboardPage() {
     </section>
   )
 }
-
-/* =========================
-   Dummy Pages (swap target)
-   ========================= */

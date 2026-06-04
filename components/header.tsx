@@ -27,7 +27,7 @@ export default function Header() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className='fixed inset-x-0 top-0 z-50 bg-background/75 py-3 backdrop-blur-sm sm:py-6'
+      className='fixed inset-x-0 top-0 z-50 bg-background py-3 sm:py-6'
     >
       <nav className='container flex max-w-3xl items-center justify-between'>
         <motion.div

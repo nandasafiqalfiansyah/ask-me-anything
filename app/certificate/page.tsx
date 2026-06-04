@@ -177,7 +177,7 @@ export default function CertificateCatalog() {
                   <h2 className='mb-6 border-b pb-2 text-2xl font-bold'>
                     {company}
                   </h2>
-                  <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+                  <div className='grid gap-6 sm:grid-cols-2'>
                     {certs.map(cert => (
                       <CertificateCard key={cert.id} cert={cert} />
                     ))}
@@ -187,7 +187,7 @@ export default function CertificateCatalog() {
             </div>
           ) : (
             // All Certificates View
-            <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+            <div className='grid gap-6 sm:grid-cols-2'>
               {certificates.map(cert => (
                 <CertificateCard key={cert.id} cert={cert} />
               ))}
