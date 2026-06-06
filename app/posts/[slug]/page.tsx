@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import type { Metadata } from 'next'
 
-import { formatDate } from '@/lib/utils'
+import { formatDate, getReadingTime } from '@/lib/utils'
 import MDXContent from '@/components/mdx-content'
 import { getPosts, getPostBySlug, getPostViewCount } from '@/lib/posts'
 import { ArrowLeftIcon } from '@radix-ui/react-icons'
@@ -19,6 +20,37 @@ export async function generateStaticParams() {
   return slugs
 }
 
+export async function generateMetadata({
+  params
+}: {
+  params: { slug: string }
+}): Promise<Metadata> {
+  const post = await getPostBySlug(params.slug)
+
+  if (!post) {
+    return { title: 'Post not found' }
+  }
+
+  const { title, summary, image } = post.metadata
+
+  return {
+    title,
+    description: summary,
+    openGraph: {
+      title,
+      description: summary,
+      type: 'article',
+      ...(image && { images: [{ url: image }] })
+    },
+    twitter: {
+      card: image ? 'summary_large_image' : 'summary',
+      title,
+      description: summary,
+      ...(image && { images: [image] })
+    }
+  }
+}
+
 export default async function Post({ params }: { params: { slug: string } }) {
   const { slug } = params
   const post = await getPostBySlug(slug)
@@ -28,51 +60,74 @@ export default async function Post({ params }: { params: { slug: string } }) {
   }
 
   const { metadata, content } = post
-  const { title, image, author, publishedAt } = metadata
+  const { title, summary, image, author, publishedAt } = metadata
   const initialViewCount = await getPostViewCount(slug)
+  const readingTime = getReadingTime(content)
 
   return (
-    <section className='pb-24 pt-32'>
-      <div className='container max-w-3xl'>
+    <article className='pb-24 pt-32'>
+      {/* Back link */}
+      <div className='container mb-8 max-w-3xl'>
         <Link
           href='/posts'
-          className='mb-8 inline-flex items-center gap-2 text-sm font-light text-muted-foreground transition-colors hover:text-foreground'
+          className='inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground'
         >
-          <ArrowLeftIcon className='h-5 w-5' />
+          <ArrowLeftIcon className='h-4 w-4' />
           <span>Back to posts</span>
         </Link>
+      </div>
 
-        {image && (
-          <div className='relative mb-6 h-96 w-full overflow-hidden rounded-lg'>
-            <Image
-              src={image}
-              alt={title || ''}
-              className='object-cover'
-              fill
-            />
-          </div>
+      {/* Title block — Medium-style centered header */}
+      <header className='container mx-auto max-w-3xl px-4 text-center'>
+        <h1 className='font-serif text-4xl font-bold leading-tight tracking-tight sm:text-5xl'>
+          {title}
+        </h1>
+
+        {summary && (
+          <p className='mx-auto mt-5 max-w-2xl text-lg text-muted-foreground'>
+            {summary}
+          </p>
         )}
 
-        <header>
-          <h1 className='title'>{title}</h1>
-          <p className='mt-3 text-xs text-muted-foreground'>
-            {author} / {formatDate(publishedAt ?? '')}
-          </p>
+        <div className='mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-muted-foreground'>
+          <span className='font-medium text-foreground'>{author}</span>
+          <span aria-hidden>·</span>
+          <time dateTime={publishedAt}>{formatDate(publishedAt ?? '')}</time>
+          <span aria-hidden>·</span>
+          <span>{readingTime} min read</span>
+          <span aria-hidden>·</span>
           <PostViewCounter
             slug={slug}
             initialCount={initialViewCount}
-            className='mt-1 text-xs text-muted-foreground'
+            className='text-sm text-muted-foreground'
           />
-        </header>
+        </div>
+      </header>
 
-        <main className='prose mt-16 dark:prose-invert'>
+      {/* Banner — lebar sama dengan navbar (container max-w-3xl) */}
+      {image && (
+        <div className='container relative mt-10 aspect-[2/1] max-w-3xl overflow-hidden sm:mt-12'>
+          <Image
+            src={image}
+            alt={title || ''}
+            className='object-cover'
+            fill
+            priority
+            sizes='(max-width: 768px) 100vw, 768px'
+          />
+        </div>
+      )}
+
+      {/* Article body — narrow reading column */}
+      <main className='container mx-auto mt-12 max-w-2xl px-4 sm:mt-16'>
+        <div className='prose prose-lg dark:prose-invert'>
           <MDXContent source={content} />
-        </main>
+        </div>
+      </main>
 
-        <footer className='mt-16'>
-          <NewsletterForm />
-        </footer>
-      </div>
-    </section>
+      <footer className='container mx-auto mt-20 max-w-2xl px-4'>
+        <NewsletterForm />
+      </footer>
+    </article>
   )
 }

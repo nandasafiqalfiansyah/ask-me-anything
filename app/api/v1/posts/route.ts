@@ -43,7 +43,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json()
-    const { title, summary, content, author, published } = body
+    const { title, summary, content, author, published, image } = body
 
     if (!title || typeof title !== 'string') {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 })
@@ -60,6 +60,7 @@ export async function POST(req: Request) {
         summary: summary?.trim() || null,
         content: content ?? '',
         author: author ?? 'Admin',
+        image_url: image?.trim() || null,
         published_at: publishedAt,
         published: published === true
       })

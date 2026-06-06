@@ -26,6 +26,7 @@ type Post = {
   author: string
   publishedAt: string
   published: boolean
+  image?: string
 }
 
 type View = 'list' | 'form' | 'preview'
@@ -35,7 +36,8 @@ const EMPTY_POST: Omit<Post, 'id' | 'slug' | 'publishedAt'> = {
   summary: '',
   content: '',
   author: 'Admin',
-  published: false
+  published: false,
+  image: ''
 }
 
 export default function CrudPosts() {
@@ -51,6 +53,8 @@ export default function CrudPosts() {
   const [content, setContent] = useState('')
   const [author, setAuthor] = useState('Admin')
   const [published, setPublished] = useState(false)
+  const [image, setImage] = useState('')
+  const [uploading, setUploading] = useState(false)
 
   const loadPosts = useCallback(async () => {
     setLoading(true)
@@ -77,6 +81,7 @@ export default function CrudPosts() {
     setContent(EMPTY_POST.content)
     setAuthor(EMPTY_POST.author)
     setPublished(EMPTY_POST.published)
+    setImage(EMPTY_POST.image ?? '')
     setView('form')
   }
 
@@ -87,6 +92,7 @@ export default function CrudPosts() {
     setContent(post.content)
     setAuthor(post.author || 'Admin')
     setPublished(post.published)
+    setImage(post.image || '')
     setView('form')
   }
 
@@ -109,7 +115,14 @@ export default function CrudPosts() {
 
     setSaving(true)
     try {
-      const payload = { title: title.trim(), summary: summary.trim(), content, author, published }
+      const payload = {
+        title: title.trim(),
+        summary: summary.trim(),
+        content,
+        author,
+        published,
+        image: image.trim() || null
+      }
       const method = editingPost ? 'PUT' : 'POST'
       const url = editingPost ? `/api/v1/posts/${editingPost.slug}` : '/api/v1/posts'
 
@@ -234,6 +247,62 @@ export default function CrudPosts() {
             onChange={e => setSummary(e.target.value)}
             placeholder='Ringkasan singkat yang muncul di daftar post...'
           />
+        </div>
+
+        {/* Banner image */}
+        <div className='space-y-1.5'>
+          <label className='text-sm font-medium'>
+            Banner Image
+            <span className='ml-1 text-xs text-muted-foreground'>(opsional)</span>
+          </label>
+          <Input
+            value={image}
+            onChange={e => setImage(e.target.value)}
+            placeholder='URL gambar banner atau upload file...'
+          />
+          <div className='flex items-center gap-2'>
+            <Input
+              type='file'
+              accept='image/*'
+              disabled={uploading || saving}
+              className='flex-1'
+              onChange={async e => {
+                const file = e.target.files?.[0]
+                if (!file) return
+
+                setUploading(true)
+                try {
+                  const formData = new FormData()
+                  formData.append('file', file)
+                  const res = await fetch('/api/v1/posts/upload', {
+                    method: 'POST',
+                    body: formData
+                  })
+                  const data = await res.json()
+                  if (data.error) {
+                    toast.error(data.error)
+                  } else {
+                    setImage(data.url)
+                    toast.success('Banner berhasil diupload')
+                  }
+                } catch {
+                  toast.error('Gagal upload banner')
+                } finally {
+                  setUploading(false)
+                }
+              }}
+            />
+            {image && (
+              <a
+                href={image}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='shrink-0 text-xs text-primary hover:underline'
+              >
+                Preview
+              </a>
+            )}
+          </div>
         </div>
 
         {/* Content editor */}

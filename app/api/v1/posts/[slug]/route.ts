@@ -74,7 +74,7 @@ export async function PUT(req: Request, { params }: Params) {
     }
 
     const body = await req.json()
-    const { title, summary, content, author, published, publishedAt } = body
+    const { title, summary, content, author, published, publishedAt, image } = body
 
     const updates: Record<string, unknown> = {
       updated_at: new Date().toISOString()
@@ -86,6 +86,7 @@ export async function PUT(req: Request, { params }: Params) {
     if (author !== undefined) updates.author = author
     if (published !== undefined) updates.published = published
     if (publishedAt !== undefined) updates.published_at = publishedAt
+    if (image !== undefined) updates.image_url = image?.trim() || null
 
     const { data, error } = await supabaseAdmin
       .from('posts')

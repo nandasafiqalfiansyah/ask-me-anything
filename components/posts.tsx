@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 import { PostMetadata } from '@/lib/posts'
@@ -12,57 +13,71 @@ export default function Posts({ posts }: { posts: PostMetadata[] }) {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.08
       }
     }
   }
 
   const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
+    hidden: { opacity: 0, y: 16 },
     visible: {
       opacity: 1,
-      x: 0,
+      y: 0,
       transition: {
-        duration: 0.5
+        duration: 0.4
       }
     }
   }
 
   return (
-    <motion.ul
+    <motion.div
       variants={containerVariants}
       initial='hidden'
       whileInView='visible'
       viewport={{ once: true, margin: '-50px' }}
-      className='flex flex-col gap-8'
+      className='flex flex-col gap-10'
     >
       {posts.map(post => (
-        <motion.li
+        <motion.article
           key={post.slug}
           variants={itemVariants}
-          whileHover={{ x: 10, scale: 1.02 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          className='group'
         >
-          <Link
-            href={`/posts/${post.slug}`}
-            className='flex flex-col justify-between gap-x-4 gap-y-1 sm:flex-row'
-          >
-            <div className='max-w-lg'>
-              <p className='text-lg font-semibold'>{post.title}</p>
-              <p className='mt-1 line-clamp-2 text-sm font-light text-muted-foreground'>
-                {post.summary}
-              </p>
-            </div>
+          <Link href={`/posts/${post.slug}`} className='flex flex-col gap-5 sm:flex-row'>
+            {post.image && (
+              <div className='relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-sm sm:w-48 md:w-56'>
+                <Image
+                  src={post.image}
+                  alt={post.title || ''}
+                  fill
+                  className='object-cover transition-transform duration-300 group-hover:scale-105'
+                  sizes='(max-width: 640px) 100vw, 224px'
+                />
+              </div>
+            )}
 
-            <div className='mt-1 flex shrink-0 flex-col items-start text-sm font-light sm:items-end'>
-              {post.publishedAt && <p>{formatDate(post.publishedAt)}</p>}
-              <p className='text-xs text-muted-foreground'>
-                {(post.viewCount ?? 0).toLocaleString('en-US')} views
-              </p>
+            <div className='flex min-w-0 flex-1 flex-col justify-center'>
+              <h2 className='font-serif text-xl font-bold leading-snug transition-colors group-hover:text-primary sm:text-2xl'>
+                {post.title}
+              </h2>
+
+              {post.summary && (
+                <p className='mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground'>
+                  {post.summary}
+                </p>
+              )}
+
+              <div className='mt-3 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground'>
+                {post.author && <span>{post.author}</span>}
+                {post.author && post.publishedAt && <span aria-hidden>·</span>}
+                {post.publishedAt && <time>{formatDate(post.publishedAt)}</time>}
+                <span aria-hidden>·</span>
+                <span>{(post.viewCount ?? 0).toLocaleString('en-US')} views</span>
+              </div>
             </div>
           </Link>
-        </motion.li>
+        </motion.article>
       ))}
-    </motion.ul>
+    </motion.div>
   )
 }
