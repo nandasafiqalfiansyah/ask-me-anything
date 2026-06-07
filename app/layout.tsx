@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 
+import { getSiteUrl } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 import './globals.css'
@@ -21,6 +22,7 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: 'Nanda Safiq Alfiansyah',
   description:
     'Website portofolio Nanda Safiq to show my project and my skill about programing.'
