@@ -9,6 +9,7 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import { notFound } from 'next/navigation'
 import NewsletterForm from '@/components/newsletter-form'
 import PostViewCounter from '@/components/post-view-counter'
+import PostComments from '@/components/post-comments'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -104,28 +105,32 @@ export default async function Post({ params }: { params: { slug: string } }) {
         </div>
       </header>
 
-      {/* Banner — lebar sama dengan navbar (container max-w-3xl) */}
+      {/* Banner — lebar sama dengan navbar */}
       {image && (
-        <div className='container relative mt-10 aspect-[2/1] max-w-3xl overflow-hidden sm:mt-12'>
-          <Image
-            src={image}
-            alt={title || ''}
-            className='object-cover'
-            fill
-            priority
-            sizes='(max-width: 768px) 100vw, 768px'
-          />
+        <div className='container mt-10 max-w-3xl sm:mt-12'>
+          <div className='relative aspect-[2/1] overflow-hidden rounded-lg border border-border/60 bg-muted'>
+            <Image
+              src={image}
+              alt={title || ''}
+              className='object-cover'
+              fill
+              priority
+              sizes='(max-width: 768px) 100vw, 768px'
+            />
+          </div>
         </div>
       )}
 
-      {/* Article body — narrow reading column */}
-      <main className='container mx-auto mt-12 max-w-2xl px-4 sm:mt-16'>
-        <div className='prose prose-lg dark:prose-invert'>
+      {/* Article body */}
+      <main className='container mx-auto mt-12 max-w-3xl sm:mt-16'>
+        <div className='prose prose-lg max-w-none dark:prose-invert'>
           <MDXContent source={content} />
         </div>
+
+        <PostComments slug={slug} />
       </main>
 
-      <footer className='container mx-auto mt-20 max-w-2xl px-4'>
+      <footer className='container mx-auto mt-20 max-w-3xl'>
         <NewsletterForm />
       </footer>
     </article>

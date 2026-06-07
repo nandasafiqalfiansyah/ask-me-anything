@@ -44,15 +44,19 @@ export default function Posts({ posts }: { posts: PostMetadata[] }) {
           className='group'
         >
           <Link href={`/posts/${post.slug}`} className='flex flex-col gap-5 sm:flex-row'>
-            {post.image && (
-              <div className='relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-sm sm:w-48 md:w-56'>
+            {post.image ? (
+              <div className='relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted sm:w-44 md:w-52'>
                 <Image
                   src={post.image}
                   alt={post.title || ''}
                   fill
-                  className='object-cover transition-transform duration-300 group-hover:scale-105'
-                  sizes='(max-width: 640px) 100vw, 224px'
+                  className='object-cover transition-transform duration-300 group-hover:scale-[1.03]'
+                  sizes='(max-width: 640px) 100vw, 208px'
                 />
+              </div>
+            ) : (
+              <div className='flex aspect-[16/10] w-full shrink-0 items-center justify-center rounded-lg border border-dashed border-border/60 bg-muted/50 sm:w-44 md:w-52'>
+                <span className='text-xs text-muted-foreground'>No image</span>
               </div>
             )}
 
