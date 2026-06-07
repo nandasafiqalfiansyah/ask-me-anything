@@ -1,4 +1,5 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 let supabaseAdminInstance: SupabaseClient | null = null
 
@@ -25,7 +26,11 @@ function getSupabaseAdmin(): SupabaseClient {
 // This should only be used in server-side code (API routes)
 // Using a Proxy to delay initialization until the client is actually accessed
 export const supabaseAdmin = new Proxy({} as SupabaseClient, {
-  get: (target, prop) => {
+  get: (_target, prop) => {
+    if (prop === 'then' || prop === 'inspect' || typeof prop === 'symbol') {
+      return undefined
+    }
+
     const client = getSupabaseAdmin()
     const value = Reflect.get(client, prop)
     return typeof value === 'function' ? value.bind(client) : value

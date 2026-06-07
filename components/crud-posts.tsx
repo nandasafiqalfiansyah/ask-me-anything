@@ -13,6 +13,7 @@ import {
   EyeOpenIcon,
   Cross2Icon,
   CheckIcon,
+  LightningBoltIcon,
   ArrowLeftIcon
 } from '@radix-ui/react-icons'
 import { cn } from '@/lib/utils'
@@ -55,6 +56,8 @@ export default function CrudPosts() {
   const [published, setPublished] = useState(false)
   const [image, setImage] = useState('')
   const [uploading, setUploading] = useState(false)
+  const [idea, setIdea] = useState('')
+  const [generating, setGenerating] = useState(false)
 
   const loadPosts = useCallback(async () => {
     setLoading(true)
@@ -82,6 +85,7 @@ export default function CrudPosts() {
     setAuthor(EMPTY_POST.author)
     setPublished(EMPTY_POST.published)
     setImage(EMPTY_POST.image ?? '')
+    setIdea('')
     setView('form')
   }
 
@@ -93,6 +97,7 @@ export default function CrudPosts() {
     setAuthor(post.author || 'Admin')
     setPublished(post.published)
     setImage(post.image || '')
+    setIdea('')
     setView('form')
   }
 
@@ -157,6 +162,38 @@ export default function CrudPosts() {
       setPosts(prev => prev.filter(p => p.id !== post.id))
     } catch {
       toast.error('Gagal menghapus post')
+    }
+  }
+
+  async function handleGeneratePost() {
+    const trimmedIdea = idea.trim()
+    if (!trimmedIdea) {
+      toast.error('Tulis ide blog dulu')
+      return
+    }
+
+    setGenerating(true)
+    try {
+      const res = await fetch('/api/v1/posts/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idea: trimmedIdea })
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Gagal generate post')
+      }
+
+      setTitle(data.title || '')
+      setSummary(data.summary || '')
+      setContent(data.content || '')
+      setImage(data.image || '')
+      toast.success('Konten dan banner berhasil dibuat AI')
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Gagal generate post')
+    } finally {
+      setGenerating(false)
     }
   }
 
@@ -236,6 +273,44 @@ export default function CrudPosts() {
           />
         </div>
 
+        <div className='space-y-2 rounded-xl border bg-muted/20 p-4'>
+          <div className='space-y-1.5'>
+            <label className='text-sm font-medium'>Generate dengan AI</label>
+            <textarea
+              value={idea}
+              onChange={e => setIdea(e.target.value)}
+              placeholder='Tulis ide blog, misalnya: cara membuat portfolio Next.js dengan Supabase...'
+              rows={3}
+              disabled={generating || saving}
+              className='w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50'
+            />
+          </div>
+          <div className='flex flex-wrap items-center justify-between gap-2'>
+            <p className='text-xs text-muted-foreground'>
+              Hasil AI akan mengisi judul, deskripsi, konten, dan banner.
+            </p>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={handleGeneratePost}
+              disabled={generating || saving}
+              className='gap-2'
+            >
+              {generating ? (
+                <>
+                  <span className='h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent' />
+                  Generate...
+                </>
+              ) : (
+                <>
+                  <LightningBoltIcon />
+                  Generate Konten & Image
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
         {/* Summary — optional ringkasan singkat */}
         <div className='space-y-1.5'>
           <label className='text-sm font-medium'>
@@ -264,7 +339,7 @@ export default function CrudPosts() {
             <Input
               type='file'
               accept='image/*'
-              disabled={uploading || saving}
+              disabled={uploading || saving || generating}
               className='flex-1'
               onChange={async e => {
                 const file = e.target.files?.[0]
