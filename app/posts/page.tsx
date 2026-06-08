@@ -8,7 +8,7 @@ export default async function PostsPage() {
 
   return (
     <section className='pb-24 pt-40'>
-      <div className='container max-w-4xl'>
+      <div className='container max-w-3xl'>
         <h1 className='mb-12 font-serif text-4xl font-bold'>Posts</h1>
 
         <PostsWithSearch posts={posts} />
