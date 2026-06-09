@@ -14,6 +14,7 @@ import {
   Cross2Icon,
   CheckIcon,
   LightningBoltIcon,
+  ImageIcon,
   ArrowLeftIcon
 } from '@radix-ui/react-icons'
 import { cn } from '@/lib/utils'
@@ -48,7 +49,6 @@ export default function CrudPosts() {
   const [view, setView] = useState<View>('list')
   const [editingPost, setEditingPost] = useState<Post | null>(null)
 
-  // Form state
   const [title, setTitle] = useState('')
   const [summary, setSummary] = useState('')
   const [content, setContent] = useState('')
@@ -58,6 +58,7 @@ export default function CrudPosts() {
   const [uploading, setUploading] = useState(false)
   const [idea, setIdea] = useState('')
   const [generating, setGenerating] = useState(false)
+  const [generatingImage, setGeneratingImage] = useState(false)
 
   const loadPosts = useCallback(async () => {
     setLoading(true)
@@ -117,7 +118,6 @@ export default function CrudPosts() {
       toast.error('Judul tidak boleh kosong')
       return
     }
-
     setSaving(true)
     try {
       const payload = {
@@ -130,18 +130,15 @@ export default function CrudPosts() {
       }
       const method = editingPost ? 'PUT' : 'POST'
       const url = editingPost ? `/api/v1/posts/${editingPost.slug}` : '/api/v1/posts'
-
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
-
       if (!res.ok) {
         const err = await res.json()
         throw new Error(err.error || 'Gagal menyimpan')
       }
-
       toast.success(editingPost ? 'Post berhasil diperbarui' : 'Post berhasil dibuat')
       await loadPosts()
       setView('list')
@@ -171,7 +168,6 @@ export default function CrudPosts() {
       toast.error('Tulis ide blog dulu')
       return
     }
-
     setGenerating(true)
     try {
       const res = await fetch('/api/v1/posts/generate', {
@@ -180,19 +176,45 @@ export default function CrudPosts() {
         body: JSON.stringify({ idea: trimmedIdea })
       })
       const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Gagal generate post')
-      }
-
+      if (!res.ok) throw new Error(data.error || 'Gagal generate post')
       setTitle(data.title || '')
       setSummary(data.summary || '')
       setContent(data.content || '')
-      toast.success('Konten berhasil dibuat AI')
+      toast.success('Konten berhasil dibuat AI (Gemini)')
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Gagal generate post')
     } finally {
       setGenerating(false)
+    }
+  }
+
+  async function handleGenerateImage() {
+    if (!title.trim() && !idea.trim()) {
+      toast.error('Isi judul atau ide dulu untuk generate gambar')
+      return
+    }
+    setGeneratingImage(true)
+    try {
+      const res = await fetch('/api/v1/posts/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title.trim(),
+          idea: idea.trim() || summary.trim()
+        })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Gagal generate image')
+      if (data.image) {
+        setImage(data.image)
+        toast.success('Banner image berhasil dibuat (Pollinations)')
+      } else {
+        throw new Error('Response tidak mengandung URL gambar')
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Gagal generate image')
+    } finally {
+      setGeneratingImage(false)
     }
   }
 
@@ -223,9 +245,7 @@ export default function CrudPosts() {
         </button>
         <div className='rounded-xl border p-6'>
           <h2 className='title text-2xl font-bold'>{editingPost.title}</h2>
-          {editingPost.summary && (
-            <p className='mt-2 text-muted-foreground'>{editingPost.summary}</p>
-          )}
+          {editingPost.summary && <p className='mt-2 text-muted-foreground'>{editingPost.summary}</p>}
           <p className='mt-1 text-xs text-muted-foreground'>
             {editingPost.author} · {editingPost.publishedAt}
           </p>
@@ -242,9 +262,7 @@ export default function CrudPosts() {
     return (
       <form onSubmit={handleSave} className='space-y-5'>
         <div className='flex items-center justify-between'>
-          <h2 className='text-lg font-semibold'>
-            {editingPost ? 'Edit Post' : 'Buat Post Baru'}
-          </h2>
+          <h2 className='text-lg font-semibold'>{editingPost ? 'Edit Post' : 'Buat Post Baru'}</h2>
           <button
             type='button'
             onClick={cancelForm}
@@ -270,13 +288,13 @@ export default function CrudPosts() {
 
         <div className='space-y-2 rounded-xl border bg-muted/20 p-4'>
           <div className='space-y-1.5'>
-            <label className='text-sm font-medium'>Generate dengan AI (Teks)</label>
+            <label className='text-sm font-medium'>Generate Konten dengan AI (Gemini Text)</label>
             <textarea
               value={idea}
               onChange={e => setIdea(e.target.value)}
               placeholder='Tulis ide blog, misalnya: cara membuat portfolio Next.js dengan Supabase...'
               rows={3}
-              disabled={generating || saving}
+              disabled={generating || saving || generatingImage}
               className='w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50'
             />
           </div>
@@ -288,7 +306,7 @@ export default function CrudPosts() {
               type='button'
               variant='outline'
               onClick={handleGeneratePost}
-              disabled={generating || saving}
+              disabled={generating || saving || generatingImage}
               className='gap-2'
             >
               {generating ? (
@@ -318,11 +336,33 @@ export default function CrudPosts() {
           />
         </div>
 
-        <div className='space-y-1.5'>
-          <label className='text-sm font-medium'>
-            Banner Image
-            <span className='ml-1 text-xs text-muted-foreground'>(opsional, upload manual)</span>
-          </label>
+        <div className='space-y-2 rounded-xl border bg-muted/20 p-4'>
+          <div className='flex flex-wrap items-center justify-between gap-2'>
+            <label className='text-sm font-medium'>Banner Image</label>
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              onClick={handleGenerateImage}
+              disabled={generatingImage || saving || generating}
+              className='gap-2'
+            >
+              {generatingImage ? (
+                <>
+                  <span className='h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent' />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <ImageIcon />
+                  Generate Image
+                </>
+              )}
+            </Button>
+          </div>
+          <p className='text-xs text-muted-foreground'>
+            AI generate image via Pollinations (otomatis dari judul/ide). Bisa juga upload manual di bawah.
+          </p>
           <Input
             value={image}
             onChange={e => setImage(e.target.value)}
@@ -332,12 +372,11 @@ export default function CrudPosts() {
             <Input
               type='file'
               accept='image/*'
-              disabled={uploading || saving || generating}
+              disabled={uploading || saving || generating || generatingImage}
               className='flex-1'
               onChange={async e => {
                 const file = e.target.files?.[0]
                 if (!file) return
-
                 setUploading(true)
                 try {
                   const formData = new FormData()
@@ -371,6 +410,12 @@ export default function CrudPosts() {
               </a>
             )}
           </div>
+          {image && (
+            <div className='overflow-hidden rounded-md border'>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={image} alt='Banner preview' className='h-40 w-full object-cover' />
+            </div>
+          )}
         </div>
 
         <div className='space-y-1.5'>
@@ -464,54 +509,54 @@ export default function CrudPosts() {
               <div className='min-w-0 flex-1'>
                 <div className='flex items-center gap-2'>
                   <span className='truncate font-medium'>{post.title}</span>
-                  <Badge variant={post.published ? 'default' : 'secondary'} className='shrink-0 text-xs'>
-                    {post.published ? 'Published' : 'Draft'}
+                  <Badge variant={post.published ? "default" : "secondary"} className="shrink-0 text-xs">
+                    {post.published ? "Published" : "Draft"}
                   </Badge>
                 </div>
                 {post.summary && (
-                  <p className='mt-0.5 truncate text-sm text-muted-foreground'>{post.summary}</p>
+                  <p className="mt-0.5 truncate text-sm text-muted-foreground">{post.summary}</p>
                 )}
-                <p className='mt-0.5 text-xs text-muted-foreground'>
-                  {post.publishedAt || '—'} · {post.slug}
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {post.publishedAt || "—"} · {post.slug}
                 </p>
               </div>
 
-              <div className='flex shrink-0 items-center gap-1'>
+              <div className="flex shrink-0 items-center gap-1">
                 <Button
-                  size='icon'
-                  variant='ghost'
-                  title={post.published ? 'Sembunyikan' : 'Publikasikan'}
+                  size="icon"
+                  variant="ghost"
+                  title={post.published ? "Sembunyikan" : "Publikasikan"}
                   onClick={() => handleTogglePublish(post)}
-                  className='h-8 w-8'
+                  className="h-8 w-8"
                 >
-                  <EyeOpenIcon className={cn('h-4 w-4', !post.published && 'opacity-40')} />
+                  <EyeOpenIcon className={cn("h-4 w-4", !post.published && "opacity-40")} />
                 </Button>
                 <Button
-                  size='icon'
-                  variant='ghost'
-                  title='Preview'
+                  size="icon"
+                  variant="ghost"
+                  title="Preview"
                   onClick={() => openPreview(post)}
-                  className='h-8 w-8'
+                  className="h-8 w-8"
                 >
-                  <EyeOpenIcon className='h-4 w-4 text-blue-500' />
+                  <EyeOpenIcon className="h-4 w-4 text-blue-500" />
                 </Button>
                 <Button
-                  size='icon'
-                  variant='ghost'
-                  title='Edit'
+                  size="icon"
+                  variant="ghost"
+                  title="Edit"
                   onClick={() => openEdit(post)}
-                  className='h-8 w-8'
+                  className="h-8 w-8"
                 >
-                  <Pencil1Icon className='h-4 w-4' />
+                  <Pencil1Icon className="h-4 w-4" />
                 </Button>
                 <Button
-                  size='icon'
-                  variant='ghost'
-                  title='Hapus'
+                  size="icon"
+                  variant="ghost"
+                  title="Hapus"
                   onClick={() => handleDelete(post)}
-                  className='h-8 w-8 text-destructive hover:text-destructive'
+                  className="h-8 w-8 text-destructive hover:text-destructive"
                 >
-                  <TrashIcon className='h-4 w-4' />
+                  <TrashIcon className="h-4 w-4" />
                 </Button>
               </div>
             </div>
