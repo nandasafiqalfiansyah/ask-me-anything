@@ -188,8 +188,7 @@ export default function CrudPosts() {
       setTitle(data.title || '')
       setSummary(data.summary || '')
       setContent(data.content || '')
-      setImage(data.image || '')
-      toast.success('Konten dan banner berhasil dibuat AI')
+      toast.success('Konten berhasil dibuat AI')
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Gagal generate post')
     } finally {
@@ -206,13 +205,12 @@ export default function CrudPosts() {
       })
       if (!res.ok) throw new Error()
       toast.success(post.published ? 'Post disembunyikan' : 'Post dipublikasikan')
-      setPosts(prev => prev.map(p => (p.id === post.id ? { ...p, published: !p.published } : p)))
+      setPosts(prev => prev.map(p => (p.id === post.id ? { ...p, published: !post.published } : p)))
     } catch {
       toast.error('Gagal mengubah status')
     }
   }
 
-  // ── PREVIEW VIEW ──────────────────────────────────────────────
   if (view === 'preview' && editingPost) {
     return (
       <div className='space-y-4'>
@@ -240,11 +238,9 @@ export default function CrudPosts() {
     )
   }
 
-  // ── FORM VIEW ─────────────────────────────────────────────────
   if (view === 'form') {
     return (
       <form onSubmit={handleSave} className='space-y-5'>
-        {/* Header */}
         <div className='flex items-center justify-between'>
           <h2 className='text-lg font-semibold'>
             {editingPost ? 'Edit Post' : 'Buat Post Baru'}
@@ -259,7 +255,6 @@ export default function CrudPosts() {
           </button>
         </div>
 
-        {/* Title — satu-satunya field wajib */}
         <div className='space-y-1.5'>
           <label className='text-sm font-medium'>
             Judul <span className='text-destructive'>*</span>
@@ -275,7 +270,7 @@ export default function CrudPosts() {
 
         <div className='space-y-2 rounded-xl border bg-muted/20 p-4'>
           <div className='space-y-1.5'>
-            <label className='text-sm font-medium'>Generate dengan AI</label>
+            <label className='text-sm font-medium'>Generate dengan AI (Teks)</label>
             <textarea
               value={idea}
               onChange={e => setIdea(e.target.value)}
@@ -287,7 +282,7 @@ export default function CrudPosts() {
           </div>
           <div className='flex flex-wrap items-center justify-between gap-2'>
             <p className='text-xs text-muted-foreground'>
-              Hasil AI akan mengisi judul, deskripsi, konten, dan banner.
+              Hasil AI akan mengisi judul, deskripsi, dan konten (tanpa gambar).
             </p>
             <Button
               type='button'
@@ -304,14 +299,13 @@ export default function CrudPosts() {
               ) : (
                 <>
                   <LightningBoltIcon />
-                  Generate Konten & Image
+                  Generate Konten
                 </>
               )}
             </Button>
           </div>
         </div>
 
-        {/* Summary — optional ringkasan singkat */}
         <div className='space-y-1.5'>
           <label className='text-sm font-medium'>
             Deskripsi Singkat
@@ -324,11 +318,10 @@ export default function CrudPosts() {
           />
         </div>
 
-        {/* Banner image */}
         <div className='space-y-1.5'>
           <label className='text-sm font-medium'>
             Banner Image
-            <span className='ml-1 text-xs text-muted-foreground'>(opsional)</span>
+            <span className='ml-1 text-xs text-muted-foreground'>(opsional, upload manual)</span>
           </label>
           <Input
             value={image}
@@ -380,7 +373,6 @@ export default function CrudPosts() {
           </div>
         </div>
 
-        {/* Content editor */}
         <div className='space-y-1.5'>
           <label className='text-sm font-medium'>Konten</label>
           <MarkdownEditor
@@ -391,7 +383,6 @@ export default function CrudPosts() {
           />
         </div>
 
-        {/* Footer: published toggle + actions */}
         <div className='flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-muted/30 px-4 py-3'>
           <label className='flex cursor-pointer items-center gap-2.5 text-sm'>
             <div
@@ -436,10 +427,8 @@ export default function CrudPosts() {
     )
   }
 
-  // ── LIST VIEW ─────────────────────────────────────────────────
   return (
     <div className='space-y-5'>
-      {/* Header */}
       <div className='flex items-center justify-between'>
         <div>
           <h2 className='text-lg font-semibold'>Daftar Post</h2>
@@ -453,7 +442,6 @@ export default function CrudPosts() {
         </Button>
       </div>
 
-      {/* List */}
       {loading ? (
         <div className='flex items-center justify-center py-16'>
           <span className='h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent' />
@@ -473,7 +461,6 @@ export default function CrudPosts() {
               key={post.id}
               className='flex items-start justify-between gap-4 px-4 py-4 transition-colors hover:bg-muted/30'
             >
-              {/* Info */}
               <div className='min-w-0 flex-1'>
                 <div className='flex items-center gap-2'>
                   <span className='truncate font-medium'>{post.title}</span>
@@ -489,7 +476,6 @@ export default function CrudPosts() {
                 </p>
               </div>
 
-              {/* Actions */}
               <div className='flex shrink-0 items-center gap-1'>
                 <Button
                   size='icon'
