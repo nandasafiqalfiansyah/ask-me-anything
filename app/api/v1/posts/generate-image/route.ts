@@ -14,12 +14,22 @@ const POLLINATION_API_KEY = process.env.POOLINATION_API_KEY
 const POLLINATION_BASE_URL =
   process.env.POOLINATION_BASE_URL || 'https://image.pollinations.ai'
 
-// Urutan model fallback dari paling ringan -> paling mahal.
-// 'turbo' biasanya hemat pollen; 'flux' paling detail tapi paling boros.
-const POLLINATION_MODELS = (process.env.POOLINATION_MODELS || 'turbo,flux')
+// Default: model 'flux' (sesuai permintaan). Bisa dioverride via env.
+// Contoh: POOLINATION_MODELS="flux" (default) atau "kontext,flux" untuk fallback.
+const POLLINATION_MODELS = (process.env.POOLINATION_MODELS || 'flux')
   .split(',')
   .map(m => m.trim())
   .filter(Boolean)
+
+// Jumlah retry per model kalau dapat 402 (queue full / pollen habis).
+// Pollinations free tier membatasi max 1 antrian per IP, jadi kita retry
+// dengan jeda agar antrian sempat kosong.
+const MAX_RETRIES = Number(process.env.POOLINATION_MAX_RETRIES || 4)
+const RETRY_BASE_DELAY_MS = Number(process.env.POOLINATION_RETRY_DELAY_MS || 3000)
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 
 function getGeminiApiKey() {
   return process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
@@ -71,8 +81,7 @@ function parseImagePrompt(rawText: string): GeneratedPrompt {
 
 /**
  * Build Pollinations URL.
- * Autentikasi pakai header `Authorization: Bearer <key>` (bukan query `token`)
- * karena beberapa endpoint Pollinations tidak menerima query token.
+ * Autentikasi pakai header `Authorization: Bearer <key>` (bukan query `token`).
  */
 function buildPollinationUrl(prompt: string, model: string) {
   const encoded = encodeURIComponent(prompt)
@@ -86,9 +95,24 @@ function buildPollinationUrl(prompt: string, model: string) {
   return `${POLLINATION_BASE_URL}/prompt/${encoded}?${params.toString()}`
 }
 
-async function fetchPollinationImage(
-  prompt: string
-): Promise<{ buffer: Buffer; contentType: string; model: string }> {
+type PollinationSuccess = {
+  ok: true
+  buffer: Buffer
+  contentType: string
+  model: string
+}
+
+type PollinationFailure = {
+  ok: false
+  status: number
+  body: string
+  model: string
+}
+
+async function tryPollinationOnce(
+  prompt: string,
+  model: string
+): Promise<PollinationSuccess | PollinationFailure> {
   const headers: Record<string, string> = {
     Accept: 'image/*',
     'User-Agent': 'ask-me-anything/1.0'
@@ -97,56 +121,87 @@ async function fetchPollinationImage(
     headers['Authorization'] = `Bearer ${POLLINATION_API_KEY}`
   }
 
-  let lastError: Error | null = null
+  const url = buildPollinationUrl(prompt, model)
+  const res = await fetch(url, { method: 'GET', headers, cache: 'no-store' })
 
-  for (const model of POLLINATION_MODELS) {
-    const url = buildPollinationUrl(prompt, model)
-    const res = await fetch(url, { method: 'GET', headers, cache: 'no-store' })
-
-    if (res.ok) {
-      const contentType = res.headers.get('content-type') || 'image/jpeg'
-      if (contentType.startsWith('image/')) {
-        const arrayBuffer = await res.arrayBuffer()
-        return { buffer: Buffer.from(arrayBuffer), contentType, model }
+  if (res.ok) {
+    const contentType = res.headers.get('content-type') || 'image/jpeg'
+    if (contentType.startsWith('image/')) {
+      const arrayBuffer = await res.arrayBuffer()
+      return {
+        ok: true,
+        buffer: Buffer.from(arrayBuffer),
+        contentType,
+        model
       }
-      // Response OK tapi bukan gambar (kemungkinan JSON error)
-      const text = await res.text()
-      lastError = new Error(
-        `Pollinations [${model}] response tidak valid: ${text.slice(0, 200)}`
-      )
-      continue
     }
-
-    // 402 = payment/quota habis untuk model/akun ini.
-    // Coba model berikutnya, atau stop kalau tidak ada lagi.
-    if (res.status === 402) {
-      const text = await res.text().catch(() => '')
-      lastError = new Error(
-        `Pollinations [${model}] mengembalikan 402 (pollen/quota habis). ${
-          text ? `Detail: ${text.slice(0, 200)}` : ''
-        }`.trim()
-      )
-      continue
-    }
-
-    if (res.status === 401 || res.status === 403) {
-      const text = await res.text().catch(() => '')
-      throw new Error(
-        `Pollinations [${model}] unauthorized (${res.status}). ${
-          text ? `Detail: ${text.slice(0, 200)}` : ''
-        }`.trim()
-      )
-    }
-
-    const text = await res.text().catch(() => '')
-    lastError = new Error(
-      `Pollinations [${model}] gagal (status ${res.status}). ${
-        text ? `Detail: ${text.slice(0, 200)}` : ''
-      }`.trim()
-    )
+    const text = await res.text()
+    return { ok: false, status: res.status, body: text.slice(0, 300), model }
   }
 
-  throw lastError ?? new Error('Pollinations: tidak ada model yang berhasil')
+  const text = await res.text().catch(() => '')
+  return { ok: false, status: res.status, body: text.slice(0, 300), model }
+}
+
+async function fetchPollinationImage(
+  prompt: string
+): Promise<{ buffer: Buffer; contentType: string; model: string }> {
+  let lastFailure: PollinationFailure | null = null
+  const queueFullHints = ['Queue full', 'x402Version', 'max: 1']
+
+  for (const model of POLLINATION_MODELS) {
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      const result = await tryPollinationOnce(prompt, model)
+
+      if (result.ok) {
+        return {
+          buffer: result.buffer,
+          contentType: result.contentType,
+          model: result.model
+        }
+      }
+
+      lastFailure = result
+      const isQueueFull =
+        result.status === 402 &&
+        queueFullHints.some(h => result.body.includes(h))
+      const isAuthError = result.status === 401 || result.status === 403
+
+      // Auth error: stop total, key invalid.
+      if (isAuthError) {
+        throw new Error(
+          `Pollinations [${model}] unauthorized (${result.status}). ${
+            result.body ? `Detail: ${result.body}` : ''
+          }`.trim()
+        )
+      }
+
+      // Queue full / 402: retry dengan backoff (3s, 6s, 12s, 24s)
+      if (isQueueFull && attempt < MAX_RETRIES) {
+        const delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt - 1)
+        console.warn(
+          `[pollinations] ${model} attempt ${attempt}/${MAX_RETRIES} -> 402 queue full, retry in ${delay}ms`
+        )
+        await sleep(delay)
+        continue
+      }
+
+      // 402 lain atau bukan queue-full: stop retry untuk model ini
+      break
+    }
+
+    // Lanjut ke model berikutnya setelah fallback list
+  }
+
+  const detail = lastFailure
+    ? `Pollinations [${
+        lastFailure.model
+      }] gagal (status ${lastFailure.status}). Antrian penuh/quota habis. ${
+        lastFailure.body ? `Detail: ${lastFailure.body}` : ''
+      }`.trim()
+    : 'Pollinations: tidak ada model yang berhasil'
+
+  throw new Error(detail)
 }
 
 function getExtensionFromMimeType(mimeType: string) {
@@ -264,7 +319,7 @@ Aturan:
     const { imagePrompt } = parseImagePrompt(rawText)
     if (!imagePrompt) throw new Error('Image prompt dari Gemini kosong')
 
-    // 2) Generate image via Pollinations (dengan fallback model)
+    // 2) Generate image via Pollinations (model: flux, dengan retry)
     const { buffer, contentType, model: usedModel } = await fetchPollinationImage(
       imagePrompt
     )
