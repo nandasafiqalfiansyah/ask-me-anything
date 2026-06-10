@@ -3,8 +3,8 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import MarkdownEditor from '@/components/markdown-editor'
+import DragDropImageUpload from '@/components/drag-drop-image-upload'
 import { toast } from 'sonner'
 import {
   PlusIcon,
@@ -12,12 +12,10 @@ import {
   TrashIcon,
   EyeOpenIcon,
   Cross2Icon,
-  CheckIcon,
   LightningBoltIcon,
   ImageIcon,
   ArrowLeftIcon
 } from '@radix-ui/react-icons'
-import { cn } from '@/lib/utils'
 
 type Post = {
   id: string
@@ -41,6 +39,9 @@ const EMPTY_POST: Omit<Post, 'id' | 'slug' | 'publishedAt'> = {
   published: false,
   image: ''
 }
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+const MAX_UPLOAD_SIZE_MB = 5
 
 export default function CrudPosts() {
   const [posts, setPosts] = useState<Post[]>([])
@@ -218,6 +219,43 @@ export default function CrudPosts() {
     }
   }
 
+  /**
+   * Upload file banner ke endpoint `/api/v1/posts/upload`.
+   * Dipakai oleh komponen DragDropImageUpload saat user drop/pilih file.
+   */
+  async function uploadBannerFile(file: File) {
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast.error('Tipe file tidak didukung. Gunakan JPEG, PNG, GIF, atau WebP.')
+      return
+    }
+    if (file.size > MAX_UPLOAD_SIZE_MB * 1024 * 1024) {
+      toast.error(`Ukuran file terlalu besar. Maksimal ${MAX_UPLOAD_SIZE_MB}MB.`)
+      return
+    }
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/v1/posts/upload', {
+        method: 'POST',
+        body: formData
+      })
+      const data = await res.json()
+      if (data.error) {
+        toast.error(data.error)
+      } else if (data.url) {
+        setImage(data.url)
+        toast.success('Banner berhasil diupload')
+      } else {
+        toast.error('Response upload tidak valid')
+      }
+    } catch {
+      toast.error('Gagal upload banner')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   async function handleTogglePublish(post: Post) {
     try {
       const res = await fetch(`/api/v1/posts/${post.slug}`, {
@@ -259,6 +297,7 @@ export default function CrudPosts() {
   }
 
   if (view === 'form') {
+    const uploadDisabled = uploading || saving || generating || generatingImage
     return (
       <form onSubmit={handleSave} className='space-y-5'>
         <div className='flex items-center justify-between'>
@@ -344,7 +383,7 @@ export default function CrudPosts() {
               variant='outline'
               size='sm'
               onClick={handleGenerateImage}
-              disabled={generatingImage || saving || generating}
+              disabled={generatingImage || saving || generating || uploading}
               className='gap-2'
             >
               {generatingImage ? (
@@ -361,126 +400,71 @@ export default function CrudPosts() {
             </Button>
           </div>
           <p className='text-xs text-muted-foreground'>
-            AI generate image via Pollinations (otomatis dari judul/ide). Bisa juga upload manual di bawah.
+            Drag & drop gambar, klik area di bawah, atau gunakan URL. Maks {MAX_UPLOAD_SIZE_MB}MB (JPEG/PNG/GIF/WebP).
           </p>
           <Input
             value={image}
             onChange={e => setImage(e.target.value)}
-            placeholder='URL gambar banner atau upload file...'
+            placeholder='URL gambar banner (opsional)...'
           />
-          <div className='flex items-center gap-2'>
-            <Input
-              type='file'
-              accept='image/*'
-              disabled={uploading || saving || generating || generatingImage}
-              className='flex-1'
-              onChange={async e => {
-                const file = e.target.files?.[0]
-                if (!file) return
-                setUploading(true)
-                try {
-                  const formData = new FormData()
-                  formData.append('file', file)
-                  const res = await fetch('/api/v1/posts/upload', {
-                    method: 'POST',
-                    body: formData
-                  })
-                  const data = await res.json()
-                  if (data.error) {
-                    toast.error(data.error)
-                  } else {
-                    setImage(data.url)
-                    toast.success('Banner berhasil diupload')
-                  }
-                } catch {
-                  toast.error('Gagal upload banner')
-                } finally {
-                  setUploading(false)
-                }
-              }}
-            />
-            {image && (
-              <a
-                href={image}
-                target='_blank'
-                rel='noopener noreferrer'
-                className='shrink-0 text-xs text-primary hover:underline'
-              >
-                Preview
-              </a>
-            )}
-          </div>
-          {image && (
-            <div className='overflow-hidden rounded-md border'>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={image} alt='Banner preview' className='h-40 w-full object-cover' />
-            </div>
-          )}
+          <DragDropImageUpload
+            onImageSelect={uploadBannerFile}
+            currentImageUrl={image}
+            disabled={uploadDisabled}
+            maxSizeMB={MAX_UPLOAD_SIZE_MB}
+          />
         </div>
 
         <div className='space-y-1.5'>
-          <label className='text-sm font-medium'>Konten</label>
-          <MarkdownEditor
-            value={content}
-            onChange={setContent}
-            placeholder='Tulis konten post di sini menggunakan Markdown...'
-            rows={20}
+          <label className='text-sm font-medium'>
+            Konten (Markdown)
+          </label>
+          <MarkdownEditor value={content} onChange={setContent} />
+        </div>
+
+        <div className='space-y-1.5'>
+          <label className='text-sm font-medium'>Author</label>
+          <Input
+            value={author}
+            onChange={e => setAuthor(e.target.value)}
+            placeholder='Nama author...'
           />
         </div>
 
-        <div className='flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-muted/30 px-4 py-3'>
-          <label className='flex cursor-pointer items-center gap-2.5 text-sm'>
-            <div
-              onClick={() => setPublished(v => !v)}
-              className={cn(
-                'relative h-5 w-9 rounded-full transition-colors',
-                published ? 'bg-primary' : 'bg-input'
-              )}
-            >
-              <span
-                className={cn(
-                  'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform',
-                  published ? 'translate-x-4' : 'translate-x-0.5'
-                )}
-              />
-            </div>
-            <span className={published ? 'text-foreground' : 'text-muted-foreground'}>
-              {published ? 'Publish sekarang' : 'Simpan sebagai draft'}
-            </span>
+        <div className='flex items-center gap-2'>
+          <input
+            id='published'
+            type='checkbox'
+            checked={published}
+            onChange={e => setPublished(e.target.checked)}
+            className='h-4 w-4 rounded border-input text-primary focus:ring-primary'
+          />
+          <label htmlFor='published' className='text-sm font-medium'>
+            Publikasikan post
           </label>
+        </div>
 
-          <div className='flex gap-2'>
-            <Button type='button' variant='ghost' onClick={cancelForm}>
-              Batal
-            </Button>
-            <Button type='submit' disabled={saving} className='gap-2'>
-              {saving ? (
-                <>
-                  <span className='h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent' />
-                  Menyimpan...
-                </>
-              ) : (
-                <>
-                  <CheckIcon />
-                  {editingPost ? 'Simpan Perubahan' : 'Buat Post'}
-                </>
-              )}
-            </Button>
-          </div>
+        <div className='flex items-center justify-end gap-2 border-t pt-4'>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={cancelForm}
+            disabled={saving}
+          >
+            Batal
+          </Button>
+          <Button type='submit' disabled={saving || uploading || generating || generatingImage}>
+            {saving ? 'Menyimpan...' : editingPost ? 'Perbarui Post' : 'Buat Post'}
+          </Button>
         </div>
       </form>
     )
   }
 
   return (
-    <div className='space-y-5'>
+    <div className='space-y-4'>
       <div className='flex items-center justify-between'>
-        <div>
-          <h2 className='text-lg font-semibold'>Daftar Post</h2>
-          <p className='text-sm text-muted-foreground'>
-            {posts.length} post · {posts.filter(p => p.published).length} dipublikasikan
-          </p>
-        </div>
+        <h2 className='text-lg font-semibold'>Daftar Post</h2>
         <Button onClick={openCreate} className='gap-2'>
           <PlusIcon />
           Post Baru
@@ -488,80 +472,64 @@ export default function CrudPosts() {
       </div>
 
       {loading ? (
-        <div className='flex items-center justify-center py-16'>
-          <span className='h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent' />
-        </div>
+        <p className='text-sm text-muted-foreground'>Memuat post...</p>
       ) : posts.length === 0 ? (
-        <div className='flex flex-col items-center gap-3 py-16 text-center'>
-          <p className='text-muted-foreground'>Belum ada post.</p>
-          <Button onClick={openCreate} variant='outline' className='gap-2'>
-            <PlusIcon />
-            Buat Post Pertama
-          </Button>
-        </div>
+        <p className='text-sm text-muted-foreground'>Belum ada post.</p>
       ) : (
-        <div className='divide-y rounded-xl border'>
+        <ul className='space-y-2'>
           {posts.map(post => (
-            <div
+            <li
               key={post.id}
-              className='flex items-start justify-between gap-4 px-4 py-4 transition-colors hover:bg-muted/30'
+              className='flex items-center justify-between rounded-md border p-3'
             >
               <div className='min-w-0 flex-1'>
-                <div className='flex items-center gap-2'>
-                  <span className='truncate font-medium'>{post.title}</span>
-                  <Badge variant={post.published ? "default" : "secondary"} className="shrink-0 text-xs">
-                    {post.published ? "Published" : "Draft"}
-                  </Badge>
-                </div>
-                {post.summary && (
-                  <p className="mt-0.5 truncate text-sm text-muted-foreground">{post.summary}</p>
-                )}
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {post.publishedAt || "—"} · {post.slug}
+                <p className='truncate font-medium'>{post.title}</p>
+                <p className='text-xs text-muted-foreground'>
+                  {post.author} · {post.publishedAt} ·{' '}
+                  {post.published ? 'Dipublikasikan' : 'Draft'}
                 </p>
               </div>
-
-              <div className="flex shrink-0 items-center gap-1">
+              <div className='flex items-center gap-1'>
                 <Button
-                  size="icon"
-                  variant="ghost"
-                  title={post.published ? "Sembunyikan" : "Publikasikan"}
-                  onClick={() => handleTogglePublish(post)}
-                  className="h-8 w-8"
-                >
-                  <EyeOpenIcon className={cn("h-4 w-4", !post.published && "opacity-40")} />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  title="Preview"
+                  type='button'
+                  variant='ghost'
+                  size='icon'
                   onClick={() => openPreview(post)}
-                  className="h-8 w-8"
+                  title='Preview'
                 >
-                  <EyeOpenIcon className="h-4 w-4 text-blue-500" />
+                  <EyeOpenIcon className='h-4 w-4' />
                 </Button>
                 <Button
-                  size="icon"
-                  variant="ghost"
-                  title="Edit"
+                  type='button'
+                  variant='ghost'
+                  size='icon'
                   onClick={() => openEdit(post)}
-                  className="h-8 w-8"
+                  title='Edit'
                 >
-                  <Pencil1Icon className="h-4 w-4" />
+                  <Pencil1Icon className='h-4 w-4' />
                 </Button>
                 <Button
-                  size="icon"
-                  variant="ghost"
-                  title="Hapus"
-                  onClick={() => handleDelete(post)}
-                  className="h-8 w-8 text-destructive hover:text-destructive"
+                  type='button'
+                  variant='ghost'
+                  size='icon'
+                  onClick={() => handleTogglePublish(post)}
+                  title={post.published ? 'Sembunyikan' : 'Publikasikan'}
                 >
-                  <TrashIcon className="h-4 w-4" />
+                  {post.published ? 'Unpublish' : 'Publish'}
+                </Button>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='icon'
+                  onClick={() => handleDelete(post)}
+                  title='Hapus'
+                >
+                  <TrashIcon className='h-4 w-4' />
                 </Button>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   )
