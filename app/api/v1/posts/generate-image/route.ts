@@ -166,6 +166,7 @@ async function fetchPollinationImage(
         result.status === 402 &&
         queueFullHints.some(h => result.body.includes(h))
       const isAuthError = result.status === 401 || result.status === 403
+      const isRateLimit = result.status === 429
 
       // Auth error: stop total, key invalid.
       if (isAuthError) {
@@ -176,17 +177,18 @@ async function fetchPollinationImage(
         )
       }
 
-      // Queue full / 402: retry dengan backoff (3s, 6s, 12s, 24s)
-      if (isQueueFull && attempt < MAX_RETRIES) {
-        const delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt - 1)
+      // Queue full / 402 atau rate limit 429: retry dengan backoff eksponensial
+      // Backoff: 4s, 8s, 16s, 32s, 64s (lebih lama agar antrian sempat kosong)
+      if ((isQueueFull || isRateLimit) && attempt < MAX_RETRIES) {
+        const delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt)
         console.warn(
-          `[pollinations] ${model} attempt ${attempt}/${MAX_RETRIES} -> 402 queue full, retry in ${delay}ms`
+          `[pollinations] ${model} attempt ${attempt}/${MAX_RETRIES} -> ${result.status} (queue/rate limit), retry in ${delay}ms`
         )
         await sleep(delay)
         continue
       }
 
-      // 402 lain atau bukan queue-full: stop retry untuk model ini
+      // Untuk model berikutnya kita coba tanpa delay agar fallback lebih cepat
       break
     }
 

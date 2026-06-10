@@ -43,6 +43,28 @@ const EMPTY_POST: Omit<Post, 'id' | 'slug' | 'publishedAt'> = {
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
 const MAX_UPLOAD_SIZE_MB = 5
 
+/**
+ * Parse response JSON dengan aman. Jika server mengembalikan HTML
+ * (misalnya error page 404/500), tetap kembalikan object berisi
+ * `error` agar UI tidak crash dengan `Unexpected token '<'`.
+ */
+async function safeJson(res: Response): Promise<Record<string, unknown>> {
+  const contentType = res.headers.get('content-type') || ''
+  if (!contentType.includes('application/json')) {
+    const text = await res.text().catch(() => '')
+    return {
+      __nonJson: true,
+      status: res.status,
+      error: `Server mengembalikan respons non-JSON (status ${res.status}). ${text.slice(0, 120)}`.trim()
+    }
+  }
+  try {
+    return (await res.json()) as Record<string, unknown>
+  } catch {
+    return { error: `Gagal parse JSON dari server (status ${res.status})` }
+  }
+}
+
 export default function CrudPosts() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(false)
@@ -204,9 +226,11 @@ export default function CrudPosts() {
           idea: idea.trim() || summary.trim()
         })
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Gagal generate image')
-      if (data.image) {
+      const data = await safeJson(res)
+      if (!res.ok) {
+        throw new Error(typeof data.error === 'string' ? data.error : 'Gagal generate image')
+      }
+      if (typeof data.image === 'string' && data.image) {
         setImage(data.image)
         toast.success('Banner image berhasil dibuat (Pollinations)')
       } else {
