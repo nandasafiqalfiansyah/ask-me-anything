@@ -9,6 +9,8 @@ import { notFound } from 'next/navigation'
 import { getPageViewCount } from '@/lib/pageViews'
 import PageViewCounter from '@/components/page-view-counter'
 
+export const dynamic = 'force-dynamic'
+
 export async function generateStaticParams() {
   const projects = await getProjects()
   const slugs = projects.map(project => ({ slug: project.slug }))

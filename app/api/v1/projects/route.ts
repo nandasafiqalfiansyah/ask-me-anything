@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { revalidatePath } from 'next/cache'
 
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
@@ -123,6 +124,9 @@ export async function POST(request: Request) {
       )
     }
 
+    revalidatePath('/projects')
+    revalidatePath('/')
+
     return NextResponse.json({ 
       success: true, 
       message: 'Project created successfully',
@@ -223,6 +227,15 @@ export async function PUT(request: Request) {
       )
     }
 
+    revalidatePath('/projects')
+    if (newSlug && newSlug !== slug) {
+      revalidatePath(`/projects/${slug}`)
+      revalidatePath(`/projects/${newSlug}`)
+    } else {
+      revalidatePath(`/projects/${finalSlug}`)
+    }
+    revalidatePath('/')
+
     return NextResponse.json({ 
       success: true, 
       message: newSlug && newSlug !== slug 
@@ -291,6 +304,9 @@ export async function DELETE(request: Request) {
         { status: 500 }
       )
     }
+
+    revalidatePath('/projects')
+    revalidatePath('/')
 
     return NextResponse.json({ 
       success: true, 
