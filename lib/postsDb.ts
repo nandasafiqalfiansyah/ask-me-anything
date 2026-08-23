@@ -61,9 +61,14 @@ export function toUserFacingDbError(error: SupabaseErrorLike): string {
 }
 
 export function hasSupabaseServerConfig(): boolean {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
   return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.SUPABASE_SERVICE_ROLE_KEY
+    url &&
+      key &&
+      url.startsWith('https://') &&
+      !url.includes('placeholder') &&
+      key !== 'placeholder'
   )
 }
 

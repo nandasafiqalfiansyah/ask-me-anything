@@ -2,104 +2,98 @@
 
 import { motion } from 'framer-motion'
 import { useEffect, useState, useCallback } from 'react'
-import { supabase } from '../lib/supabaseClient'
+import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
 
-type Experience = {
-  id: number
-  title: string
-  logo_url: string | null
+type Partner = {
+  name: string
+  label: string
 }
 
+const DEFAULT_PARTNERS: Partner[] = [
+  { name: 'Google', label: 'Google Bangkit' },
+  { name: 'GoTo', label: 'GoTo Group' },
+  { name: 'Traveloka', label: 'Traveloka Academy' },
+  { name: 'Dicoding', label: 'Dicoding Indonesia' },
+  { name: 'UMPO', label: 'Univ. Muhammadiyah Ponorogo' },
+  { name: 'GCP', label: 'Google Cloud Platform' },
+  { name: 'TensorFlow', label: 'TensorFlow ML' },
+  { name: 'Next.js', label: 'Vercel Ecosystem' }
+]
+
 export default function ExperienceLogos() {
-  const [experiences, setExperiences] = useState<Experience[]>([])
-  const [loading, setLoading] = useState(true)
+  const [partners, setPartners] = useState<Partner[]>(DEFAULT_PARTNERS)
 
   const fetchExperiences = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('experiences')
-      .select('id, title, logo_url')
-      .order('sort_order', { ascending: true })
-
-    if (!error && data) {
-      const experiencesWithLogos = data.filter(
-        exp => exp.logo_url
-      ) as Experience[]
-      setExperiences(experiencesWithLogos)
+    if (!isSupabaseConfigured()) {
+      return
     }
-    setLoading(false)
+
+    try {
+      const { data, error } = await supabase
+        .from('experiences')
+        .select('title')
+        .order('sort_order', { ascending: true })
+
+      if (!error && data && data.length > 0) {
+        const mapped = data.map(item => ({
+          name: item.title,
+          label: item.title
+        }))
+        setPartners(mapped)
+      }
+    } catch (err) {
+      console.error('Error fetching partner logos:', err)
+    }
   }, [])
 
   useEffect(() => {
     fetchExperiences()
   }, [fetchExperiences])
 
-  if (loading || experiences.length === 0) {
-    return null
-  }
-
-  // Duplicate the logos for seamless infinite scroll
-  const duplicatedLogos = [...experiences, ...experiences, ...experiences]
-
-  // Calculate animation distance: number of logos * (estimated width + gap)
-  // Using 115px average width + 48px gap (gap-12 = 3rem = 48px)
-  const animationDistance = experiences.length * 163
+  const duplicated = [...partners, ...partners, ...partners]
 
   return (
-    <section className='relative overflow-hidden pb-24'>
+    <section className='relative overflow-hidden pb-16 sm:pb-24'>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className='mb-8 text-left'
+        transition={{ duration: 0.5 }}
+        className='mb-6 text-center'
       >
-        <h2 className='title bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-3xl font-bold text-transparent sm:text-4xl'>
-          Experience & Partnerships
-        </h2>
-        <p className='mt-3 text-sm font-light text-muted-foreground'>
-          Companies and organizations I&apos;ve worked with
+        <p className='text-xs font-semibold uppercase tracking-widest text-muted-foreground'>
+          Affiliated Programs & Ecosystems
         </p>
       </motion.div>
 
-      {/* Gradient overlays for fade effect */}
-      {/* <div className='pointer-events-none absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-background to-transparent' />
-      <div className='pointer-events-none absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-background to-transparent' /> */}
+      <div className='pointer-events-none absolute left-0 top-10 z-10 h-20 w-16 bg-gradient-to-r from-background to-transparent sm:w-28' />
+      <div className='pointer-events-none absolute right-0 top-10 z-10 h-20 w-16 bg-gradient-to-l from-background to-transparent sm:w-28' />
 
-      {/* Scrolling container */}
-      <div className='relative flex overflow-hidden'>
+      <div className='flex overflow-hidden py-2'>
         <motion.div
-          className='flex gap-12 whitespace-nowrap'
+          className='flex gap-4 sm:gap-6 whitespace-nowrap'
           animate={{
-            x: [0, -animationDistance]
+            x: ['0%', '-50%']
           }}
           transition={{
-            x: {
-              repeat: Infinity,
-              repeatType: 'loop',
-              duration: 20 + experiences.length * 2,
-              ease: 'linear'
-            }
+            repeat: Infinity,
+            repeatType: 'loop',
+            duration: 28,
+            ease: 'linear'
           }}
         >
-          {duplicatedLogos.map((experience, index) => (
-            <motion.div
-              key={`${experience.id}-${index}`}
-              className='flex items-center justify-center'
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.2 }}
+          {duplicated.map((item, index) => (
+            <div
+              key={`${item.name}-${index}`}
+              className='flex items-center gap-2 rounded-xl border border-border/70 bg-card/60 px-4 py-2 text-xs font-medium text-muted-foreground shadow-2xs backdrop-blur-xs transition-colors hover:border-foreground/30 hover:text-foreground'
             >
-              {experience.logo_url && (
-                <img
-                  src={experience.logo_url}
-                  alt={experience.title}
-                  className='h-16 w-auto object-contain grayscale transition-all duration-300 hover:grayscale-0 sm:h-20'
-                  style={{ minWidth: '80px', maxWidth: '150px' }}
-                />
-              )}
-            </motion.div>
+              <span className='h-1.5 w-1.5 rounded-full bg-primary/60' />
+              <span>{item.label}</span>
+            </div>
           ))}
         </motion.div>
       </div>
     </section>
   )
 }
+

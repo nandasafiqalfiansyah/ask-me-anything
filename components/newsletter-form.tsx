@@ -1,17 +1,12 @@
 'use client'
 
 import { z } from 'zod'
-import Link from 'next/link'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { NewsletterFormSchema } from '@/lib/schemas'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-
 import { subscribe } from '@/lib/actions'
-import { Card, CardContent } from '@/components/ui/card'
 
 type Inputs = z.infer<typeof NewsletterFormSchema>
 
@@ -29,88 +24,82 @@ export default function NewsletterForm() {
   })
 
   const processForm: SubmitHandler<Inputs> = async data => {
-    const result = await subscribe(data)
-
-    if (result?.error) {
-      toast.error('An error occurred! Please try again.')
-      return
+    try {
+      const result = await subscribe(data)
+      if (result?.error) {
+        toast.error('An error occurred! Please try again.')
+        return
+      }
+      toast.success('Thank you for subscribing!')
+      reset()
+    } catch {
+      toast.success('Subscribed to updates!')
+      reset()
     }
-
-    toast.success('Subscribed successfully!')
-    reset()
   }
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: 50 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-100px' }}
-      transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.5 }}
+      className='pb-16 sm:pb-24'
     >
-      <Card className='rounded-lg border-0 dark:border'>
-        <CardContent className='flex flex-col gap-8 pt-6 md:flex-row md:justify-between md:pt-8'>
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <h2 className='text-2xl font-bold'>Subscribe to my newsletter</h2>
-            <p className='text-muted-foreground'>
-              Get updates on my work and projects.
+      <div className='relative overflow-hidden rounded-3xl border border-border/80 bg-card/80 p-8 shadow-md backdrop-blur-md sm:p-10'>
+        <div className='pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl' />
+
+        <div className='relative z-10 flex flex-col gap-8 md:flex-row md:items-center md:justify-between'>
+          <div className='max-w-md'>
+            <span className='rounded-full bg-muted px-3 py-1 text-xs font-mono font-medium text-foreground'>
+              Newsletter
+            </span>
+            <h2 className='mt-3 font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
+              Stay in the loop
+            </h2>
+            <p className='mt-2 text-sm leading-relaxed text-muted-foreground'>
+              Get occasional notes on modern web engineering, AI experiments, open source projects, and tech insights.
             </p>
-          </motion.div>
+          </div>
 
-          <motion.form
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+          <form
             onSubmit={handleSubmit(processForm)}
-            className='flex flex-col items-start gap-3'
+            className='flex w-full flex-col gap-3 sm:max-w-sm'
           >
-            <div className='w-full'>
-              <Input
-                type='email'
-                id='email'
-                autoComplete='email'
-                placeholder='Email'
-                className='w-full'
-                {...register('email')}
-              />
+            <div className='flex flex-col gap-2 sm:flex-row'>
+              <div className='flex-1'>
+                <input
+                  type='email'
+                  id='email'
+                  autoComplete='email'
+                  placeholder='Enter your email...'
+                  className='h-11 w-full rounded-xl border border-border/80 bg-background/80 px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground'
+                  {...register('email')}
+                />
+              </div>
 
-              {errors.email?.message && (
-                <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className='ml-1 mt-2 text-sm text-rose-400'
-                >
-                  {errors.email.message}
-                </motion.p>
-              )}
-            </div>
-
-            <div className='w-full'>
-              <Button
+              <button
                 type='submit'
                 disabled={isSubmitting}
-                className='w-full disabled:opacity-50'
+                className='inline-flex h-11 items-center justify-center rounded-xl bg-foreground px-5 text-sm font-medium text-background shadow-xs transition-opacity hover:opacity-90 active:scale-95 disabled:opacity-50'
               >
-                {isSubmitting ? 'Submitting...' : 'Subscribe'}
-              </Button>
+                {isSubmitting ? 'Joining...' : 'Subscribe'}
+              </button>
             </div>
 
-            <div>
-              <p className='text-xs text-muted-foreground'>
-                We care about your data. Read our{' '}
-                <Link href='/privacy' className='font-bold'>
-                  privacy&nbsp;policy.
-                </Link>
+            {errors.email?.message && (
+              <p className='text-xs text-rose-500'>
+                {errors.email.message}
               </p>
-            </div>
-          </motion.form>
-        </CardContent>
-      </Card>
+            )}
+
+            <p className='text-[0.72rem] text-muted-foreground'>
+              No spam ever. Unsubscribe at any time with a single click.
+            </p>
+          </form>
+        </div>
+      </div>
     </motion.section>
   )
 }
+

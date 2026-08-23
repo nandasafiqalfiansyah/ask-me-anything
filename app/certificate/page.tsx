@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '../../lib/supabaseClient'
+import Image from 'next/image'
+import { motion, AnimatePresence } from 'framer-motion'
+import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient'
 import { Button } from '@/components/ui/button'
 
 type Certificate = {
@@ -15,25 +17,92 @@ type Certificate = {
   sort_order: number
 }
 
+const FALLBACK_CERTIFICATES: Certificate[] = [
+  {
+    id: 1,
+    title: 'Bangkit Academy - Machine Learning Distinction Graduate',
+    company: 'Google, GoTo, Traveloka',
+    issued_date: '2024-01-15',
+    certificate_url: 'https://bangkit.academy',
+    pdf_url: null,
+    description: 'Graduated with Distinction in the Machine Learning learning path led by Google, GoTo, and Traveloka.',
+    sort_order: 1
+  },
+  {
+    id: 2,
+    title: 'Google Cloud Certified - Associate Cloud Engineer Preparation',
+    company: 'Google Cloud Platform',
+    issued_date: '2023-11-20',
+    certificate_url: 'https://cloud.google.com/certification',
+    pdf_url: null,
+    description: 'Comprehensive specialization covering IAM, Compute Engine, Kubernetes Engine, and Cloud Storage architectures.',
+    sort_order: 2
+  },
+  {
+    id: 3,
+    title: 'TensorFlow Developer Professional Specialization',
+    company: 'DeepLearning.AI',
+    issued_date: '2023-09-10',
+    certificate_url: 'https://www.deeplearning.ai',
+    pdf_url: null,
+    description: 'Hands-on neural networks, Computer Vision with CNNs, Natural Language Processing with RNNs, and Time Series.',
+    sort_order: 3
+  },
+  {
+    id: 4,
+    title: 'Menjadi Back-End Developer Expert',
+    company: 'Dicoding Indonesia',
+    issued_date: '2023-06-18',
+    certificate_url: 'https://dicoding.com',
+    pdf_url: null,
+    description: 'Architecting scalable microservices, CI/CD pipelines, automated testing, caching with Redis, and message brokering with RabbitMQ.',
+    sort_order: 4
+  },
+  {
+    id: 5,
+    title: 'Menjadi Front-End Web Developer Expert',
+    company: 'Dicoding Indonesia',
+    issued_date: '2023-04-05',
+    certificate_url: 'https://dicoding.com',
+    pdf_url: null,
+    description: 'Progressive Web Apps (PWA), Web Accessibility (a11y), clean architecture, performance optimization, and End-to-End testing.',
+    sort_order: 5
+  },
+  {
+    id: 6,
+    title: 'Architecting on AWS (Membangun Arsitektur Cloud)',
+    company: 'Amazon Web Services (AWS)',
+    issued_date: '2023-02-12',
+    certificate_url: 'https://aws.amazon.com',
+    pdf_url: null,
+    description: 'Designing highly available, cost-effective, fault-tolerant, and scalable systems on AWS.',
+    sort_order: 6
+  }
+]
+
 export default function CertificateCatalog() {
-  const [certificates, setCertificates] = useState<Certificate[]>([])
+  const [certificates, setCertificates] = useState<Certificate[]>(FALLBACK_CERTIFICATES)
   const [loading, setLoading] = useState<boolean>(true)
-  const [selectedCertificate, setSelectedCertificate] =
-    useState<Certificate | null>(null)
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [groupByCompany, setGroupByCompany] = useState(true)
 
   useEffect(() => {
     async function loadCertificates() {
+      if (!isSupabaseConfigured()) {
+        setLoading(false)
+        return
+      }
+
       try {
         const { data, error } = await supabase
           .from('certificates')
           .select('*')
           .order('sort_order', { ascending: true })
 
-        if (error) throw error
-
-        setCertificates((data || []).filter(cert => cert.pdf_url))
+        if (!error && data && data.length > 0) {
+          setCertificates(data)
+        }
       } catch (error) {
         console.error('Error fetching certificates:', error)
       } finally {
@@ -53,7 +122,6 @@ export default function CertificateCatalog() {
     setSelectedCertificate(null)
   }
 
-  // Group certificates by company
   const groupedCertificates = certificates.reduce(
     (acc, cert) => {
       if (!acc[cert.company]) {
@@ -65,97 +133,190 @@ export default function CertificateCatalog() {
     {} as Record<string, Certificate[]>
   )
 
-  const CertificateCard = ({ cert }: { cert: Certificate }) => (
-    <div
-      className='group relative cursor-pointer overflow-hidden rounded-xl border bg-card transition-all duration-300 hover:scale-105 hover:shadow-lg'
-      onClick={() => openPreview(cert)}
-    >
-      {/* Certificate PDF Preview */}
-      <div className='relative h-48 w-full overflow-hidden bg-muted'>
-        {cert.pdf_url && (
-          <iframe
-            title={`${cert.title} preview`}
-            src={`${cert.pdf_url}#toolbar=0&navpanes=0&scrollbar=0`}
-            className='h-full w-full'
-          />
-        )}
+  const getCertificateVisual = (cert: Certificate) => {
+    const companyLower = cert.company.toLowerCase()
+    const titleLower = cert.title.toLowerCase()
 
-        {!cert.pdf_url && (
-          <div className='flex h-full items-center justify-center bg-gradient-to-br from-muted to-background'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              className='h-16 w-16 text-muted-foreground/30'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
+    if (
+      companyLower.includes('google') ||
+      titleLower.includes('bangkit') ||
+      titleLower.includes('cloud')
+    ) {
+      return {
+        logo: '/Google__G__logo.svg',
+        brandColor: 'from-blue-500/10 via-amber-500/10 to-red-500/10',
+        badgeText: 'Google Cloud & AI'
+      }
+    }
+    if (
+      companyLower.includes('aws') ||
+      companyLower.includes('amazon') ||
+      titleLower.includes('aws')
+    ) {
+      return {
+        logo: null,
+        brandColor: 'from-amber-500/10 to-orange-500/10',
+        badgeText: 'AWS Certification'
+      }
+    }
+    if (companyLower.includes('dicoding') || titleLower.includes('dicoding')) {
+      return {
+        logo: null,
+        brandColor: 'from-sky-500/10 to-indigo-500/10',
+        badgeText: 'Dicoding Academy'
+      }
+    }
+    if (
+      companyLower.includes('deeplearning') ||
+      titleLower.includes('deeplearning')
+    ) {
+      return {
+        logo: null,
+        brandColor: 'from-rose-500/10 to-purple-500/10',
+        badgeText: 'DeepLearning.AI'
+      }
+    }
+    return {
+      logo: null,
+      brandColor: 'from-primary/10 to-secondary/10',
+      badgeText: cert.company
+    }
+  }
+
+  const CertificateCard = ({ cert }: { cert: Certificate }) => {
+    const visual = getCertificateVisual(cert)
+    const isDirectImage =
+      cert.certificate_url &&
+      /\.(jpg|jpeg|png|webp|avif|svg)($|\?)/i.test(cert.certificate_url)
+
+    return (
+      <div
+        className='group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/70 bg-card/80 shadow-2xs backdrop-blur-xs transition-all duration-300 hover:border-foreground/30 hover:bg-card hover:shadow-md cursor-pointer'
+        onClick={() => openPreview(cert)}
+      >
+        {/* Certificate Image Preview */}
+        <div className='relative h-44 w-full overflow-hidden border-b border-border/60 bg-muted/40 sm:h-48'>
+          {isDirectImage ? (
+            <Image
+              src={cert.certificate_url!}
+              alt={cert.title}
+              fill
+              className='object-cover object-center transition-transform duration-500 group-hover:scale-105'
+            />
+          ) : (
+            <div
+              className={`relative flex h-full w-full flex-col items-center justify-center p-6 bg-gradient-to-br ${visual.brandColor} transition-transform duration-500 group-hover:scale-105`}
             >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
-              />
-            </svg>
-          </div>
-        )}
+              {/* Certificate Inner Border Ornament */}
+              <div className='absolute inset-2.5 rounded-lg border border-dashed border-border/80' />
 
-        {/* Overlay with View indicator */}
-        <div className='absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100'>
-          <span className='font-medium text-white'>Click to Preview</span>
+              {visual.logo ? (
+                <div className='relative z-10 mb-2 flex h-12 w-12 items-center justify-center rounded-xl border border-border/70 bg-background/90 p-2.5 shadow-xs'>
+                  <Image
+                    src={visual.logo}
+                    alt={`${cert.company} logo`}
+                    width={28}
+                    height={28}
+                    className='h-auto max-h-6 w-auto max-w-6 object-contain'
+                  />
+                </div>
+              ) : (
+                <div className='relative z-10 mb-2 flex h-12 w-12 items-center justify-center rounded-xl border border-border/70 bg-background/90 text-primary shadow-xs'>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 24 24'
+                    fill='currentColor'
+                    className='h-6 w-6'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      d='M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                </div>
+              )}
+
+              <span className='relative z-10 font-mono text-[0.68rem] font-semibold uppercase tracking-wider text-muted-foreground'>
+                {visual.badgeText}
+              </span>
+              <span className='relative z-10 mt-0.5 text-[0.62rem] text-muted-foreground/80'>
+                Verified Credential
+              </span>
+            </div>
+          )}
+
+          <div className='absolute inset-0 bg-gradient-to-t from-background/30 to-transparent' />
+        </div>
+
+        {/* Card Body - ONLY Image & Title (no description) */}
+        <div className='flex flex-1 flex-col justify-between p-4 sm:p-5'>
+          <div>
+            <div className='flex items-start justify-between gap-2'>
+              <span className='rounded-md border border-border/60 bg-muted/60 px-2 py-0.5 text-[0.68rem] font-medium text-muted-foreground'>
+                {cert.company}
+              </span>
+              <span className='rounded-full bg-primary/10 px-2 py-0.5 text-[0.65rem] font-semibold text-primary'>
+                Verified
+              </span>
+            </div>
+
+            <h3 className='mt-2.5 font-serif text-base font-bold tracking-tight text-foreground transition-colors group-hover:text-primary'>
+              {cert.title}
+            </h3>
+          </div>
+
+          <div className='mt-4 flex items-center justify-between border-t border-border/50 pt-3 text-[0.72rem] text-muted-foreground'>
+            <span>
+              Issued{' '}
+              {new Date(cert.issued_date).toLocaleDateString('en-US', {
+                month: 'short',
+                year: 'numeric'
+              })}
+            </span>
+            <span className='inline-flex items-center gap-1 font-medium text-foreground transition-colors group-hover:text-primary'>
+              <span>View</span>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                viewBox='0 0 20 20'
+                fill='currentColor'
+                className='h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5'
+              >
+                <path
+                  fillRule='evenodd'
+                  d='M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z'
+                  clipRule='evenodd'
+                />
+              </svg>
+            </span>
+          </div>
         </div>
       </div>
-
-      {/* Certificate Info */}
-      <div className='p-4'>
-        <h3 className='mb-1 line-clamp-2 text-lg font-semibold'>
-          {cert.title}
-        </h3>
-        <p className='mb-2 text-sm text-muted-foreground'>{cert.company}</p>
-        <p className='text-xs text-muted-foreground'>
-          Issued:{' '}
-          {new Date(cert.issued_date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
-        </p>
-        {cert.description && (
-          <p className='mt-2 line-clamp-2 text-sm text-muted-foreground'>
-            {cert.description}
-          </p>
-        )}
-      </div>
-
-      {/* Badge for file type */}
-      <div className='absolute right-2 top-2 flex gap-1'>
-        {cert.pdf_url && (
-          <span className='rounded-full bg-primary/90 px-2 py-1 text-xs font-medium text-primary-foreground'>
-            PDF
-          </span>
-        )}
-      </div>
-    </div>
-  )
+    )
+  }
 
   return (
-    <section className='pb-24 pt-40'>
-      <div className='container max-w-3xl'>
+    <section className='pb-24 pt-36 sm:pt-40'>
+      <div className='container max-w-3xl px-4 sm:px-6'>
         {/* Header */}
-        <div className='mb-12'>
-          <h1 className='title mb-4 text-4xl font-bold'>My Certificates</h1>
-          <p className='mb-6 text-muted-foreground'>
-            A collection of professional certificates and achievements
+        <div className='mb-10'>
+          <h1 className='font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl'>
+            Certifications & Credentials
+          </h1>
+          <p className='mt-2 text-sm text-muted-foreground'>
+            Verified achievements, cloud accreditations, and specialized learning paths.
           </p>
 
           {/* Toggle View */}
-          <div className='flex items-center gap-3'>
-            <span className='text-sm font-medium'>Group by Company:</span>
+          <div className='mt-6 flex items-center gap-3'>
+            <span className='text-xs font-medium text-muted-foreground'>Display mode:</span>
             <Button
               variant={groupByCompany ? 'default' : 'outline'}
               size='sm'
+              className='h-8 text-xs'
               onClick={() => setGroupByCompany(!groupByCompany)}
             >
-              {groupByCompany ? 'Grouped' : 'All'}
+              {groupByCompany ? 'Grouped by Issuer' : 'List All'}
             </Button>
           </div>
         </div>

@@ -25,7 +25,18 @@ export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: 'Nanda Safiq Alfiansyah',
   description:
-    'Website portofolio Nanda Safiq to show my project and my skill about programing.'
+    'Website portofolio Nanda Safiq to show my project and my skill about programing.',
+  icons: {
+    icon: [
+      { url: '/icon', sizes: '32x32', type: 'image/png' },
+      { url: '/images/macos-logo.jpg', sizes: '512x512', type: 'image/jpeg' }
+    ],
+    shortcut: '/icon',
+    apple: [
+      { url: '/apple-icon', sizes: '180x180', type: 'image/png' },
+      { url: '/images/macos-logo.jpg', sizes: '512x512', type: 'image/jpeg' }
+    ]
+  }
 }
 
 export default function RootLayout({

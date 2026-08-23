@@ -23,7 +23,7 @@
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 240 10% 3.9%;
-    --radius: 0.5rem;
+    --radius: 0.75rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -44,9 +44,9 @@
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    --card: 240 10% 4.8%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 240 10% 4.8%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 240 5.9% 10%;
@@ -58,8 +58,8 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 240 3.7% 18%;
+    --input: 240 3.7% 18%;
     --ring: 240 4.9% 83.9%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -80,43 +80,32 @@
   }
   
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground selection:bg-foreground selection:text-background;
   }
 
-  /* Smooth theme transition */
+  /* Smooth transitions */
   html {
-    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  body {
-    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-                color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  * {
-    transition-property: background-color, border-color, color, fill, stroke;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 400ms;
+    scroll-behavior: smooth;
   }
 
   .title {
-    @apply font-serif text-3xl font-bold underline decoration-border/75 decoration-2 underline-offset-8;
+    @apply font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl;
   }
 
   .prose img {
-    @apply my-8 w-full rounded-lg border border-border/60 bg-muted object-cover;
+    @apply my-8 w-full rounded-xl border border-border/60 bg-muted object-cover shadow-md;
   }
 
   .prose pre {
-    @apply overflow-x-auto rounded-lg bg-accent px-5 py-4 text-sm;
+    @apply overflow-x-auto rounded-xl border border-border/60 bg-zinc-950 px-5 py-4 text-sm text-zinc-100 dark:bg-zinc-900;
   }
 
   .prose code {
-    @apply rounded-lg px-1 py-0.5;
+    @apply rounded-md bg-muted px-1.5 py-0.5 text-xs font-mono text-foreground;
   }
 
   .prose pre code {
-    @apply p-0;
+    @apply bg-transparent p-0 text-sm;
     line-height: 1.75;
   }
 
@@ -124,3 +113,23 @@
     @apply font-medium;
   }
 }
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+

@@ -1,38 +1,45 @@
 'use client'
 
+import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-
+import { motion, type Variants } from 'framer-motion'
 import { ProjectMetadata } from '@/lib/projects'
 import { formatDate } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
+import { Card3D } from '@/components/card-3d'
 
 export default function Projects({
   projects
 }: {
   projects: ProjectMetadata[]
 }) {
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15
+        staggerChildren: 0.1
       }
     }
   }
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.6,
-        ease: [0.25, 0.4, 0.25, 1] as const
+        duration: 0.4
       }
     }
+  }
+
+  if (projects.length === 0) {
+    return (
+      <div className='rounded-2xl border border-dashed border-border/80 p-8 text-center text-sm text-muted-foreground'>
+        No projects found.
+      </div>
+    )
   }
 
   return (
@@ -40,68 +47,89 @@ export default function Projects({
       variants={containerVariants}
       initial='hidden'
       whileInView='visible'
-      viewport={{ once: true, margin: '-100px' }}
-      className='grid grid-cols-1 gap-8 sm:grid-cols-2'
+      viewport={{ once: true, margin: '-60px' }}
+      className='grid grid-cols-1 gap-6 sm:grid-cols-2'
     >
       {projects.map(project => (
         <motion.li
           key={project.slug}
           variants={itemVariants}
-          className='group relative'
-          whileHover={{ y: -8 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          className='group'
         >
-          <Link href={`/projects/${project.slug}`}>
-            {project.image && (
-              <motion.div
-                className='h-72 w-full overflow-hidden bg-muted sm:h-60'
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Image
-                  src={project.image}
-                  alt={project.title || ''}
-                  fill
-                  className='rounded-lg object-cover object-center transition-transform duration-500 group-hover:scale-105'
-                />
-              </motion.div>
-            )}
-
-            <motion.div
-              className='absolute inset-[1px] rounded-lg bg-background/70 opacity-0 transition-opacity duration-500 group-hover:opacity-100'
-              initial={false}
-            />
-
-            <motion.div
-              className='absolute inset-x-0 bottom-0 translate-y-2 px-6 py-5 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100'
-              initial={false}
+          <Card3D intensity={10}>
+            <Link
+              href={`/projects/${project.slug}`}
+              className='flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card/80 shadow-2xs backdrop-blur-xs transition-all hover:border-foreground/30 hover:bg-card hover:shadow-md'
             >
-              <h2 className='title line-clamp-1 text-xl no-underline'>
-                {project.title}
-              </h2>
-              <p className='line-clamp-1 text-sm text-muted-foreground'>
-                {project.summary}
-              </p>
-              {project.tags && (
-                <div className='mb-1 mt-2 flex flex-wrap gap-0.5'>
-                  {project.tags.map(tag => (
-                    <Badge
-                      key={tag}
-                      className='text-xs font-normal'
-                      variant='secondary'
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
+              {/* Image Preview */}
+              <div className='relative h-48 w-full overflow-hidden bg-muted sm:h-52'>
+                {project.image ? (
+                  <Image
+                    src={project.image}
+                    alt={project.title || 'Project preview'}
+                    fill
+                    className='object-cover object-center transition-transform duration-500 group-hover:scale-105'
+                  />
+                ) : (
+                  <div className='flex h-full w-full items-center justify-center bg-muted text-xs font-mono text-muted-foreground'>
+                    NDAV Project
+                  </div>
+                )}
+                <div className='absolute inset-0 bg-gradient-to-t from-background/40 to-transparent' />
+              </div>
+
+              {/* Card Body */}
+              <div className='flex flex-1 flex-col p-5'>
+                <div className='flex items-center justify-between gap-2'>
+                  <h3 className='font-serif text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-primary'>
+                    {project.title}
+                  </h3>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 20 20'
+                    fill='currentColor'
+                    className='h-4 w-4 shrink-0 text-muted-foreground transition-all duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      d='M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
                 </div>
-              )}
-              <p className='text-xs font-light text-muted-foreground'>
-                {formatDate(project.publishedAt ?? '')}
-              </p>
-            </motion.div>
-          </Link>
+
+                <p className='mt-2 line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:text-sm'>
+                  {project.summary}
+                </p>
+
+                {/* Tags and Meta */}
+                <div className='mt-auto pt-4'>
+                  {project.tags && project.tags.length > 0 && (
+                    <div className='mb-3 flex flex-wrap gap-1.5'>
+                      {project.tags.slice(0, 4).map(tag => (
+                        <span
+                          key={tag}
+                          className='rounded-md border border-border/60 bg-muted/60 px-2 py-0.5 text-[0.68rem] font-medium text-muted-foreground'
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {project.publishedAt && (
+                    <div className='text-[0.72rem] font-mono text-muted-foreground'>
+                      {formatDate(project.publishedAt)}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Link>
+          </Card3D>
         </motion.li>
       ))}
     </motion.ul>
   )
 }
+
+

@@ -1,15 +1,26 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
+export function isSupabaseConfigured(): boolean {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  return Boolean(
+    url &&
+      key &&
+      url !== 'https://placeholder.supabase.co' &&
+      key !== 'placeholder' &&
+      !url.includes('placeholder') &&
+      !key.includes('placeholder')
+  )
+}
+
 let supabaseInstance: SupabaseClient | null = null
 
 function getSupabase(): SupabaseClient {
   if (!supabaseInstance) {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error('Supabase URL and Anon Key are required')
-    }
+    const supabaseUrl =
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+    const supabaseAnonKey =
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
 
     supabaseInstance = createClient(supabaseUrl, supabaseAnonKey)
   }
@@ -25,3 +36,4 @@ export const supabase = new Proxy({} as SupabaseClient, {
     return typeof value === 'function' ? value.bind(client) : value
   }
 })
+

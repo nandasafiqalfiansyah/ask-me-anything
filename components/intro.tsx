@@ -1,99 +1,137 @@
 'use client'
 
-import { useRef } from 'react'
+import React, { useRef } from 'react'
 import Image from 'next/image'
-import { motion, useMotionValue, useSpring } from 'framer-motion'
+import Link from 'next/link'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import authorImage from '@/public/images/authors/ndav.png'
+import MacLogo from './mac-logo'
 
-const floatingLabels = [
+const floatingChips = [
   {
-    label: 'Next.js',
-    className:
-      'left-[-1.25rem] top-[1.25rem] bg-foreground/90 text-background shadow-[0_18px_40px_rgba(0,0,0,0.18)]'
+    label: 'Next.js 15',
+    className: '-left-4 top-2 bg-foreground/90 text-background shadow-lg shadow-black/10'
   },
   {
-    label: 'Supabase',
-    className:
-      'right-[-1rem] top-[0.5rem] bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_18px_40px_rgba(0,0,0,0.12)]'
+    label: 'TensorFlow & AI',
+    className: '-right-3 top-6 bg-primary/20 text-primary ring-1 ring-primary/30 shadow-lg shadow-primary/10'
   },
   {
-    label: 'UI',
-    className:
-      'left-[0.5rem] bottom-[-1rem] bg-card/90 text-foreground ring-1 ring-border shadow-[0_18px_40px_rgba(0,0,0,0.12)]'
+    label: 'Full-Stack',
+    className: '-left-2 bottom-4 bg-card/90 text-foreground ring-1 ring-border/80 shadow-lg shadow-black/5'
   },
   {
-    label: 'Motion',
-    className:
-      'right-[0.5rem] bottom-[0.5rem] bg-primary/90 text-primary-foreground shadow-[0_18px_40px_rgba(0,0,0,0.18)]'
+    label: 'Cloud & GCP',
+    className: '-right-2 bottom-1 bg-primary text-primary-foreground shadow-lg shadow-primary/20'
   }
 ]
 
 export default function Intro() {
   const portraitRef = useRef<HTMLDivElement>(null)
-  const rotateX = useMotionValue(0)
-  const rotateY = useMotionValue(0)
-  const scale = useMotionValue(1)
 
-  const springRotateX = useSpring(rotateX, { stiffness: 140, damping: 18 })
-  const springRotateY = useSpring(rotateY, { stiffness: 140, damping: 18 })
-  const springScale = useSpring(scale, { stiffness: 180, damping: 18 })
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+
+  const springX = useSpring(mouseX, { stiffness: 160, damping: 18 })
+  const springY = useSpring(mouseY, { stiffness: 160, damping: 18 })
+
+  const rotateX = useTransform(springY, [-0.5, 0.5], [16, -16])
+  const rotateY = useTransform(springX, [-0.5, 0.5], [-16, 16])
+  const glareX = useTransform(springX, [-0.5, 0.5], ['0%', '100%'])
+  const glareY = useTransform(springY, [-0.5, 0.5], ['0%', '100%'])
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     const element = portraitRef.current
-
-    if (!element) {
-      return
-    }
+    if (!element) return
 
     const rect = element.getBoundingClientRect()
-    const percentX = (event.clientX - rect.left) / rect.width
-    const percentY = (event.clientY - rect.top) / rect.height
-    const rotateAmount = 14
+    const pctX = (event.clientX - rect.left) / rect.width - 0.5
+    const pctY = (event.clientY - rect.top) / rect.height - 0.5
 
-    rotateY.set((percentX - 0.5) * rotateAmount)
-    rotateX.set((0.5 - percentY) * rotateAmount)
-    scale.set(1.03)
+    mouseX.set(pctX)
+    mouseY.set(pctY)
   }
 
   const resetRotation = () => {
-    rotateX.set(0)
-    rotateY.set(0)
-    scale.set(1)
+    mouseX.set(0)
+    mouseY.set(0)
   }
 
   return (
-    <section className='flex flex-col-reverse items-start gap-x-10 gap-y-4 pb-24 md:flex-row md:items-center'>
+    <section className='flex flex-col-reverse items-start gap-x-10 gap-y-8 pb-16 md:flex-row md:items-center md:pb-24'>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className='mt-2 flex-1 md:mt-0'
+        transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
+        className='flex-1'
       >
+        <div className='mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary backdrop-blur-xs'>
+          <span className='relative flex h-2 w-2'>
+            <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75' />
+            <span className='relative inline-flex h-2 w-2 rounded-full bg-primary' />
+          </span>
+          <span>Available for projects & roles</span>
+        </div>
+
         <motion.h1
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className='title no-underline'
+          className='font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'
         >
           Hey, I&#39;m Nanda Safiq.
         </motion.h1>
+
         <motion.p
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className='mt-3 font-light text-muted-foreground'
+          className='mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base'
         >
-          I&#39;m a software engineer based in East java, Indonesia. I&#39;m
-          passionate about learning new technologies and sharing knowledge with
-          others.
+          I&#39;m a software engineer and Machine Learning distinction graduate based in East Java, Indonesia. I specialize in crafting modern, high-performance web applications, scalable distributed backends, and AI-powered interfaces.
         </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className='mt-6 flex flex-wrap items-center gap-3'
+        >
+          <Link
+            href='/contact'
+            className='inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2 text-xs font-semibold text-background shadow-md transition-all hover:scale-105 hover:bg-foreground/90 active:scale-95'
+          >
+            <span>Let&apos;s Connect</span>
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              viewBox='0 0 20 20'
+              fill='currentColor'
+              className='h-3.5 w-3.5'
+            >
+              <path
+                fillRule='evenodd'
+                d='M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z'
+                clipRule='evenodd'
+              />
+            </svg>
+          </Link>
+
+          <Link
+            href='/projects'
+            className='inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/60 px-5 py-2 text-xs font-semibold text-foreground backdrop-blur-xs transition-all hover:scale-105 hover:border-foreground/30 hover:bg-card active:scale-95'
+          >
+            <span>View Projects</span>
+          </Link>
+        </motion.div>
       </motion.div>
+
+      {/* 3D Holographic Avatar Card */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
+        initial={{ opacity: 0, scale: 0.88 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.15, ease: 'easeOut' }}
+        transition={{ duration: 0.6, delay: 0.15, ease: 'easeOut' }}
         style={{ perspective: 1200 }}
-        className='relative isolate [transform-style:preserve-3d]'
+        className='relative isolate shrink-0 [transform-style:preserve-3d]'
       >
         <motion.div
           ref={portraitRef}
@@ -101,44 +139,62 @@ export default function Intro() {
           onPointerLeave={resetRotation}
           onPointerCancel={resetRotation}
           style={{
-            rotateX: springRotateX,
-            rotateY: springRotateY,
-            scale: springScale,
+            rotateX,
+            rotateY,
             transformStyle: 'preserve-3d'
           }}
-          className='relative cursor-grab rounded-[1.6rem] p-1 active:cursor-grabbing'
+          className='group relative cursor-grab rounded-3xl p-1.5 active:cursor-grabbing'
         >
-          <div className='absolute -inset-7 rounded-[2.25rem] bg-gradient-to-br from-primary/25 via-transparent to-foreground/10 blur-3xl' />
-          <div className='absolute inset-0 rounded-[1.75rem] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.45),_transparent_42%)] opacity-60 mix-blend-overlay' />
-          <div className='absolute inset-0 rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-background/70 via-background/40 to-primary/10 shadow-[0_35px_90px_rgba(0,0,0,0.22)] backdrop-blur-md' />
-          <div className='relative rounded-[1.45rem] border border-border/70 bg-background/80 p-3 shadow-2xl [transform-style:preserve-3d]'>
-            <div className='absolute inset-0 rounded-[1.15rem] bg-gradient-to-tr from-primary/10 via-transparent to-transparent' />
-            <div className='absolute inset-0 rounded-[1.15rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.18),transparent_35%,transparent_65%,rgba(255,255,255,0.08))] opacity-70' />
-            <Image
-              className='relative z-10 flex-1 rounded-[1.1rem] grayscale transition-all duration-300 hover:grayscale-0'
-              src={authorImage}
-              alt='Nanda Safiq Alfiansyah'
-              width={210}
-              height={200}
-              priority
+          {/* Ambient Glows */}
+          <div className='absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-primary/30 via-primary/5 to-transparent blur-3xl' />
+          
+          {/* 3D Outer Layer */}
+          <div className='relative rounded-2xl border border-border/80 bg-background/80 p-3 shadow-2xl backdrop-blur-md [transform-style:preserve-3d]'>
+            {/* Dynamic Glare Reflection */}
+            <motion.div
+              style={{
+                background: useTransform(
+                  [glareX, glareY],
+                  ([gx, gy]) =>
+                    `radial-gradient(circle 220px at ${gx} ${gy}, rgba(255,255,255,0.22), transparent 70%)`
+                )
+              }}
+              className='pointer-events-none absolute inset-0 z-20 rounded-2xl opacity-70 transition-opacity duration-300'
             />
+
+            <div className='relative h-44 w-44 overflow-hidden rounded-xl sm:h-48 sm:w-48'>
+              <Image
+                className='object-cover grayscale transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0'
+                src={authorImage}
+                alt='Nanda Safiq Alfiansyah'
+                fill
+                priority
+              />
+            </div>
+
+            {/* macOS Style Signature Badge */}
+            <div className='absolute -bottom-3 -right-3 z-30 drop-shadow-xl'>
+              <MacLogo size='sm' showBadge={true} interactive={true} />
+            </div>
           </div>
         </motion.div>
 
-        {floatingLabels.map((item, index) => (
+        {/* 3D Floating Chips */}
+        {floatingChips.map((item, index) => (
           <motion.div
             key={item.label}
             aria-hidden='true'
-            className={`absolute rounded-full px-3 py-1 text-[0.7rem] font-medium tracking-wide backdrop-blur-md ${item.className}`}
-            initial={{ opacity: 0, y: 12, scale: 0.85 }}
+            className={`absolute z-30 rounded-full px-2.5 py-1 text-[0.68rem] font-medium tracking-wide backdrop-blur-md ${item.className}`}
+            initial={{ opacity: 0, scale: 0.8 }}
             animate={{
               opacity: 1,
-              y: [0, -8, 0],
-              x: index % 2 === 0 ? [0, 4, 0] : [0, -4, 0],
+              scale: 1,
+              y: [0, -6, 0],
+              x: index % 2 === 0 ? [0, 3, 0] : [0, -3, 0],
               rotate: index % 2 === 0 ? [-2, 2, -2] : [2, -2, 2]
             }}
             transition={{
-              duration: 4.2 + index * 0.45,
+              duration: 3.8 + index * 0.4,
               repeat: Infinity,
               ease: 'easeInOut',
               delay: 0.2 * index
@@ -147,14 +203,8 @@ export default function Intro() {
             {item.label}
           </motion.div>
         ))}
-
-        <motion.div
-          aria-hidden='true'
-          className='absolute -bottom-4 left-1/2 h-20 w-[72%] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl'
-          animate={{ opacity: [0.35, 0.6, 0.35], scale: [0.95, 1.05, 0.95] }}
-          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-        />
       </motion.div>
     </section>
   )
 }
+

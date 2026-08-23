@@ -5,82 +5,91 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ThemeToggle } from './theme-toggle'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import MacLogo from './mac-logo'
 
 export default function Header() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   const navItems = [
+    { href: '/', label: 'Home' },
+    { href: '/projects', label: 'Projects' },
     { href: '/posts', label: 'Blog' },
-    { href: '/certificate', label: 'Certificate' },
-    { href: '/projects', label: 'Project' },
-    { href: '/contact', label: 'Contact' },
-    { href: 'https://docs.ndav.my.id', label: 'Docs' }
+    { href: '/certificate', label: 'Certificates' },
+    { href: '/contact', label: 'Contact' }
   ]
 
   return (
-    <motion.header
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
-      className='fixed inset-x-0 top-0 z-50 bg-background py-3 sm:py-6'
+    <header
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'border-b border-border/50 bg-background/80 py-3 backdrop-blur-xl shadow-xs'
+          : 'bg-transparent py-5'
+      }`}
     >
-      <nav className='container flex max-w-3xl items-center justify-between'>
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+      <nav className='container flex max-w-3xl items-center justify-between px-4 sm:px-6'>
+        {/* Brand Logo with macOS Style App Icon */}
+        <Link
+          href='/'
+          className='group flex items-center gap-3 tracking-tight text-foreground transition-transform active:scale-95'
         >
-          <Link href='/' className='font-serif text-xl font-bold sm:text-2xl'>
+          <MacLogo size='sm' interactive={false} />
+          <span className='font-serif text-base sm:text-lg font-bold tracking-tight'>
             NDAV
-          </Link>
-        </motion.div>
+          </span>
+        </Link>
 
-        <ul className='ml-2 hidden items-center gap-2 text-sm font-light text-muted-foreground sm:flex sm:gap-8'>
-          {navItems.map((item, index) => (
-            <motion.li
-              key={item.href}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.05 * index }}
-              className='relative transition-colors hover:text-foreground'
-            >
-              {item.href.startsWith('http') ? (
-                <a href={item.href} target='_blank' rel='noopener noreferrer'>
-                  {item.label}
-                </a>
-              ) : (
-                <>
-                  <Link href={item.href}>{item.label}</Link>
-                  {pathname === item.href && (
-                    <motion.div
-                      layoutId='activeNav'
-                      className='absolute -bottom-2 left-0 right-0 h-0.5 bg-foreground'
-                      transition={{
-                        type: 'spring',
-                        stiffness: 380,
-                        damping: 30
-                      }}
-                    />
-                  )}
-                </>
-              )}
-            </motion.li>
-          ))}
-        </ul>
+        {/* Desktop Navigation */}
+        <div className='hidden items-center gap-1 rounded-full border border-border/60 bg-background/80 p-1.5 shadow-xs backdrop-blur-md md:flex'>
+          {navItems.map(item => {
+            const isActive =
+              item.href === '/'
+                ? pathname === '/'
+                : pathname.startsWith(item.href)
 
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                  isActive
+                    ? 'text-foreground font-semibold'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId='activePill'
+                    className='absolute inset-0 rounded-full bg-muted'
+                    transition={{
+                      type: 'spring',
+                      stiffness: 400,
+                      damping: 30
+                    }}
+                  />
+                )}
+                <span className='relative z-10'>{item.label}</span>
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* Right Action Icons */}
         <div className='flex items-center gap-2'>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-          >
-            <ThemeToggle />
-          </motion.div>
+          <ThemeToggle />
 
           <ButtonMenu
             open={mobileOpen}
@@ -89,48 +98,47 @@ export default function Header() {
         </div>
       </nav>
 
+      {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
-            className='container mt-2 sm:hidden'
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className='container mt-2 max-w-3xl px-4 md:hidden'
           >
-            <div className='rounded-xl border bg-background/95 p-2 shadow-lg backdrop-blur'>
-              <ul className='flex flex-col gap-1 text-sm text-muted-foreground'>
-                {navItems.map(item => (
-                  <li key={item.href}>
-                    {item.href.startsWith('http') ? (
-                      <a
-                        href={item.href}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='block rounded-lg px-3 py-2 transition-colors hover:bg-muted hover:text-foreground'
-                      >
-                        {item.label}
-                      </a>
-                    ) : (
+            <div className='rounded-2xl border border-border/80 bg-background/95 p-3 shadow-xl backdrop-blur-xl'>
+              <ul className='flex flex-col gap-1 text-sm'>
+                {navItems.map(item => {
+                  const isActive =
+                    item.href === '/'
+                      ? pathname === '/'
+                      : pathname.startsWith(item.href)
+                  return (
+                    <li key={item.href}>
                       <Link
                         href={item.href}
-                        className={`block rounded-lg px-3 py-2 transition-colors hover:bg-muted hover:text-foreground ${
-                          pathname === item.href
-                            ? 'bg-muted text-foreground'
-                            : ''
+                        className={`flex items-center justify-between rounded-xl px-4 py-2.5 font-medium transition-colors ${
+                          isActive
+                            ? 'bg-muted text-foreground font-semibold'
+                            : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
                         }`}
                       >
-                        {item.label}
+                        <span>{item.label}</span>
+                        {isActive && (
+                          <span className='h-1.5 w-1.5 rounded-full bg-primary' />
+                        )}
                       </Link>
-                    )}
-                  </li>
-                ))}
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </header>
   )
 }
 
@@ -147,7 +155,7 @@ function ButtonMenu({
       onClick={onToggle}
       aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
       aria-expanded={open}
-      className='inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background text-foreground sm:hidden'
+      className='inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/80 bg-background text-foreground transition-transform active:scale-90 md:hidden'
     >
       <svg
         xmlns='http://www.w3.org/2000/svg'
@@ -157,7 +165,7 @@ function ButtonMenu({
         strokeWidth='2'
         strokeLinecap='round'
         strokeLinejoin='round'
-        className='h-5 w-5'
+        className='h-4 w-4'
       >
         {open ? (
           <>
@@ -175,3 +183,4 @@ function ButtonMenu({
     </button>
   )
 }
+
