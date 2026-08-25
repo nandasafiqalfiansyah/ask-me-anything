@@ -1,105 +1,61 @@
 'use client'
 
-import React, { useRef } from 'react'
+import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import { motion } from 'framer-motion'
 import authorImage from '@/public/images/authors/ndav.png'
 import MacLogo from './mac-logo'
 
-const floatingChips = [
-  {
-    label: 'Next.js 15',
-    className: '-left-4 top-2 bg-foreground/90 text-background shadow-lg shadow-black/10'
-  },
-  {
-    label: 'TensorFlow & AI',
-    className: '-right-3 top-6 bg-primary/20 text-primary ring-1 ring-primary/30 shadow-lg shadow-primary/10'
-  },
-  {
-    label: 'Full-Stack',
-    className: '-left-2 bottom-4 bg-card/90 text-foreground ring-1 ring-border/80 shadow-lg shadow-black/5'
-  },
-  {
-    label: 'Cloud & GCP',
-    className: '-right-2 bottom-1 bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-  }
+const skillBadges = [
+  'Next.js & React',
+  'TypeScript',
+  'TensorFlow & AI',
+  'Cloud Architecture',
+  'PostgreSQL'
 ]
 
 export default function Intro() {
-  const portraitRef = useRef<HTMLDivElement>(null)
-
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-
-  const springX = useSpring(mouseX, { stiffness: 160, damping: 18 })
-  const springY = useSpring(mouseY, { stiffness: 160, damping: 18 })
-
-  const rotateX = useTransform(springY, [-0.5, 0.5], [16, -16])
-  const rotateY = useTransform(springX, [-0.5, 0.5], [-16, 16])
-  const glareX = useTransform(springX, [-0.5, 0.5], ['0%', '100%'])
-  const glareY = useTransform(springY, [-0.5, 0.5], ['0%', '100%'])
-
-  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    const element = portraitRef.current
-    if (!element) return
-
-    const rect = element.getBoundingClientRect()
-    const pctX = (event.clientX - rect.left) / rect.width - 0.5
-    const pctY = (event.clientY - rect.top) / rect.height - 0.5
-
-    mouseX.set(pctX)
-    mouseY.set(pctY)
-  }
-
-  const resetRotation = () => {
-    mouseX.set(0)
-    mouseY.set(0)
-  }
-
   return (
-    <section className='flex flex-col-reverse items-start gap-x-10 gap-y-8 pb-16 md:flex-row md:items-center md:pb-24'>
+    <section className='flex flex-col-reverse items-start gap-x-12 gap-y-8 pb-16 md:flex-row md:items-center md:pb-24'>
       <motion.div
-        initial={{ opacity: 0, y: 25 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
         className='flex-1'
       >
-        <div className='mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary backdrop-blur-xs'>
+        <div className='mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary'>
           <span className='relative flex h-2 w-2'>
-            <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75' />
-            <span className='relative inline-flex h-2 w-2 rounded-full bg-primary' />
+            <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75' />
+            <span className='relative inline-flex h-2 w-2 rounded-full bg-emerald-600' />
           </span>
-          <span>Available for projects & roles</span>
+          <span>Open for Roles & Collaboration</span>
         </div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className='font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'
-        >
+        <h1 className='font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
           Hey, I&#39;m Nanda Safiq.
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className='mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base'
-        >
-          I&#39;m a software engineer and Machine Learning distinction graduate based in East Java, Indonesia. I specialize in crafting modern, high-performance web applications, scalable distributed backends, and AI-powered interfaces.
-        </motion.p>
+        <p className='mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base'>
+          I&#39;m a software engineer and Machine Learning graduate based in East Java, Indonesia. I specialize in building robust, performant web applications, scalable backend systems, and AI-driven solutions.
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className='mt-6 flex flex-wrap items-center gap-3'
-        >
+        {/* Skill tags */}
+        <div className='mt-5 flex flex-wrap items-center gap-2'>
+          {skillBadges.map(skill => (
+            <span
+              key={skill}
+              className='rounded-md border border-border/80 bg-muted/50 px-2.5 py-1 text-xs font-medium text-muted-foreground'
+            >
+              {skill}
+            </span>
+          ))}
+        </div>
+
+        <div className='mt-7 flex flex-wrap items-center gap-3'>
           <Link
             href='/contact'
-            className='inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2 text-xs font-semibold text-background shadow-md transition-all hover:scale-105 hover:bg-foreground/90 active:scale-95'
+            className='inline-flex items-center gap-2 rounded-lg bg-foreground px-5 py-2.5 text-xs font-medium text-background transition-colors hover:bg-foreground/90'
           >
             <span>Let&apos;s Connect</span>
             <svg
@@ -118,93 +74,38 @@ export default function Intro() {
 
           <Link
             href='/projects'
-            className='inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/60 px-5 py-2 text-xs font-semibold text-foreground backdrop-blur-xs transition-all hover:scale-105 hover:border-foreground/30 hover:bg-card active:scale-95'
+            className='inline-flex items-center gap-2 rounded-lg border border-border bg-card px-5 py-2.5 text-xs font-medium text-foreground transition-colors hover:bg-muted'
           >
             <span>View Projects</span>
           </Link>
-        </motion.div>
+        </div>
       </motion.div>
 
-      {/* 3D Holographic Avatar Card */}
+      {/* Formal Profile Portrait */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.88 }}
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, delay: 0.15, ease: 'easeOut' }}
-        style={{ perspective: 1200 }}
-        className='relative isolate shrink-0 [transform-style:preserve-3d]'
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className='relative shrink-0'
       >
-        <motion.div
-          ref={portraitRef}
-          onPointerMove={handlePointerMove}
-          onPointerLeave={resetRotation}
-          onPointerCancel={resetRotation}
-          style={{
-            rotateX,
-            rotateY,
-            transformStyle: 'preserve-3d'
-          }}
-          className='group relative cursor-grab rounded-3xl p-1.5 active:cursor-grabbing'
-        >
-          {/* Ambient Glows */}
-          <div className='absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-primary/30 via-primary/5 to-transparent blur-3xl' />
-          
-          {/* 3D Outer Layer */}
-          <div className='relative rounded-2xl border border-border/80 bg-background/80 p-3 shadow-2xl backdrop-blur-md [transform-style:preserve-3d]'>
-            {/* Dynamic Glare Reflection */}
-            <motion.div
-              style={{
-                background: useTransform(
-                  [glareX, glareY],
-                  ([gx, gy]) =>
-                    `radial-gradient(circle 220px at ${gx} ${gy}, rgba(255,255,255,0.22), transparent 70%)`
-                )
-              }}
-              className='pointer-events-none absolute inset-0 z-20 rounded-2xl opacity-70 transition-opacity duration-300'
+        <div className='relative rounded-2xl border border-border/80 bg-card p-2 shadow-sm'>
+          <div className='relative h-44 w-44 overflow-hidden rounded-xl bg-muted sm:h-52 sm:w-52'>
+            <Image
+              className='object-cover transition-all duration-300 hover:scale-102'
+              src={authorImage}
+              alt='Nanda Safiq Alfiansyah'
+              fill
+              priority
             />
-
-            <div className='relative h-44 w-44 overflow-hidden rounded-xl sm:h-48 sm:w-48'>
-              <Image
-                className='object-cover grayscale transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0'
-                src={authorImage}
-                alt='Nanda Safiq Alfiansyah'
-                fill
-                priority
-              />
-            </div>
-
-            {/* macOS Style Signature Badge */}
-            <div className='absolute -bottom-3 -right-3 z-30 drop-shadow-xl'>
-              <MacLogo size='sm' showBadge={true} interactive={true} />
-            </div>
           </div>
-        </motion.div>
 
-        {/* 3D Floating Chips */}
-        {floatingChips.map((item, index) => (
-          <motion.div
-            key={item.label}
-            aria-hidden='true'
-            className={`absolute z-30 rounded-full px-2.5 py-1 text-[0.68rem] font-medium tracking-wide backdrop-blur-md ${item.className}`}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              y: [0, -6, 0],
-              x: index % 2 === 0 ? [0, 3, 0] : [0, -3, 0],
-              rotate: index % 2 === 0 ? [-2, 2, -2] : [2, -2, 2]
-            }}
-            transition={{
-              duration: 3.8 + index * 0.4,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay: 0.2 * index
-            }}
-          >
-            {item.label}
-          </motion.div>
-        ))}
+          <div className='absolute -bottom-2 -right-2 drop-shadow-md'>
+            <MacLogo size='sm' showBadge={true} interactive={false} />
+          </div>
+        </div>
       </motion.div>
     </section>
   )
 }
+
 

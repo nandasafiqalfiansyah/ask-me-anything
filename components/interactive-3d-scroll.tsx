@@ -20,6 +20,7 @@ import {
 
 type ThemeMode = 'dark' | 'light'
 type VisualMode = 'realistic' | 'wireframe' | 'cosmic'
+type DarknessLevel = 'dark' | 'deep' | 'balanced'
 
 interface PlanetData {
   id: string
@@ -344,6 +345,7 @@ function createSaturnRingTexture(): THREE.CanvasTexture {
 export default function Interactive3DScroll() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [visualMode, setVisualMode] = useState<VisualMode>('realistic')
+  const [darknessLevel, setDarknessLevel] = useState<DarknessLevel>('dark')
   const [showControls, setShowControls] = useState(false)
   const [showOrbits, setShowOrbits] = useState(true)
   const [isPaused, setIsPaused] = useState(false)
@@ -373,7 +375,7 @@ export default function Interactive3DScroll() {
     const isDark = themeRef.current === 'dark'
     
     // Deep space fog
-    scene.fog = new THREE.FogExp2(isDark ? 0x05070f : 0xf1f5f9, 0.02)
+    scene.fog = new THREE.FogExp2(isDark ? 0x020408 : 0xf1f5f9, 0.028)
 
     const camera = new THREE.PerspectiveCamera(
       45,
@@ -392,19 +394,19 @@ export default function Interactive3DScroll() {
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.3
+    renderer.toneMappingExposure = 0.85
     container.appendChild(renderer.domElement)
 
     // 2. Solar Illumination & Ambient Starlight
-    const ambientLight = new THREE.AmbientLight(0xffffff, isDark ? 0.35 : 0.9)
+    const ambientLight = new THREE.AmbientLight(0xffffff, isDark ? 0.2 : 0.5)
     scene.add(ambientLight)
 
     // Omnidirectional Sunlight originating from center
-    const sunLight = new THREE.PointLight(0xfff7ed, isDark ? 4.5 : 3.0, 50, 0.5)
+    const sunLight = new THREE.PointLight(0xfff7ed, isDark ? 2.6 : 1.8, 45, 0.6)
     sunLight.position.set(0, 0, 0)
     scene.add(sunLight)
 
-    const sunCoronaLight = new THREE.PointLight(0xffa500, isDark ? 2.5 : 1.5, 20)
+    const sunCoronaLight = new THREE.PointLight(0xffa500, isDark ? 1.4 : 0.9, 18)
     sunCoronaLight.position.set(0, 0, 0)
     scene.add(sunCoronaLight)
 
@@ -427,7 +429,7 @@ export default function Interactive3DScroll() {
     const coronaMat = new THREE.MeshBasicMaterial({
       color: 0xff8800,
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.18,
       side: THREE.BackSide,
       blending: THREE.AdditiveBlending
     })
@@ -439,7 +441,7 @@ export default function Interactive3DScroll() {
     const sunFlareMat = new THREE.MeshBasicMaterial({
       color: 0xffaa33,
       transparent: true,
-      opacity: 0.25,
+      opacity: 0.15,
       side: THREE.DoubleSide,
       blending: THREE.AdditiveBlending
     })
@@ -484,7 +486,7 @@ export default function Interactive3DScroll() {
       const orbitMat = new THREE.LineBasicMaterial({
         color: isDark ? 0x38bdf8 : 0x0284c7,
         transparent: true,
-        opacity: isDark ? 0.25 : 0.35
+        opacity: isDark ? 0.12 : 0.18
       })
       const orbitLine = new THREE.Line(orbitGeo, orbitMat)
       orbitLinesGroup.add(orbitLine)
@@ -686,10 +688,10 @@ export default function Interactive3DScroll() {
     starsGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3))
 
     const starsMat = new THREE.PointsMaterial({
-      size: 0.12,
+      size: 0.1,
       vertexColors: true,
       transparent: true,
-      opacity: isDark ? 0.85 : 0.55,
+      opacity: isDark ? 0.45 : 0.3,
       blending: THREE.AdditiveBlending
     })
 
@@ -819,13 +821,13 @@ export default function Interactive3DScroll() {
       })
 
       if (currentMode === 'cosmic') {
-        starsMat.size = 0.2
-        starsMat.opacity = isCurrentlyDark ? 0.95 : 0.7
-        sunCoronaLight.intensity = isCurrentlyDark ? 4.5 : 2.5
+        starsMat.size = 0.16
+        starsMat.opacity = isCurrentlyDark ? 0.65 : 0.45
+        sunCoronaLight.intensity = isCurrentlyDark ? 2.2 : 1.4
       } else {
-        starsMat.size = 0.12
-        starsMat.opacity = isCurrentlyDark ? 0.8 : 0.5
-        sunCoronaLight.intensity = isCurrentlyDark ? 2.5 : 1.5
+        starsMat.size = 0.1
+        starsMat.opacity = isCurrentlyDark ? 0.45 : 0.3
+        sunCoronaLight.intensity = isCurrentlyDark ? 1.4 : 0.9
       }
 
       renderer.render(scene, camera)
@@ -846,13 +848,49 @@ export default function Interactive3DScroll() {
     }
   }, [])
 
+  const getOverlayClasses = () => {
+    switch (darknessLevel) {
+      case 'deep':
+        return {
+          canvasOpacity: 'opacity-25 dark:opacity-20',
+          backdrop: 'bg-background/85 backdrop-blur-[1px] dark:bg-black/90',
+          vignette: 'bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0.4)_0%,_rgba(0,0,0,0.95)_100%)]'
+        }
+      case 'balanced':
+        return {
+          canvasOpacity: 'opacity-55 dark:opacity-50',
+          backdrop: 'bg-background/60 backdrop-blur-[0.5px] dark:bg-black/65',
+          vignette: 'bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0.1)_0%,_rgba(0,0,0,0.75)_100%)]'
+        }
+      case 'dark':
+      default:
+        return {
+          canvasOpacity: 'opacity-35 dark:opacity-30',
+          backdrop: 'bg-background/75 backdrop-blur-[0.5px] dark:bg-black/80',
+          vignette: 'bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0.2)_0%,_rgba(0,0,0,0.85)_100%)]'
+        }
+    }
+  }
+
+  const overlayConfig = getOverlayClasses()
+
   return (
     <>
       {/* 3D WebGL Solar System Canvas */}
       <div
         ref={containerRef}
         aria-hidden='true'
-        className='pointer-events-none fixed inset-0 z-0 h-screen w-screen overflow-hidden opacity-90 transition-opacity duration-700'
+        className={`pointer-events-none fixed inset-0 z-0 h-screen w-screen overflow-hidden transition-opacity duration-700 ${overlayConfig.canvasOpacity}`}
+      />
+
+      {/* Dark Ambient Overlay Layer to softly diffuse and darken background planets */}
+      <div
+        aria-hidden='true'
+        className={`pointer-events-none fixed inset-0 z-0 transition-colors duration-500 ${overlayConfig.backdrop}`}
+      />
+      <div
+        aria-hidden='true'
+        className={`pointer-events-none fixed inset-0 z-0 hidden transition-all duration-500 dark:block ${overlayConfig.vignette}`}
       />
 
       {/* Floating Solar System Controller & Planet Explorer */}
@@ -1010,6 +1048,45 @@ export default function Interactive3DScroll() {
                   >
                     <Sparkles className='h-3 w-3' />
                     Kosmik
+                  </button>
+                </div>
+              </div>
+
+              {/* Darkness / Subtlety Control */}
+              <div className='flex flex-col gap-1.5 pt-1'>
+                <span className='text-[10px] font-semibold uppercase tracking-wider text-muted-foreground'>
+                  Kecerahan Latar Overlay
+                </span>
+                <div className='grid grid-cols-3 gap-1.5'>
+                  <button
+                    onClick={() => setDarknessLevel('dark')}
+                    className={`rounded-lg px-2 py-1.5 text-[11px] font-medium transition-all ${
+                      darknessLevel === 'dark'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                  >
+                    Gelap (Default)
+                  </button>
+                  <button
+                    onClick={() => setDarknessLevel('deep')}
+                    className={`rounded-lg px-2 py-1.5 text-[11px] font-medium transition-all ${
+                      darknessLevel === 'deep'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                  >
+                    Sangat Gelap
+                  </button>
+                  <button
+                    onClick={() => setDarknessLevel('balanced')}
+                    className={`rounded-lg px-2 py-1.5 text-[11px] font-medium transition-all ${
+                      darknessLevel === 'balanced'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                  >
+                    Sedang
                   </button>
                 </div>
               </div>
