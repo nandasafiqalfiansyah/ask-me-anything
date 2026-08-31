@@ -148,6 +148,19 @@ export default function AIChatAssistant() {
       aria-label='AI Portfolio Assistant'
       className='fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end'
     >
+      {/* Backdrop for Expanded Full Modal Mode on Mobile & Tablet */}
+      <AnimatePresence>
+        {isOpen && isExpanded && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsExpanded(false)}
+            className='fixed inset-0 z-40 bg-black/40 backdrop-blur-xs'
+          />
+        )}
+      </AnimatePresence>
+
       {/* Chat Window Container */}
       <AnimatePresence>
         {isOpen && (
@@ -158,7 +171,7 @@ export default function AIChatAssistant() {
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             className={`mb-3 flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-background/95 shadow-2xl backdrop-blur-md transition-all duration-300 ${
               isExpanded
-                ? 'fixed inset-3 sm:inset-auto sm:right-6 sm:bottom-20 sm:h-[620px] sm:w-[480px] z-50'
+                ? 'fixed inset-4 sm:inset-auto sm:right-6 sm:bottom-20 sm:h-[650px] sm:w-[540px] md:w-[600px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] z-50'
                 : 'h-[500px] w-[calc(100vw-2rem)] max-w-[380px] sm:h-[520px] sm:max-w-[400px]'
             }`}
           >
@@ -193,7 +206,7 @@ export default function AIChatAssistant() {
                   type='button'
                   onClick={() => setIsExpanded(!isExpanded)}
                   title={isExpanded ? 'Minimize' : 'Expand'}
-                  className='hidden sm:inline-flex rounded-lg p-1.5 transition-colors hover:bg-muted hover:text-foreground'
+                  className='inline-flex rounded-lg p-1.5 transition-colors hover:bg-muted hover:text-foreground'
                 >
                   {isExpanded ? (
                     <Minimize2 className='h-3.5 w-3.5' />

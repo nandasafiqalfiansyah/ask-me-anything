@@ -1,11 +1,11 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import authorImage from '@/public/images/authors/ndav.png'
 import MacLogo from './mac-logo'
+import AvengersAvatar from './avengers-avatar'
 import { useLanguage } from '@/lib/language-context'
 
 const skillBadges = [
@@ -90,25 +90,20 @@ export default function Intro() {
         </div>
       </motion.div>
 
-      {/* Formal Profile Portrait */}
+      {/* Formal Profile Portrait with Avengers Snap Particle Effect */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
         className='relative shrink-0'
       >
-        <div className='relative rounded-2xl border border-border/80 bg-card p-2 shadow-sm'>
-          <div className='relative h-44 w-44 overflow-hidden rounded-xl bg-muted sm:h-52 sm:w-52'>
-            <Image
-              className='object-cover transition-all duration-300 hover:scale-102'
-              src={authorImage}
-              alt='Nanda Safiq Alfiansyah'
-              fill
-              priority
-            />
-          </div>
+        <div className='relative'>
+          <AvengersAvatar
+            src={authorImage}
+            alt='Nanda Safiq Alfiansyah'
+          />
 
-          <div className='absolute -bottom-2 -right-2 drop-shadow-md'>
+          <div className='absolute -bottom-2 -right-2 drop-shadow-md z-10 pointer-events-none'>
             <MacLogo size='sm' showBadge={true} interactive={false} />
           </div>
         </div>
