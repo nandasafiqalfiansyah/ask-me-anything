@@ -2,12 +2,16 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { unstable_noStore as noStore } from 'next/cache'
-import { supabaseAdmin } from './supabaseAdmin'
 import {
   getPostFromDb,
   hasSupabaseServerConfig,
   listPostsFromDb
 } from './postsDb'
+import {
+  getPostViewsMapStore,
+  getPostViewCountStore,
+  incrementPostViewCountStore
+} from './postViewsStore'
 
 const rootDirectory = path.join(process.cwd(), 'content', 'posts')
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -35,75 +39,15 @@ function isValidSlug(slug: string): boolean {
 async function getPostViewsMap(
   slugs: string[]
 ): Promise<Record<string, number>> {
-  if (!hasSupabaseServerConfig() || slugs.length === 0) {
-    return {}
-  }
-
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('post_views')
-      .select('slug, views')
-      .in('slug', slugs)
-
-    if (error) {
-      console.error('Error fetching post views:', error)
-      return {}
-    }
-
-    return (data || []).reduce<Record<string, number>>((acc, item) => {
-      acc[item.slug] = Number(item.views ?? 0)
-      return acc
-    }, {})
-  } catch (error) {
-    console.error('Error fetching post views:', error)
-    return {}
-  }
+  return getPostViewsMapStore(slugs)
 }
 
 export async function getPostViewCount(slug: string): Promise<number> {
-  if (!isValidSlug(slug) || !hasSupabaseServerConfig()) {
-    return 0
-  }
-
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('post_views')
-      .select('views')
-      .eq('slug', slug)
-      .maybeSingle()
-
-    if (error) {
-      console.error('Error fetching post view count:', error)
-      return 0
-    }
-
-    return Number(data?.views ?? 0)
-  } catch (error) {
-    console.error('Error fetching post view count:', error)
-    return 0
-  }
+  return getPostViewCountStore(slug)
 }
 
 export async function incrementPostViewCount(slug: string): Promise<number> {
-  if (!isValidSlug(slug) || !hasSupabaseServerConfig()) {
-    return 0
-  }
-
-  try {
-    const { data, error } = await supabaseAdmin.rpc('increment_post_views', {
-      post_slug: slug
-    })
-
-    if (error) {
-      console.error('Error incrementing post views:', error)
-      return getPostViewCount(slug)
-    }
-
-    return Number(data ?? 0)
-  } catch (error) {
-    console.error('Error incrementing post views:', error)
-    return getPostViewCount(slug)
-  }
+  return incrementPostViewCountStore(slug)
 }
 
 async function getPostBySlugFromFiles(slug: string): Promise<Post | null> {

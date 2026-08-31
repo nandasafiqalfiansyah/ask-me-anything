@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useLanguage } from '@/lib/language-context'
 
 type PostViewCounterProps = {
   slug: string
@@ -13,16 +14,15 @@ export default function PostViewCounter({
   initialCount,
   className
 }: PostViewCounterProps) {
+  const { language } = useLanguage()
   const [count, setCount] = useState(initialCount)
-  const hasTrackedRef = useRef(false)
 
   useEffect(() => {
-    if (!slug || hasTrackedRef.current) {
-      return
-    }
+    if (!slug) return
 
-    hasTrackedRef.current = true
+    let isMounted = true
 
+    // Optimistically update count if initial is 0 or display existing
     const trackView = async () => {
       try {
         const response = await fetch('/api/v1/posts/views', {
@@ -35,21 +35,39 @@ export default function PostViewCounter({
         })
 
         if (!response.ok) {
+          // If server returned non-ok, still give optimistic bump
+          if (isMounted) {
+            setCount(prev => Math.max(prev + 1, 1))
+          }
           return
         }
 
         const payload = (await response.json()) as { views?: number }
 
-        if (typeof payload.views === 'number') {
+        if (isMounted && typeof payload.views === 'number') {
           setCount(payload.views)
         }
       } catch {
-        // Fail silently to avoid breaking the article page.
+        if (isMounted) {
+          setCount(prev => Math.max(prev + 1, 1))
+        }
       }
     }
 
     void trackView()
+
+    return () => {
+      isMounted = false
+    }
   }, [slug])
 
-  return <p className={className}>{count.toLocaleString('en-US')} views</p>
+  const formatViews = (val: number) => {
+    const locale = language === 'id' ? 'id-ID' : language === 'ja' ? 'ja-JP' : 'en-US'
+    const numStr = (val || 0).toLocaleString(locale)
+    if (language === 'id') return `${numStr} kali dilihat`
+    if (language === 'ja') return `${numStr} 回閲覧`
+    return `${numStr} views`
+  }
+
+  return <span className={className}>{formatViews(count)}</span>
 }

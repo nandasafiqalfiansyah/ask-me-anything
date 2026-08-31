@@ -11,8 +11,16 @@ import { useCallback, useEffect, useState } from 'react'
 import { useLanguage } from '@/lib/language-context'
 
 export default function Posts({ posts }: { posts: PostMetadata[] }) {
-  const { t } = useLanguage()
+  const { language } = useLanguage()
   const [lightboxImage, setLightboxImage] = useState<{ src: string; alt: string } | null>(null)
+
+  const formatViews = (val: number) => {
+    const locale = language === 'id' ? 'id-ID' : language === 'ja' ? 'ja-JP' : 'en-US'
+    const numStr = (val || 0).toLocaleString(locale)
+    if (language === 'id') return `${numStr} kali dilihat`
+    if (language === 'ja') return `${numStr} 回閲覧`
+    return `${numStr} views`
+  }
 
   const closeLightbox = useCallback(() => setLightboxImage(null), [])
 
@@ -97,7 +105,7 @@ export default function Posts({ posts }: { posts: PostMetadata[] }) {
                 </div>
               ) : (
                 <div className='flex aspect-[16/10] w-full shrink-0 items-center justify-center rounded-lg border border-dashed border-border/60 bg-muted/50 sm:w-44 md:w-52'>
-                  <span className='text-xs text-muted-foreground'>{t('posts_no_image')}</span>
+                  <span className='text-xs text-muted-foreground'>No image</span>
                 </div>
               )}
 
@@ -117,7 +125,7 @@ export default function Posts({ posts }: { posts: PostMetadata[] }) {
                   {post.author && post.publishedAt && <span aria-hidden>·</span>}
                   {post.publishedAt && <time>{formatDate(post.publishedAt)}</time>}
                   <span aria-hidden>·</span>
-                  <span>{(post.viewCount ?? 0).toLocaleString('en-US')} {t('posts_views')}</span>
+                  <span>{formatViews(post.viewCount ?? 0)}</span>
                 </div>
               </Link>
             </div>

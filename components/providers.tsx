@@ -1,8 +1,10 @@
 'use client'
 
+import { Suspense } from 'react'
 import { ThemeProvider, useTheme } from 'next-themes'
 import { Toaster } from '@/components/ui/sonner'
 import { LanguageProvider } from '@/lib/language-context'
+import RouteProgress from '@/components/route-progress'
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +15,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange={false}
     >
       <LanguageProvider>
+        <Suspense fallback={null}>
+          <RouteProgress />
+        </Suspense>
         {children}
         <ToasterProvider />
       </LanguageProvider>
