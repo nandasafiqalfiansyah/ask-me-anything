@@ -171,7 +171,13 @@ export default function RecentWork() {
               transition={{ duration: 0.4, delay: index * 0.08 }}
               className='group rounded-2xl border border-border/70 bg-card/80 p-5 shadow-2xs backdrop-blur-xs transition-all hover:border-foreground/30 hover:bg-card'
             >
-              <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
+              <Collapsible.Root
+                open={openIndex === index}
+                onOpenChange={() =>
+                  setOpenIndex(openIndex === index ? null : index)
+                }
+              >
+                <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
                 <div className='flex items-start gap-3.5 flex-1'>
                   <div className='relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/80 bg-background/90 p-2 shadow-2xs transition-transform duration-300 group-hover:scale-105'>
                     <Image
@@ -196,17 +202,11 @@ export default function RecentWork() {
                     </p>
 
                     {experience.description && (
-                      <Collapsible.Root
-                        open={openIndex === index}
-                        onOpenChange={() =>
-                          setOpenIndex(openIndex === index ? null : index)
-                        }
-                        className='mt-3'
-                      >
+                      <div className='mt-3'>
                         <Collapsible.Trigger asChild>
                           <button
                             type='button'
-                            className='inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-muted/50 px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground'
+                            className='inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-background/80 px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:bg-muted hover:text-foreground'
                           >
                             <AnimatePresence mode='wait' initial={false}>
                               {openIndex === index ? (
@@ -235,25 +235,7 @@ export default function RecentWork() {
                             </AnimatePresence>
                           </button>
                         </Collapsible.Trigger>
-
-                        <AnimatePresence>
-                          {openIndex === index && (
-                            <Collapsible.Content asChild forceMount>
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.25 }}
-                                className='overflow-hidden'
-                              >
-                                <div className='mt-3 rounded-xl border border-border/40 bg-muted/30 p-3.5 text-xs leading-relaxed text-muted-foreground'>
-                                  <ReactMarkdown>{experience.description}</ReactMarkdown>
-                                </div>
-                              </motion.div>
-                            </Collapsible.Content>
-                          )}
-                        </AnimatePresence>
-                      </Collapsible.Root>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -264,9 +246,30 @@ export default function RecentWork() {
                   </div>
                 )}
               </div>
-            </motion.li>
-          ))}
-        </ul>
+
+              {experience.description && (
+                <AnimatePresence>
+                  {openIndex === index && (
+                    <Collapsible.Content asChild forceMount>
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className='overflow-hidden'
+                      >
+                        <div className='mt-4 rounded-xl border border-border/40 bg-muted/30 p-3.5 text-xs leading-relaxed text-muted-foreground sm:text-sm'>
+                          <ReactMarkdown>{experience.description}</ReactMarkdown>
+                        </div>
+                      </motion.div>
+                    </Collapsible.Content>
+                  )}
+                </AnimatePresence>
+              )}
+            </Collapsible.Root>
+          </motion.li>
+        ))}
+      </ul>
 
         <div className='mt-6 sm:hidden'>
           <Link

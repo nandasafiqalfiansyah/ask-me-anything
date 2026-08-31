@@ -1,9 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { Check, Copy, ArrowDownRight, Sparkles } from 'lucide-react'
 import authorImage from '@/public/images/authors/ndav.png'
 import MacLogo from './mac-logo'
 
@@ -12,10 +13,30 @@ const skillBadges = [
   'TypeScript',
   'TensorFlow & AI',
   'Cloud Architecture',
-  'PostgreSQL'
+  'PostgreSQL',
+  'Python'
 ]
 
 export default function Intro() {
+  const [copied, setCopied] = useState(false)
+  const email = 'nandasafiqalfiansyah@gmail.com'
+
+  const copyEmail = () => {
+    navigator.clipboard.writeText(email)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const scrollToProjects = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    const element = document.getElementById('featured-projects')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      window.location.href = '/projects'
+    }
+  }
+
   return (
     <section className='flex flex-col-reverse items-start gap-x-12 gap-y-8 pb-16 md:flex-row md:items-center md:pb-24'>
       <motion.div
@@ -24,12 +45,13 @@ export default function Intro() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className='flex-1'
       >
+        {/* Availability Badge */}
         <div className='mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary'>
           <span className='relative flex h-2 w-2'>
             <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75' />
             <span className='relative inline-flex h-2 w-2 rounded-full bg-emerald-600' />
           </span>
-          <span>Open for Roles & Collaboration</span>
+          <span>Open for Software Engineer Roles</span>
         </div>
 
         <h1 className='font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl'>
@@ -37,10 +59,10 @@ export default function Intro() {
         </h1>
 
         <p className='mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base'>
-          I&#39;m a software engineer and Machine Learning graduate based in East Java, Indonesia. I specialize in building robust, performant web applications, scalable backend systems, and AI-driven solutions.
+          I&#39;m a software engineer and Machine Learning distinction graduate specializing in building production-ready web applications, scalable distributed backends, and AI-driven solutions.
         </p>
 
-        {/* Skill tags */}
+        {/* Core Stack Badges */}
         <div className='mt-5 flex flex-wrap items-center gap-2'>
           {skillBadges.map(skill => (
             <span
@@ -52,31 +74,41 @@ export default function Intro() {
           ))}
         </div>
 
+        {/* Action CTAs: Project First & Instant Copy Email */}
         <div className='mt-7 flex flex-wrap items-center gap-3'>
-          <Link
-            href='/contact'
+          <a
+            href='#featured-projects'
+            onClick={scrollToProjects}
             className='inline-flex items-center gap-2 rounded-lg bg-foreground px-5 py-2.5 text-xs font-medium text-background transition-colors hover:bg-foreground/90'
           >
-            <span>Let&apos;s Connect</span>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              viewBox='0 0 20 20'
-              fill='currentColor'
-              className='h-3.5 w-3.5'
-            >
-              <path
-                fillRule='evenodd'
-                d='M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z'
-                clipRule='evenodd'
-              />
-            </svg>
-          </Link>
+            <span>Explore Projects</span>
+            <ArrowDownRight className='h-3.5 w-3.5' />
+          </a>
+
+          <button
+            type='button'
+            onClick={copyEmail}
+            className='inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-xs font-medium text-foreground transition-colors hover:bg-muted'
+            title='Copy email to clipboard'
+          >
+            {copied ? (
+              <>
+                <Check className='h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400' />
+                <span className='text-emerald-600 dark:text-emerald-400 font-semibold'>Email Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy className='h-3.5 w-3.5 text-muted-foreground' />
+                <span>Copy Email</span>
+              </>
+            )}
+          </button>
 
           <Link
-            href='/projects'
-            className='inline-flex items-center gap-2 rounded-lg border border-border bg-card px-5 py-2.5 text-xs font-medium text-foreground transition-colors hover:bg-muted'
+            href='/contact'
+            className='inline-flex items-center gap-1.5 rounded-lg border border-transparent px-3 py-2.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground'
           >
-            <span>View Projects</span>
+            <span>Get in touch &rarr;</span>
           </Link>
         </div>
       </motion.div>
@@ -107,5 +139,6 @@ export default function Intro() {
     </section>
   )
 }
+
 
 

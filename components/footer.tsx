@@ -1,16 +1,27 @@
 'use client'
 
-import { JSX, SVGProps, useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { JSX, useState, useEffect } from 'react'
 import Link from 'next/link'
+import { ArrowUp, Mail, ShieldCheck, UserCheck } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
 
-const navigation = [
+interface SocialLink {
+  name: string
+  href: string
+  icon: (props: { className?: string }) => JSX.Element
+}
+
+const socialLinks: SocialLink[] = [
   {
     name: 'GitHub',
     href: 'https://github.com/nandasafiqalfiansyah',
-    icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
-      <svg fill='currentColor' viewBox='0 0 24 24' {...props}>
+    icon: ({ className = 'h-4 w-4' }) => (
+      <svg
+        className={className}
+        fill='currentColor'
+        viewBox='0 0 24 24'
+        aria-hidden='true'
+      >
         <path
           fillRule='evenodd'
           d='M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z'
@@ -22,27 +33,35 @@ const navigation = [
   {
     name: 'LinkedIn',
     href: 'https://www.linkedin.com/in/nanda-safiq-alfiansyah',
-    icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
-      <svg fill='currentColor' viewBox='0 0 448 512' {...props}>
-        <path
-          fill='currentColor'
-          d='M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z'
-        />
+    icon: ({ className = 'h-4 w-4' }) => (
+      <svg
+        className={className}
+        fill='currentColor'
+        viewBox='0 0 24 24'
+        aria-hidden='true'
+      >
+        <path d='M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z' />
       </svg>
     )
   },
   {
     name: 'Instagram',
     href: 'https://instagram.com/nandasafiqalfiansyah',
-    icon: (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
-      <svg fill='currentColor' viewBox='0 0 24 24' {...props}>
-        <path
-          fillRule='evenodd'
-          d='M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z'
-          clipRule='evenodd'
-        />
+    icon: ({ className = 'h-4 w-4' }) => (
+      <svg
+        className={className}
+        fill='currentColor'
+        viewBox='0 0 24 24'
+        aria-hidden='true'
+      >
+        <path d='M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z' />
       </svg>
     )
+  },
+  {
+    name: 'Email',
+    href: 'mailto:nandasafiqalfiansyah@gmail.com',
+    icon: ({ className = 'h-4 w-4' }) => <Mail className={className} />
   }
 ]
 
@@ -76,51 +95,88 @@ export default function Footer() {
     }
   }, [])
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const currentYear = new Date().getFullYear()
+
   return (
-    <footer className='border-t border-border/60 py-10'>
-      <div className='container flex max-w-3xl flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-6'>
-        <div className='flex flex-col items-center gap-1 sm:items-start'>
+    <footer className='border-t border-border/70 bg-card/20 py-8 text-foreground transition-colors'>
+      <div className='container flex max-w-3xl flex-col items-center justify-between gap-5 px-4 sm:flex-row sm:px-6'>
+        {/* Left: Copyright & Legal Links */}
+        <div className='flex flex-col items-center gap-1.5 text-center sm:items-start sm:text-left'>
           <p className='text-xs text-muted-foreground'>
-            &copy; {new Date().getFullYear()} Nanda Safiq Alfiansyah. Crafted with Next.js & Tailwind CSS.
+            &copy; {currentYear} Nanda Safiq Alfiansyah. All rights reserved.
           </p>
-          <div className='flex items-center gap-3 text-[0.7rem] text-muted-foreground'>
-            <Link href='/privacy' className='hover:text-foreground transition-colors'>
+          <div className='flex items-center gap-3 text-[0.72rem] text-muted-foreground'>
+            <Link
+              href='/privacy'
+              className='transition-colors hover:text-foreground'
+            >
               Privacy Policy
             </Link>
             <span>·</span>
-            <Link href='/contact' className='hover:text-foreground transition-colors'>
-              Get in Touch
+            <Link
+              href='/contact'
+              className='transition-colors hover:text-foreground'
+            >
+              Contact
             </Link>
-            <span>·</span>
             {ready && (
-              <Link
-                href={user ? '/dashboard' : '/login'}
-                className='hover:text-foreground transition-colors'
-              >
-                {user ? 'Dashboard' : 'Admin'}
-              </Link>
+              <>
+                <span>·</span>
+                <Link
+                  href={user ? '/dashboard' : '/login'}
+                  className='inline-flex items-center gap-1 transition-colors hover:text-foreground'
+                >
+                  {user ? (
+                    <>
+                      <UserCheck className='h-3 w-3' />
+                      <span>Dashboard</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className='h-3 w-3' />
+                      <span>Admin</span>
+                    </>
+                  )}
+                </Link>
+              </>
             )}
           </div>
         </div>
 
-        <div className='flex items-center gap-4'>
-          {navigation.map(item => (
-            <motion.a
-              key={item.name}
-              href={item.href}
-              target='_blank'
-              rel='noreferrer noopener'
-              whileHover={{ scale: 1.15, y: -2 }}
-              whileTap={{ scale: 0.9 }}
-              className='flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-card text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground'
-            >
-              <span className='sr-only'>{item.name}</span>
-              <item.icon aria-hidden='true' className='h-4 w-4' />
-            </motion.a>
-          ))}
+        {/* Right: Social Media Icons & Back to Top Button */}
+        <div className='flex items-center gap-3'>
+          <div className='flex items-center gap-1.5'>
+            {socialLinks.map(item => (
+              <a
+                key={item.name}
+                href={item.href}
+                target='_blank'
+                rel='noreferrer noopener'
+                aria-label={item.name}
+                className='inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 bg-card text-muted-foreground transition-colors hover:border-foreground/30 hover:bg-muted hover:text-foreground'
+              >
+                <item.icon className='h-4 w-4' />
+              </a>
+            ))}
+          </div>
+
+          <button
+            type='button'
+            onClick={scrollToTop}
+            className='inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 bg-card text-muted-foreground transition-colors hover:border-foreground/30 hover:bg-muted hover:text-foreground'
+            aria-label='Back to top of page'
+            title='Back to top'
+          >
+            <ArrowUp className='h-4 w-4' />
+          </button>
         </div>
       </div>
     </footer>
   )
 }
+
 
