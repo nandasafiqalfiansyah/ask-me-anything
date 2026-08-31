@@ -9,6 +9,7 @@ import './globals.css'
 import Providers from '@/components/providers'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
+import AIChatAssistant from '@/components/ai-chat-assistant'
 
 const inter = Inter({ 
   subsets: ['latin'], 
@@ -57,6 +58,7 @@ export default function RootLayout({
           <Header />
           <main className='grow'>{children}</main>
           <Footer />
+          <AIChatAssistant />
           <Analytics />
         </Providers>
       </body>

@@ -4,6 +4,7 @@ import { JSX, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowUp, Mail, ShieldCheck, UserCheck } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
+import { useLanguage } from '@/lib/language-context'
 
 interface SocialLink {
   name: string
@@ -68,6 +69,7 @@ const socialLinks: SocialLink[] = [
 export default function Footer() {
   const [user, setUser] = useState<any>(null)
   const [ready, setReady] = useState(false)
+  const { t } = useLanguage()
 
   useEffect(() => {
     if (!isSupabaseConfigured()) {
@@ -107,21 +109,21 @@ export default function Footer() {
         {/* Left: Copyright & Legal Links */}
         <div className='flex flex-col items-center gap-1.5 text-center sm:items-start sm:text-left'>
           <p className='text-xs text-muted-foreground'>
-            &copy; {currentYear} Nanda Safiq Alfiansyah. All rights reserved.
+            &copy; {currentYear} Nanda Safiq Alfiansyah. {t('all_rights_reserved')}
           </p>
           <div className='flex items-center gap-3 text-[0.72rem] text-muted-foreground'>
             <Link
               href='/privacy'
               className='transition-colors hover:text-foreground'
             >
-              Privacy Policy
+              {t('privacy_policy')}
             </Link>
             <span>·</span>
             <Link
               href='/contact'
               className='transition-colors hover:text-foreground'
             >
-              Contact
+              {t('contact_link')}
             </Link>
             {ready && (
               <>
@@ -133,7 +135,7 @@ export default function Footer() {
                   {user ? (
                     <>
                       <UserCheck className='h-3 w-3' />
-                      <span>Dashboard</span>
+                      <span>{t('admin_dashboard')}</span>
                     </>
                   ) : (
                     <>
@@ -168,8 +170,8 @@ export default function Footer() {
             type='button'
             onClick={scrollToTop}
             className='inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 bg-card text-muted-foreground transition-colors hover:border-foreground/30 hover:bg-muted hover:text-foreground'
-            aria-label='Back to top of page'
-            title='Back to top'
+            aria-label={t('back_to_top')}
+            title={t('back_to_top')}
           >
             <ArrowUp className='h-4 w-4' />
           </button>

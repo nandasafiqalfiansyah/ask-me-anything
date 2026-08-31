@@ -3,14 +3,17 @@
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ThemeToggle } from './theme-toggle'
+import { LanguageSwitcher } from './language-switcher'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import MacLogo from './mac-logo'
+import { useLanguage } from '@/lib/language-context'
 
 export default function Header() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { t } = useLanguage()
 
   useEffect(() => {
     setMobileOpen(false)
@@ -25,11 +28,11 @@ export default function Header() {
   }, [])
 
   const navItems = [
-    { href: '/', label: 'Home' },
-    { href: '/projects', label: 'Projects' },
-    { href: '/posts', label: 'Blog' },
-    { href: '/certificate', label: 'Certificates' },
-    { href: '/contact', label: 'Contact' }
+    { href: '/', label: t('nav_home') },
+    { href: '/projects', label: t('nav_projects') },
+    { href: '/posts', label: t('nav_blog') },
+    { href: '/certificate', label: t('nav_certificates') },
+    { href: '/contact', label: t('nav_contact') }
   ]
 
   return (
@@ -88,7 +91,8 @@ export default function Header() {
         </div>
 
         {/* Right Action Icons */}
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center gap-1.5 sm:gap-2'>
+          <LanguageSwitcher />
           <ThemeToggle />
 
           <ButtonMenu
