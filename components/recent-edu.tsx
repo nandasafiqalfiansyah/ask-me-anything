@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
+import { useLanguage } from '@/lib/language-context'
 
 type Education = {
   id: number
@@ -61,6 +62,7 @@ const getEduLogo = (edu: Education) => {
 }
 
 export default function RecentEdu() {
+  const { t } = useLanguage()
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const [education, setEducation] = useState<Education[]>(DEFAULT_EDUCATION)
 
@@ -99,10 +101,10 @@ export default function RecentEdu() {
     >
       <div>
         <h2 className='font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
-          Education & Certifications
+          {t('sec_education')}
         </h2>
         <p className='mt-2 text-sm text-muted-foreground'>
-          Academic qualifications, specialized academies, and formal learning
+          {t('sec_education_sub')}
         </p>
       </div>
 
@@ -180,7 +182,7 @@ export default function RecentEdu() {
                                         clipRule='evenodd'
                                       />
                                     </svg>
-                                    <span>Hide details</span>
+                                    <span>{t('btn_hide_details')}</span>
                                   </motion.span>
                                 ) : (
                                   <motion.span
@@ -203,7 +205,7 @@ export default function RecentEdu() {
                                         clipRule='evenodd'
                                       />
                                     </svg>
-                                    <span>View details</span>
+                                    <span>{t('btn_view_details')}</span>
                                   </motion.span>
                                 )}
                               </AnimatePresence>
@@ -246,4 +248,3 @@ export default function RecentEdu() {
     </motion.section>
   )
 }
-

@@ -7,10 +7,12 @@ import Posts from '@/components/posts'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Cross2Icon } from '@radix-ui/react-icons'
+import { useLanguage } from '@/lib/language-context'
 
 type SortKey = 'date-desc' | 'date-asc' | 'views-desc' | 'views-asc'
 
 export default function PostsWithSearch({ posts }: { posts: PostMetadata[] }) {
+  const { t } = useLanguage()
   const [query, setQuery] = useState('')
   const [authorFilter, setAuthorFilter] = useState<string>('all')
   const [sortKey, setSortKey] = useState<SortKey>('date-desc')
@@ -78,7 +80,7 @@ export default function PostsWithSearch({ posts }: { posts: PostMetadata[] }) {
       <div className='mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3'>
         <Input
           type='text'
-          placeholder='Search posts...'
+          placeholder={t('posts_search_placeholder')}
           className='h-9 w-full sm:w-1/3'
           value={query}
           onChange={e => setQuery(e.target.value)}
@@ -90,7 +92,7 @@ export default function PostsWithSearch({ posts }: { posts: PostMetadata[] }) {
             onChange={e => setAuthorFilter(e.target.value)}
             className='h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm focus:outline-none focus:ring-1 focus:ring-ring'
           >
-            <option value='all'>All authors</option>
+            <option value='all'>{t('posts_all_authors')}</option>
             {authors.map(author => (
               <option key={author} value={author}>
                 {author}
@@ -104,10 +106,10 @@ export default function PostsWithSearch({ posts }: { posts: PostMetadata[] }) {
           onChange={e => setSortKey(e.target.value as SortKey)}
           className='h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm focus:outline-none focus:ring-1 focus:ring-ring'
         >
-          <option value='date-desc'>Newest first</option>
-          <option value='date-asc'>Oldest first</option>
-          <option value='views-desc'>Most views</option>
-          <option value='views-asc'>Least views</option>
+          <option value='date-desc'>{t('posts_sort_newest')}</option>
+          <option value='date-asc'>{t('posts_sort_oldest')}</option>
+          <option value='views-desc'>{t('posts_sort_most_views')}</option>
+          <option value='views-asc'>{t('posts_sort_least_views')}</option>
         </select>
 
         {isFiltered && (
@@ -117,7 +119,7 @@ export default function PostsWithSearch({ posts }: { posts: PostMetadata[] }) {
             onClick={resetFilter}
             className='h-8 px-2 lg:px-3'
           >
-            Reset
+            {t('posts_reset_btn')}
             <Cross2Icon className='ml-2 h-4 w-4' />
           </Button>
         )}

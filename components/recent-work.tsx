@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
+import { useLanguage } from '@/lib/language-context'
 
 type Experience = {
   id: number
@@ -75,17 +76,18 @@ const getExperienceLogo = (exp: Experience) => {
   return '/next.svg'
 }
 
-// Utility function to format date
-function formatDate(dateString: string) {
+function formatDate(dateString: string, lang: string) {
+  const locale = lang === 'id' ? 'id-ID' : lang === 'ja' ? 'ja-JP' : 'en-US'
   const options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   }
-  return new Date(dateString).toLocaleDateString(undefined, options)
+  return new Date(dateString).toLocaleDateString(locale, options)
 }
 
 export default function RecentWork() {
+  const { t, language } = useLanguage()
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const [experiences, setExperiences] = useState<Experience[]>(FALLBACK_EXPERIENCES)
   const [loading, setLoading] = useState(true)
@@ -132,10 +134,10 @@ export default function RecentWork() {
         <div className='flex items-end justify-between gap-4 pb-8'>
           <div>
             <h2 className='font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
-              Work & Education Experience
+              {t('sec_experience')}
             </h2>
             <p className='mt-2 text-sm text-muted-foreground'>
-              Career history, engineering background, and academic path
+              {t('sec_experience_sub')}
             </p>
           </div>
 
@@ -145,7 +147,7 @@ export default function RecentWork() {
             rel='noopener noreferrer'
             className='hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground'
           >
-            <span>LinkedIn Profile</span>
+            <span>{t('linkedin_profile')}</span>
             <svg
               xmlns='http://www.w3.org/2000/svg'
               viewBox='0 0 20 20'
@@ -178,98 +180,98 @@ export default function RecentWork() {
                 }
               >
                 <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
-                <div className='flex items-start gap-3.5 flex-1'>
-                  <div className='relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/80 bg-background/90 p-2 shadow-2xs transition-transform duration-300 group-hover:scale-105'>
-                    <Image
-                      src={getExperienceLogo(experience)}
-                      alt={`${experience.title} logo`}
-                      width={32}
-                      height={32}
-                      className='h-auto max-h-7 w-auto max-w-7 object-contain'
-                    />
-                  </div>
-
-                  <div className='flex-1 min-w-0'>
-                    <div className='flex items-center gap-2'>
-                      <span className='h-2 w-2 shrink-0 rounded-full bg-primary' />
-                      <h3 className='font-serif text-base font-bold text-foreground'>
-                        {experience.title}
-                      </h3>
+                  <div className='flex items-start gap-3.5 flex-1'>
+                    <div className='relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/80 bg-background/90 p-2 shadow-2xs transition-transform duration-300 group-hover:scale-105'>
+                      <Image
+                        src={getExperienceLogo(experience)}
+                        alt={`${experience.title} logo`}
+                        width={32}
+                        height={32}
+                        className='h-auto max-h-7 w-auto max-w-7 object-contain'
+                      />
                     </div>
 
-                    <p className='mt-1 text-xs text-muted-foreground sm:text-sm'>
-                      {experience.summary}
-                    </p>
-
-                    {experience.description && (
-                      <div className='mt-3'>
-                        <Collapsible.Trigger asChild>
-                          <button
-                            type='button'
-                            className='inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-background/80 px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:bg-muted hover:text-foreground'
-                          >
-                            <AnimatePresence mode='wait' initial={false}>
-                              {openIndex === index ? (
-                                <motion.span
-                                  key='hide'
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  exit={{ opacity: 0 }}
-                                  className='inline-flex items-center gap-1'
-                                >
-                                  <Cross2Icon className='h-3 w-3' />
-                                  <span>Hide details</span>
-                                </motion.span>
-                              ) : (
-                                <motion.span
-                                  key='show'
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  exit={{ opacity: 0 }}
-                                  className='inline-flex items-center gap-1'
-                                >
-                                  <RowSpacingIcon className='h-3 w-3' />
-                                  <span>View details</span>
-                                </motion.span>
-                              )}
-                            </AnimatePresence>
-                          </button>
-                        </Collapsible.Trigger>
+                    <div className='flex-1 min-w-0'>
+                      <div className='flex items-center gap-2'>
+                        <span className='h-2 w-2 shrink-0 rounded-full bg-primary' />
+                        <h3 className='font-serif text-base font-bold text-foreground'>
+                          {experience.title}
+                        </h3>
                       </div>
-                    )}
+
+                      <p className='mt-1 text-xs text-muted-foreground sm:text-sm'>
+                        {experience.summary}
+                      </p>
+
+                      {experience.description && (
+                        <div className='mt-3'>
+                          <Collapsible.Trigger asChild>
+                            <button
+                              type='button'
+                              className='inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-background/80 px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:bg-muted hover:text-foreground'
+                            >
+                              <AnimatePresence mode='wait' initial={false}>
+                                {openIndex === index ? (
+                                  <motion.span
+                                    key='hide'
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className='inline-flex items-center gap-1'
+                                  >
+                                    <Cross2Icon className='h-3 w-3' />
+                                    <span>{t('btn_hide_details')}</span>
+                                  </motion.span>
+                                ) : (
+                                  <motion.span
+                                    key='show'
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className='inline-flex items-center gap-1'
+                                  >
+                                    <RowSpacingIcon className='h-3 w-3' />
+                                    <span>{t('btn_view_details')}</span>
+                                  </motion.span>
+                                )}
+                              </AnimatePresence>
+                            </button>
+                          </Collapsible.Trigger>
+                        </div>
+                      )}
+                    </div>
                   </div>
+
+                  {experience.published_at && (
+                    <div className='text-[0.72rem] font-mono text-muted-foreground sm:text-right shrink-0'>
+                      {formatDate(experience.published_at, language)}
+                    </div>
+                  )}
                 </div>
 
-                {experience.published_at && (
-                  <div className='text-[0.72rem] font-mono text-muted-foreground sm:text-right shrink-0'>
-                    {formatDate(experience.published_at)}
-                  </div>
+                {experience.description && (
+                  <AnimatePresence>
+                    {openIndex === index && (
+                      <Collapsible.Content asChild forceMount>
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className='overflow-hidden'
+                        >
+                          <div className='mt-4 rounded-xl border border-border/40 bg-muted/30 p-3.5 text-xs leading-relaxed text-muted-foreground sm:text-sm'>
+                            <ReactMarkdown>{experience.description}</ReactMarkdown>
+                          </div>
+                        </motion.div>
+                      </Collapsible.Content>
+                    )}
+                  </AnimatePresence>
                 )}
-              </div>
-
-              {experience.description && (
-                <AnimatePresence>
-                  {openIndex === index && (
-                    <Collapsible.Content asChild forceMount>
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25 }}
-                        className='overflow-hidden'
-                      >
-                        <div className='mt-4 rounded-xl border border-border/40 bg-muted/30 p-3.5 text-xs leading-relaxed text-muted-foreground sm:text-sm'>
-                          <ReactMarkdown>{experience.description}</ReactMarkdown>
-                        </div>
-                      </motion.div>
-                    </Collapsible.Content>
-                  )}
-                </AnimatePresence>
-              )}
-            </Collapsible.Root>
-          </motion.li>
-        ))}
-      </ul>
+              </Collapsible.Root>
+            </motion.li>
+          ))}
+        </ul>
 
         <div className='mt-6 sm:hidden'>
           <Link
@@ -278,11 +280,10 @@ export default function RecentWork() {
             rel='noopener noreferrer'
             className='inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground underline decoration-1 underline-offset-2 hover:text-foreground'
           >
-            <span>View full history on LinkedIn</span>
+            <span>{t('view_full_history_linkedin')}</span>
           </Link>
         </div>
       </div>
     </motion.section>
   )
 }
-

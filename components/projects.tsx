@@ -4,15 +4,17 @@ import React, { useState, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
-import { ArrowUpRight, Sparkles, Code2, Layers } from 'lucide-react'
+import { ArrowUpRight, Sparkles } from 'lucide-react'
 import { ProjectMetadata } from '@/lib/projects'
 import { formatDate } from '@/lib/utils'
+import { useLanguage } from '@/lib/language-context'
 
 export default function Projects({
   projects
 }: {
   projects: ProjectMetadata[]
 }) {
+  const { t } = useLanguage()
   const [selectedTag, setSelectedTag] = useState<string>('All')
 
   // Extract unique popular tags for filtering
@@ -54,30 +56,33 @@ export default function Projects({
   if (projects.length === 0) {
     return (
       <div className='rounded-xl border border-dashed border-border/80 p-8 text-center text-sm text-muted-foreground'>
-        No projects found.
+        {t('no_projects_found')}
       </div>
     )
   }
 
   return (
     <div className='space-y-6'>
-      {/* Category / Stack Quick Filter for Recruiters */}
+      {/* Category / Stack Quick Filter */}
       {allTags.length > 2 && (
         <div className='flex flex-wrap items-center gap-1.5'>
-          {allTags.map(tag => (
-            <button
-              key={tag}
-              type='button'
-              onClick={() => setSelectedTag(tag)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
-                selectedTag === tag
-                  ? 'bg-foreground text-background shadow-xs'
-                  : 'border border-border/70 bg-card text-muted-foreground hover:bg-muted hover:text-foreground'
-              }`}
-            >
-              {tag}
-            </button>
-          ))}
+          {allTags.map(tag => {
+            const displayLabel = tag === 'All' ? t('tag_all') : tag
+            return (
+              <button
+                key={tag}
+                type='button'
+                onClick={() => setSelectedTag(tag)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                  selectedTag === tag
+                    ? 'bg-foreground text-background shadow-xs'
+                    : 'border border-border/70 bg-card text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+              >
+                {displayLabel}
+              </button>
+            )
+          })}
         </div>
       )}
 
@@ -122,7 +127,7 @@ export default function Projects({
                   {project.title?.toLowerCase().includes('anak') && (
                     <div className='absolute left-3 top-3 inline-flex items-center gap-1 rounded-md bg-amber-500/90 px-2 py-0.5 text-[0.68rem] font-semibold text-white shadow-xs backdrop-blur-xs'>
                       <Sparkles className='h-3 w-3' />
-                      <span>Competition Winner</span>
+                      <span>{t('competition_winner')}</span>
                     </div>
                   )}
                 </div>
@@ -164,10 +169,10 @@ export default function Projects({
 
                     <div className='flex items-center justify-between text-[0.72rem] text-muted-foreground pt-1 border-t border-border/40'>
                       <span className='font-mono'>
-                        {project.publishedAt ? formatDate(project.publishedAt) : 'Featured Project'}
+                        {project.publishedAt ? formatDate(project.publishedAt) : t('featured_project_label')}
                       </span>
                       <span className='font-medium text-foreground transition-colors group-hover:underline'>
-                        Read Case Study &rarr;
+                        {t('read_case_study')} &rarr;
                       </span>
                     </div>
                   </div>
@@ -180,7 +185,3 @@ export default function Projects({
     </div>
   )
 }
-
-
-
-

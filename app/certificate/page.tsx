@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient'
 import { Button } from '@/components/ui/button'
+import { useLanguage } from '@/lib/language-context'
 
 type Certificate = {
   id: number
@@ -81,6 +82,7 @@ const FALLBACK_CERTIFICATES: Certificate[] = [
 ]
 
 export default function CertificateCatalog() {
+  const { t, language } = useLanguage()
   const [certificates, setCertificates] = useState<Certificate[]>(FALLBACK_CERTIFICATES)
   const [loading, setLoading] = useState<boolean>(true)
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null)
@@ -183,6 +185,14 @@ export default function CertificateCatalog() {
     }
   }
 
+  const formatCertDate = (dateStr: string) => {
+    const locale = language === 'id' ? 'id-ID' : language === 'ja' ? 'ja-JP' : 'en-US'
+    return new Date(dateStr).toLocaleDateString(locale, {
+      month: 'short',
+      year: 'numeric'
+    })
+  }
+
   const CertificateCard = ({ cert }: { cert: Certificate }) => {
     const visual = getCertificateVisual(cert)
     const isDirectImage =
@@ -241,7 +251,7 @@ export default function CertificateCatalog() {
                 {visual.badgeText}
               </span>
               <span className='relative z-10 mt-0.5 text-[0.62rem] text-muted-foreground/80'>
-                Verified Credential
+                {t('cert_verified_credential')}
               </span>
             </div>
           )}
@@ -249,7 +259,7 @@ export default function CertificateCatalog() {
           <div className='absolute inset-0 bg-gradient-to-t from-background/30 to-transparent' />
         </div>
 
-        {/* Card Body - ONLY Image & Title (no description) */}
+        {/* Card Body */}
         <div className='flex flex-1 flex-col justify-between p-4 sm:p-5'>
           <div>
             <div className='flex items-start justify-between gap-2'>
@@ -257,7 +267,7 @@ export default function CertificateCatalog() {
                 {cert.company}
               </span>
               <span className='rounded-full bg-primary/10 px-2 py-0.5 text-[0.65rem] font-semibold text-primary'>
-                Verified
+                {t('cert_verified')}
               </span>
             </div>
 
@@ -268,14 +278,10 @@ export default function CertificateCatalog() {
 
           <div className='mt-4 flex items-center justify-between border-t border-border/50 pt-3 text-[0.72rem] text-muted-foreground'>
             <span>
-              Issued{' '}
-              {new Date(cert.issued_date).toLocaleDateString('en-US', {
-                month: 'short',
-                year: 'numeric'
-              })}
+              {t('cert_issued')} {formatCertDate(cert.issued_date)}
             </span>
             <span className='inline-flex items-center gap-1 font-medium text-foreground transition-colors group-hover:text-primary'>
-              <span>View</span>
+              <span>{t('cert_view')}</span>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 viewBox='0 0 20 20'
@@ -301,22 +307,22 @@ export default function CertificateCatalog() {
         {/* Header */}
         <div className='mb-10'>
           <h1 className='font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl'>
-            Certifications & Credentials
+            {t('cert_catalog_title')}
           </h1>
           <p className='mt-2 text-sm text-muted-foreground'>
-            Verified achievements, cloud accreditations, and specialized learning paths.
+            {t('cert_catalog_sub')}
           </p>
 
           {/* Toggle View */}
           <div className='mt-6 flex items-center gap-3'>
-            <span className='text-xs font-medium text-muted-foreground'>Display mode:</span>
+            <span className='text-xs font-medium text-muted-foreground'>{t('cert_display_mode')}</span>
             <Button
               variant={groupByCompany ? 'default' : 'outline'}
               size='sm'
               className='h-8 text-xs'
               onClick={() => setGroupByCompany(!groupByCompany)}
             >
-              {groupByCompany ? 'Grouped by Issuer' : 'List All'}
+              {groupByCompany ? t('cert_grouped_company') : t('cert_list_all')}
             </Button>
           </div>
         </div>
@@ -326,7 +332,7 @@ export default function CertificateCatalog() {
           <div className='flex min-h-[400px] items-center justify-center'>
             <div className='text-center'>
               <div className='mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-primary'></div>
-              <p className='text-muted-foreground'>Loading certificates...</p>
+              <p className='text-muted-foreground'>{t('cert_loading')}</p>
             </div>
           </div>
         ) : certificates.length > 0 ? (
@@ -358,10 +364,7 @@ export default function CertificateCatalog() {
           <div className='flex min-h-[400px] items-center justify-center'>
             <div className='text-center'>
               <p className='mb-2 text-lg text-muted-foreground'>
-                No certificates found
-              </p>
-              <p className='text-sm text-muted-foreground'>
-                Check back later for updates!
+                {t('cert_no_found')}
               </p>
             </div>
           </div>
@@ -412,7 +415,7 @@ export default function CertificateCatalog() {
                 ) : (
                   <div className='flex min-h-[400px] items-center justify-center'>
                     <p className='text-muted-foreground'>
-                      No preview available
+                      {t('cert_no_preview')}
                     </p>
                   </div>
                 )}
@@ -431,20 +434,14 @@ export default function CertificateCatalog() {
 
                 <div className='flex flex-wrap gap-4 text-sm'>
                   <div>
-                    <span className='font-medium'>Issued:</span>{' '}
-                    {new Date(
-                      selectedCertificate.issued_date
-                    ).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
+                    <span className='font-medium'>{t('cert_issued')}:</span>{' '}
+                    {formatCertDate(selectedCertificate.issued_date)}
                   </div>
                 </div>
 
                 {selectedCertificate.description && (
                   <div>
-                    <h3 className='mb-2 font-semibold'>Description</h3>
+                    <h3 className='mb-2 font-semibold'>{t('cert_description')}</h3>
                     <p className='text-muted-foreground'>
                       {selectedCertificate.description}
                     </p>
@@ -460,7 +457,7 @@ export default function CertificateCatalog() {
                         target='_blank'
                         rel='noopener noreferrer'
                       >
-                        Verify Certificate
+                        {t('cert_verify_btn')}
                       </a>
                     </Button>
                   )}
@@ -471,7 +468,7 @@ export default function CertificateCatalog() {
                         target='_blank'
                         rel='noopener noreferrer'
                       >
-                        View PDF
+                        {t('cert_view_pdf_btn')}
                       </a>
                     </Button>
                   )}

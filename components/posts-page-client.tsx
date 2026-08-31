@@ -1,9 +1,14 @@
 'use client'
 
-import ContactForm from '@/components/contact-form'
+import { PostMetadata } from '@/lib/posts'
+import PostsWithSearch from '@/components/posts-with-search'
 import { useLanguage } from '@/lib/language-context'
 
-export default function Contact() {
+export default function PostsPageClient({
+  initialPosts
+}: {
+  initialPosts: PostMetadata[]
+}) {
   const { t } = useLanguage()
 
   return (
@@ -11,14 +16,14 @@ export default function Contact() {
       <div className='container max-w-3xl px-4 sm:px-6'>
         <div className='mb-10'>
           <h1 className='font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl'>
-            {t('contact_page_title')}
+            {t('posts_page_title')}
           </h1>
           <p className='mt-2 text-sm text-muted-foreground'>
-            {t('contact_page_sub')}
+            {t('posts_page_sub')}
           </p>
         </div>
 
-        <ContactForm />
+        <PostsWithSearch posts={initialPosts} />
       </div>
     </section>
   )

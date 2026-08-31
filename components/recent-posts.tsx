@@ -1,10 +1,17 @@
+'use client'
+
 import Link from 'next/link'
-import { getPosts } from '@/lib/posts'
+import { PostMetadata } from '@/lib/posts'
 import Posts from '@/components/posts'
 import { MotionWrapper } from '@/components/motion-wrapper'
+import { useLanguage } from '@/lib/language-context'
 
-export default async function RecentPosts() {
-  const posts = await getPosts(3)
+export default function RecentPosts({
+  initialPosts = []
+}: {
+  initialPosts?: PostMetadata[]
+}) {
+  const { t } = useLanguage()
 
   return (
     <section className='pb-16 sm:pb-24'>
@@ -12,10 +19,10 @@ export default async function RecentPosts() {
         <div className='flex items-end justify-between gap-4 pb-8'>
           <div>
             <h2 className='font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
-              Recent Articles & Writing
+              {t('sec_recent_posts')}
             </h2>
-            <p className='mt-2 text-sm text-muted-foreground'>
-              Insights on web development, AI integration, and engineering practices
+            <p className='mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm'>
+              {t('sec_recent_posts_sub')}
             </p>
           </div>
 
@@ -23,7 +30,7 @@ export default async function RecentPosts() {
             href='/posts'
             className='hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground'
           >
-            <span>All Articles</span>
+            <span>{t('posts_all_articles')}</span>
             <svg
               xmlns='http://www.w3.org/2000/svg'
               viewBox='0 0 20 20'
@@ -39,18 +46,17 @@ export default async function RecentPosts() {
           </Link>
         </div>
 
-        <Posts posts={posts} />
+        <Posts posts={initialPosts} />
 
         <div className='mt-8 sm:hidden'>
           <Link
             href='/posts'
             className='inline-flex items-center gap-2 text-xs font-medium text-muted-foreground underline decoration-1 underline-offset-2 transition-colors hover:text-foreground'
           >
-            <span>All Articles</span>
+            <span>{t('posts_all_articles')}</span>
           </Link>
         </div>
       </MotionWrapper>
     </section>
   )
 }
-

@@ -1,10 +1,17 @@
+'use client'
+
 import Link from 'next/link'
-import { getProjects } from '@/lib/projects'
+import { ProjectMetadata } from '@/lib/projects'
 import Projects from '@/components/projects'
 import { MotionWrapper } from '@/components/motion-wrapper'
+import { useLanguage } from '@/lib/language-context'
 
-export default async function RecentProjects() {
-  const projects = await getProjects(6)
+export default function RecentProjects({
+  initialProjects = []
+}: {
+  initialProjects?: ProjectMetadata[]
+}) {
+  const { t } = useLanguage()
 
   return (
     <section id='featured-projects' className='scroll-mt-24 pb-16 sm:pb-24'>
@@ -12,13 +19,13 @@ export default async function RecentProjects() {
         <div className='flex items-end justify-between gap-4 pb-8'>
           <div>
             <div className='inline-flex items-center gap-1.5 rounded-md border border-primary/20 bg-primary/5 px-2.5 py-0.5 text-[0.7rem] font-medium text-primary mb-2'>
-              <span>Selected Portfolio</span>
+              <span>{t('sec_selected_portfolio')}</span>
             </div>
             <h2 className='font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
-              Featured Engineering Projects
+              {t('sec_featured_projects')}
             </h2>
             <p className='mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm'>
-              Production-ready web applications, AI models, and award-winning software architectures.
+              {t('sec_featured_projects_sub')}
             </p>
           </div>
 
@@ -26,7 +33,7 @@ export default async function RecentProjects() {
             href='/projects'
             className='hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground'
           >
-            <span>All Projects ({projects.length})</span>
+            <span>{t('sec_all_projects')}</span>
             <svg
               xmlns='http://www.w3.org/2000/svg'
               viewBox='0 0 20 20'
@@ -42,19 +49,17 @@ export default async function RecentProjects() {
           </Link>
         </div>
 
-        <Projects projects={projects} />
+        <Projects projects={initialProjects} />
 
         <div className='mt-8 sm:hidden'>
           <Link
             href='/projects'
             className='inline-flex items-center gap-2 text-xs font-medium text-muted-foreground underline decoration-1 underline-offset-2 transition-colors hover:text-foreground'
           >
-            <span>View All Projects ({projects.length})</span>
+            <span>{t('sec_view_all_projects')}</span>
           </Link>
         </div>
       </MotionWrapper>
     </section>
   )
 }
-
-

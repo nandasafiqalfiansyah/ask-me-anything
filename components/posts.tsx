@@ -8,8 +8,10 @@ import { Cross2Icon } from '@radix-ui/react-icons'
 import { PostMetadata } from '@/lib/posts'
 import { formatDate } from '@/lib/utils'
 import { useCallback, useEffect, useState } from 'react'
+import { useLanguage } from '@/lib/language-context'
 
 export default function Posts({ posts }: { posts: PostMetadata[] }) {
+  const { t } = useLanguage()
   const [lightboxImage, setLightboxImage] = useState<{ src: string; alt: string } | null>(null)
 
   const closeLightbox = useCallback(() => setLightboxImage(null), [])
@@ -95,7 +97,7 @@ export default function Posts({ posts }: { posts: PostMetadata[] }) {
                 </div>
               ) : (
                 <div className='flex aspect-[16/10] w-full shrink-0 items-center justify-center rounded-lg border border-dashed border-border/60 bg-muted/50 sm:w-44 md:w-52'>
-                  <span className='text-xs text-muted-foreground'>No image</span>
+                  <span className='text-xs text-muted-foreground'>{t('posts_no_image')}</span>
                 </div>
               )}
 
@@ -115,7 +117,7 @@ export default function Posts({ posts }: { posts: PostMetadata[] }) {
                   {post.author && post.publishedAt && <span aria-hidden>·</span>}
                   {post.publishedAt && <time>{formatDate(post.publishedAt)}</time>}
                   <span aria-hidden>·</span>
-                  <span>{(post.viewCount ?? 0).toLocaleString('en-US')} views</span>
+                  <span>{(post.viewCount ?? 0).toLocaleString('en-US')} {t('posts_views')}</span>
                 </div>
               </Link>
             </div>

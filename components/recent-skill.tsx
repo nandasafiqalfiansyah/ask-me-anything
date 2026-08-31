@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
+import { useLanguage, TranslationKey } from '@/lib/language-context'
 import {
   SiTypescript,
   SiNextdotjs,
@@ -251,7 +252,7 @@ const SKILL_METADATA: Record<
   'gemini & llm apis': {
     category: 'AI & ML',
     level: 'Generative AI',
-    description: 'Structured multimodal prompts, function calling & Gemini 2.5/Flash',
+    description: 'Structured multimodal prompts, function calling & Gemini models',
     color: '#4285F4',
     icon: SiGoogle
   },
@@ -565,7 +566,16 @@ function resolveSkillMetadata(name: string, id?: number | string): SkillItem {
   }
 }
 
+const CATEGORY_TRANSLATION_MAP: Record<SkillCategory, TranslationKey> = {
+  All: 'skills_cat_all',
+  Frontend: 'skills_cat_frontend',
+  Backend: 'skills_cat_backend',
+  'AI & ML': 'skills_cat_aiml',
+  'Cloud & Tools': 'skills_cat_cloud'
+}
+
 export default function RecentSkill() {
+  const { t } = useLanguage()
   const [activeCategory, setActiveCategory] = useState<SkillCategory>('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'cards' | 'badges'>('cards')
@@ -647,14 +657,14 @@ export default function RecentSkill() {
             <div className='flex items-center gap-2'>
               <span className='h-2 w-2 rounded-full bg-primary animate-pulse' />
               <span className='font-mono text-xs uppercase tracking-widest text-muted-foreground'>
-                Capabilities & Stack
+                {t('skills_section_badge')}
               </span>
             </div>
             <h2 className='mt-1.5 font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
-              Tech Stack & Toolkit
+              {t('skills_section_title')}
             </h2>
             <p className='mt-1.5 text-xs text-muted-foreground sm:text-sm'>
-              A curated catalog of languages, libraries, and tools I use to build scalable products.
+              {t('skills_section_sub')}
             </p>
           </div>
 
@@ -672,7 +682,7 @@ export default function RecentSkill() {
                 title='Detailed Cards View'
               >
                 <ViewGridIcon className='h-3.5 w-3.5' />
-                <span className='hidden sm:inline'>Grid</span>
+                <span className='hidden sm:inline'>{t('skills_view_grid')}</span>
               </button>
               <button
                 type='button'
@@ -685,7 +695,7 @@ export default function RecentSkill() {
                 title='Compact Chips View'
               >
                 <TokensIcon className='h-3.5 w-3.5' />
-                <span className='hidden sm:inline'>Chips</span>
+                <span className='hidden sm:inline'>{t('skills_view_chips')}</span>
               </button>
             </div>
           </div>
@@ -698,6 +708,9 @@ export default function RecentSkill() {
             {categories.map(cat => {
               const count = categoryCounts[cat] || 0
               const isActive = activeCategory === cat
+              const labelKey = CATEGORY_TRANSLATION_MAP[cat]
+              const label = labelKey ? t(labelKey) : cat
+
               return (
                 <button
                   key={cat}
@@ -716,7 +729,7 @@ export default function RecentSkill() {
                       transition={{ type: 'spring', stiffness: 380, damping: 28 }}
                     />
                   )}
-                  <span className='relative z-10'>{cat}</span>
+                  <span className='relative z-10'>{label}</span>
                   <span
                     className={`relative z-10 rounded-full px-1.5 py-0.2 text-[0.65rem] font-mono ${
                       isActive
@@ -738,7 +751,7 @@ export default function RecentSkill() {
               type='text'
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder='Search tech...'
+              placeholder={t('skills_search_placeholder')}
               className='w-full rounded-xl border border-border/70 bg-card/60 py-1.5 pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground/70 shadow-2xs backdrop-blur-xs transition-colors focus:border-foreground/40 focus:outline-none focus:ring-1 focus:ring-foreground/20'
             />
             {searchQuery && (
@@ -757,9 +770,9 @@ export default function RecentSkill() {
         {filteredSkills.length === 0 ? (
           <div className='flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-card/40 py-12 text-center'>
             <TokensIcon className='mb-2 h-8 w-8 text-muted-foreground/60' />
-            <p className='text-sm font-medium text-foreground'>No technologies match your filter</p>
+            <p className='text-sm font-medium text-foreground'>{t('skills_no_match')}</p>
             <p className='mt-1 text-xs text-muted-foreground'>
-              Try changing the search query or selecting a different category.
+              {t('skills_no_match_sub')}
             </p>
             <button
               type='button'
@@ -769,7 +782,7 @@ export default function RecentSkill() {
               }}
               className='mt-4 rounded-lg border border-border/70 bg-muted/60 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted'
             >
-              Reset Filters
+              {t('skills_reset_filters')}
             </button>
           </div>
         ) : viewMode === 'cards' ? (
@@ -841,7 +854,7 @@ export default function RecentSkill() {
                           className='h-1.5 w-1.5 rounded-full'
                           style={{ backgroundColor: skill.color || 'currentColor' }}
                         />
-                        Verified Stack
+                        {t('skills_verified_stack')}
                       </span>
                     </div>
                   </motion.div>
@@ -901,12 +914,12 @@ export default function RecentSkill() {
           <div className='flex items-center gap-3 text-xs text-muted-foreground'>
             <span className='flex h-2 w-2 rounded-full bg-emerald-500' />
             <span>
-              Actively adopting modern standards: Next.js 15, React 19, TypeScript, & Edge AI models.
+              {t('skills_footer_note')}
             </span>
           </div>
 
           <span className='font-mono text-[0.7rem] text-muted-foreground'>
-            {skills.length} Stack Technologies
+            {skills.length} {t('skills_count_suffix')}
           </span>
         </div>
       </div>

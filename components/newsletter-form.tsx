@@ -7,10 +7,12 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { NewsletterFormSchema } from '@/lib/schemas'
 import { subscribe } from '@/lib/actions'
+import { useLanguage } from '@/lib/language-context'
 
 type Inputs = z.infer<typeof NewsletterFormSchema>
 
 export default function NewsletterForm() {
+  const { t } = useLanguage()
   const {
     register,
     handleSubmit,
@@ -27,13 +29,13 @@ export default function NewsletterForm() {
     try {
       const result = await subscribe(data)
       if (result?.error) {
-        toast.error('An error occurred! Please try again.')
+        toast.error(t('newsletter_error'))
         return
       }
-      toast.success('Thank you for subscribing!')
+      toast.success(t('newsletter_success'))
       reset()
     } catch {
-      toast.success('Subscribed to updates!')
+      toast.success(t('newsletter_success'))
       reset()
     }
   }
@@ -52,13 +54,13 @@ export default function NewsletterForm() {
         <div className='relative z-10 flex flex-col gap-8 md:flex-row md:items-center md:justify-between'>
           <div className='max-w-md'>
             <span className='rounded-full bg-muted px-3 py-1 text-xs font-mono font-medium text-foreground'>
-              Newsletter
+              {t('newsletter_badge')}
             </span>
             <h2 className='mt-3 font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
-              Stay in the loop
+              {t('newsletter_title')}
             </h2>
             <p className='mt-2 text-sm leading-relaxed text-muted-foreground'>
-              Get occasional notes on modern web engineering, AI experiments, open source projects, and tech insights.
+              {t('newsletter_sub')}
             </p>
           </div>
 
@@ -72,7 +74,7 @@ export default function NewsletterForm() {
                   type='email'
                   id='email'
                   autoComplete='email'
-                  placeholder='Enter your email...'
+                  placeholder={t('newsletter_placeholder')}
                   className='h-11 w-full rounded-xl border border-border/80 bg-background/80 px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground'
                   {...register('email')}
                 />
@@ -83,7 +85,7 @@ export default function NewsletterForm() {
                 disabled={isSubmitting}
                 className='inline-flex h-11 items-center justify-center rounded-xl bg-foreground px-5 text-sm font-medium text-background shadow-xs transition-opacity hover:opacity-90 active:scale-95 disabled:opacity-50'
               >
-                {isSubmitting ? 'Joining...' : 'Subscribe'}
+                {isSubmitting ? t('newsletter_btn_submitting') : t('newsletter_btn_subscribe')}
               </button>
             </div>
 
@@ -94,7 +96,7 @@ export default function NewsletterForm() {
             )}
 
             <p className='text-[0.72rem] text-muted-foreground'>
-              No spam ever. Unsubscribe at any time with a single click.
+              {t('newsletter_disclaimer')}
             </p>
           </form>
         </div>
@@ -102,4 +104,3 @@ export default function NewsletterForm() {
     </motion.section>
   )
 }
-
