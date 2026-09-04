@@ -24,9 +24,9 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
-  title: 'Nanda Safiq Alfiansyah',
+  title: 'Nanda Safiq Alfiansyah Portfolio',
   description:
-    'Website portofolio Nanda Safiq to show my project and my skill about programing.',
+    'Personal developer portfolio and blog featuring project showcases, certificates, work experience, interactive terminal, and dashboard.',
   icons: {
     icon: [
       { url: '/icon', sizes: '32x32', type: 'image/png' },

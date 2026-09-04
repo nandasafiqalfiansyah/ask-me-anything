@@ -5,6 +5,7 @@ import { ThemeProvider, useTheme } from 'next-themes'
 import { Toaster } from '@/components/ui/sonner'
 import { LanguageProvider } from '@/lib/language-context'
 import RouteProgress from '@/components/route-progress'
+import LanguageEffectOverlay from '@/components/language-effect-overlay'
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -18,6 +19,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <Suspense fallback={null}>
           <RouteProgress />
         </Suspense>
+        <LanguageEffectOverlay />
         {children}
         <ToasterProvider />
       </LanguageProvider>

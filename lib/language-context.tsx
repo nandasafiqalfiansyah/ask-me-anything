@@ -204,7 +204,18 @@ export const translations = {
     ai_prompt_1: '🚀 Proyek unggulan Nanda?',
     ai_prompt_2: '🛠️ Apa saja tech stack utama?',
     ai_prompt_3: '🏆 Prestasi & pendidikan?',
-    ai_prompt_4: '📬 Bagaimana cara kontak/hire?'
+    ai_prompt_4: '📬 Bagaimana cara kontak/hire?',
+
+    // Language switch effects
+    effect_sakura_title: '🌸 Efek Bunga Sakura Aktif (Sakura Fall)',
+    effect_sakura_desc: 'Menampilkan kelopak bunga sakura berguguran khas Jepang.',
+    effect_id_title: '🇮🇩 Efek Merah Putih Berkibar',
+    effect_id_desc: 'Menampilkan kelopak & pita Merah Putih khas Indonesia.',
+    effect_en_title: '✨ Efek Golden Starlight',
+    effect_en_desc: 'Menampilkan kilau bintang keemasan dan daun musim gugur.',
+    effect_ambient_toggle: 'Efek Terus Menerus',
+    effect_replay_btn: 'Ulangi Efek',
+    effect_close_btn: 'Tutup'
   },
   en: {
     // Nav
@@ -392,7 +403,18 @@ export const translations = {
     ai_prompt_1: "🚀 What are Nanda's top projects?",
     ai_prompt_2: '🛠️ What is the primary tech stack?',
     ai_prompt_3: '🏆 Education & accomplishments?',
-    ai_prompt_4: '📬 How to contact or hire Nanda?'
+    ai_prompt_4: '📬 How to contact or hire Nanda?',
+
+    // Language switch effects
+    effect_sakura_title: '🌸 Cherry Blossom (Sakura) Effect Active',
+    effect_sakura_desc: 'Displaying fluttering Japanese sakura petals.',
+    effect_id_title: '🇮🇩 Red & White Celebration Effect',
+    effect_id_desc: 'Displaying patriotic Indonesian red and white ribbons & petals.',
+    effect_en_title: '✨ Golden Starlight Effect',
+    effect_en_desc: 'Displaying golden stardust and autumn leaves.',
+    effect_ambient_toggle: 'Ambient Mode',
+    effect_replay_btn: 'Replay Effect',
+    effect_close_btn: 'Dismiss'
   },
   ja: {
     // Nav
@@ -580,7 +602,18 @@ export const translations = {
     ai_prompt_1: '🚀 主な代表プロジェクトは？',
     ai_prompt_2: '🛠️ 得意な技術スタックは？',
     ai_prompt_3: '🏆 学歴や受賞実績について',
-    ai_prompt_4: '📬 連絡・採用の問い合わせ方法'
+    ai_prompt_4: '📬 連絡・採用の問い合わせ方法',
+
+    // Language switch effects
+    effect_sakura_title: '🌸 桜吹雪エフェクト発動中',
+    effect_sakura_desc: '日本の風情を感じる桜の花びらが舞い散ります。',
+    effect_id_title: '🇮🇩 インドネシア紅白セレブレーション',
+    effect_id_desc: 'インドネシアの国旗をモチーフにした紅白の花びらが舞います。',
+    effect_en_title: '✨ ゴールデンスターライトエフェクト',
+    effect_en_desc: '星屑と黄金の輝きが画面を彩ります。',
+    effect_ambient_toggle: '常時表示モード',
+    effect_replay_btn: 'もう一度再生',
+    effect_close_btn: '閉じる'
   }
 }
 
@@ -590,6 +623,12 @@ interface LanguageContextType {
   language: Language
   setLanguage: (lang: Language) => void
   t: (key: TranslationKey) => string
+  activeEffect: Language | null
+  effectSessionId: number
+  triggerLanguageEffect: (lang?: Language) => void
+  ambientEffect: boolean
+  setAmbientEffect: (enabled: boolean | ((prev: boolean) => boolean)) => void
+  dismissEffect: () => void
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
@@ -598,6 +637,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   // Default to Indonesian ('id') as requested
   const [language, setLanguageState] = useState<Language>('id')
   const [mounted, setMounted] = useState(false)
+  const [activeEffect, setActiveEffect] = useState<Language | null>(null)
+  const [effectSessionId, setEffectSessionId] = useState<number>(0)
+  const [ambientEffect, setAmbientEffectState] = useState<boolean>(false)
 
   useEffect(() => {
     setMounted(true)
@@ -605,13 +647,39 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (savedLang && (savedLang === 'id' || savedLang === 'en' || savedLang === 'ja')) {
       setLanguageState(savedLang)
     }
+    const savedAmbient = localStorage.getItem('portfolio_ambient_effect')
+    if (savedAmbient === 'true') {
+      setAmbientEffectState(true)
+    }
   }, [])
+
+  const triggerLanguageEffect = (lang?: Language) => {
+    const targetLang = lang || language
+    setActiveEffect(targetLang)
+    setEffectSessionId(prev => prev + 1)
+  }
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang)
     if (typeof window !== 'undefined') {
       localStorage.setItem('portfolio_lang', lang)
     }
+    // Trigger visual celebration effect corresponding to the chosen language!
+    triggerLanguageEffect(lang)
+  }
+
+  const setAmbientEffect = (enabled: boolean | ((prev: boolean) => boolean)) => {
+    setAmbientEffectState(prev => {
+      const nextVal = typeof enabled === 'function' ? enabled(prev) : enabled
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('portfolio_ambient_effect', String(nextVal))
+      }
+      return nextVal
+    })
+  }
+
+  const dismissEffect = () => {
+    setActiveEffect(null)
   }
 
   const t = (key: TranslationKey): string => {
@@ -619,7 +687,19 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider
+      value={{
+        language,
+        setLanguage,
+        t,
+        activeEffect,
+        effectSessionId,
+        triggerLanguageEffect,
+        ambientEffect,
+        setAmbientEffect,
+        dismissEffect
+      }}
+    >
       {children}
     </LanguageContext.Provider>
   )
