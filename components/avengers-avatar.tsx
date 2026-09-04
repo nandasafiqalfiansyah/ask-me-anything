@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import Image, { StaticImageData } from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, RotateCcw } from 'lucide-react'
+import { useLanguage } from '@/lib/language-context'
 
 interface AvengersAvatarProps {
   src: StaticImageData | string
@@ -27,6 +28,7 @@ interface Particle {
 }
 
 export default function AvengersAvatar({ src, alt, className }: AvengersAvatarProps) {
+  const { t } = useLanguage()
   const [isSnapped, setIsSnapped] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -193,7 +195,7 @@ export default function AvengersAvatar({ src, alt, className }: AvengersAvatarPr
       <div
         onClick={triggerSnapDisintegration}
         className='relative cursor-pointer select-none rounded-2xl border border-border/80 bg-card p-2 shadow-sm transition-all duration-300 hover:border-primary/50 hover:shadow-lg active:scale-98'
-        title={isSnapped ? 'Klik untuk memulihkan (Restore)' : 'Klik untuk efek Thanos Disintegration Snap! ✨'}
+        title={isSnapped ? t('avatar_snap_restore_tip') : t('avatar_snap_trigger_tip')}
       >
         <div className='relative h-44 w-44 overflow-hidden rounded-xl bg-muted sm:h-52 sm:w-52'>
           {/* Real Next.js Image Component (Visible when not disintegrated) */}
@@ -226,7 +228,7 @@ export default function AvengersAvatar({ src, alt, className }: AvengersAvatarPr
           {!isSnapped && !isAnimating && (
             <div className='absolute inset-x-2 bottom-2 flex items-center justify-center gap-1.5 rounded-lg bg-background/85 py-1 px-2 text-[0.65rem] font-medium text-foreground opacity-0 shadow-xs backdrop-blur-xs transition-opacity duration-200 group-hover:opacity-100'>
               <Sparkles className='h-3 w-3 text-amber-500 fill-amber-500 animate-pulse' />
-              <span>Klik Efek Snap</span>
+              <span>{t('avatar_snap_badge')}</span>
             </div>
           )}
 
@@ -241,10 +243,10 @@ export default function AvengersAvatar({ src, alt, className }: AvengersAvatarPr
                 <RotateCcw className='h-4 w-4' />
               </div>
               <p className='mt-2 text-xs font-semibold text-foreground'>
-                I don&#39;t feel so good, Mr. Stark...
+                {t('avatar_snap_quote')}
               </p>
               <p className='mt-0.5 text-[0.68rem] text-muted-foreground'>
-                Klik untuk pulihkan avatar
+                {t('avatar_snap_restore')}
               </p>
             </motion.div>
           )}

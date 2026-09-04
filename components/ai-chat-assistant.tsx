@@ -251,17 +251,23 @@ export default function AIChatAssistant() {
                   <div
                     className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 leading-relaxed ${
                       msg.role === 'user'
-                        ? 'bg-foreground text-background font-medium rounded-tr-xs'
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-tr-xs shadow-xs'
                         : 'border border-border/70 bg-card/90 text-foreground rounded-tl-xs shadow-2xs'
                     }`}
                   >
-                    <div className='prose prose-xs dark:prose-invert max-w-none text-xs break-words leading-relaxed'>
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
-                    </div>
+                    {msg.role === 'user' ? (
+                      <div className='text-xs font-normal text-white break-words leading-relaxed prose prose-xs max-w-none prose-p:text-white prose-p:my-0 prose-strong:text-white prose-a:text-white prose-a:underline'>
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <div className='prose prose-xs dark:prose-invert max-w-none text-xs break-words leading-relaxed text-foreground'>
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    )}
                     <span
                       className={`mt-1.5 block text-[0.62rem] ${
                         msg.role === 'user'
-                          ? 'text-background/70 text-right'
+                          ? 'text-blue-100/80 text-right font-normal'
                           : 'text-muted-foreground'
                       }`}
                     >
@@ -270,7 +276,7 @@ export default function AIChatAssistant() {
                   </div>
 
                   {msg.role === 'user' && (
-                    <div className='flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-muted text-foreground mt-0.5'>
+                    <div className='flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 mt-0.5'>
                       <User className='h-3.5 w-3.5' />
                     </div>
                   )}
