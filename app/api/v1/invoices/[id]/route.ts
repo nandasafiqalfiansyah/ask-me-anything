@@ -39,7 +39,29 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: 'Invoice tidak ditemukan' }, { status: 404 })
   }
 
-  return NextResponse.json({ invoice: data as Invoice })
+  const invoice = data as Invoice
+  const items = Array.isArray(invoice.items) ? invoice.items : []
+  const computedSubtotal = items.reduce((sum: number, it: any) => {
+    const q = Number(it.quantity) || 0
+    const p = Number(it.unit_price) || 0
+    return sum + q * p
+  }, 0)
+  const taxRate = Number(invoice.tax_rate) || 0
+  const subtotal = (invoice.subtotal && Number(invoice.subtotal) > 0) ? Number(invoice.subtotal) : computedSubtotal
+  const taxAmount = (invoice.tax_amount !== null && invoice.tax_amount !== undefined && Number(invoice.tax_amount) > 0)
+    ? Number(invoice.tax_amount)
+    : (subtotal * taxRate) / 100
+  const total = (invoice.total && Number(invoice.total) > 0) ? Number(invoice.total) : (subtotal + taxAmount)
+
+  return NextResponse.json({
+    invoice: {
+      ...invoice,
+      subtotal,
+      tax_rate: taxRate,
+      tax_amount: taxAmount,
+      total
+    }
+  })
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
@@ -71,16 +93,28 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       updated_at: new Date().toISOString()
     }
 
+    const currentItems = body.items !== undefined
+      ? (Array.isArray(body.items) ? body.items : [])
+      : (existing.items || [])
+    const computedSubtotal = currentItems.reduce((sum: number, it: any) => {
+      const q = Number(it.quantity) || 0
+      const p = Number(it.unit_price) || 0
+      return sum + q * p
+    }, 0)
+    const taxRate = body.tax_rate !== undefined ? Number(body.tax_rate) || 0 : Number(existing.tax_rate) || 0
+    const computedTaxAmount = (computedSubtotal * taxRate) / 100
+    const computedTotal = computedSubtotal + computedTaxAmount
+
     if (body.client_name !== undefined) updates.client_name = body.client_name.trim()
     if (body.client_email !== undefined) updates.client_email = body.client_email.trim()
     if (body.client_address !== undefined) updates.client_address = body.client_address?.trim() || null
     if (body.issue_date !== undefined) updates.issue_date = body.issue_date
     if (body.due_date !== undefined) updates.due_date = body.due_date
-    if (body.items !== undefined) updates.items = Array.isArray(body.items) ? body.items : []
-    if (body.subtotal !== undefined) updates.subtotal = Number(body.subtotal) || 0
-    if (body.tax_rate !== undefined) updates.tax_rate = Number(body.tax_rate) || 0
-    if (body.tax_amount !== undefined) updates.tax_amount = Number(body.tax_amount) || 0
-    if (body.total !== undefined) updates.total = Number(body.total) || 0
+    if (body.items !== undefined) updates.items = currentItems
+    updates.subtotal = (body.subtotal !== undefined && Number(body.subtotal) > 0) ? Number(body.subtotal) : computedSubtotal
+    updates.tax_rate = taxRate
+    updates.tax_amount = (body.tax_amount !== undefined && Number(body.tax_amount) >= 0) ? Number(body.tax_amount) : computedTaxAmount
+    updates.total = (body.total !== undefined && Number(body.total) > 0) ? Number(body.total) : computedTotal
     if (body.notes !== undefined) updates.notes = body.notes || null
     if (body.status !== undefined) {
       updates.status = body.status === 'paid' || body.status === 'cancelled' ? body.status : existing.status

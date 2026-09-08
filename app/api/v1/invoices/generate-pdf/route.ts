@@ -40,7 +40,38 @@ async function getInvoiceFromDb(id: number): Promise<Invoice | null> {
     return null
   }
 
-  return data as Invoice
+  const invoice = data as Invoice
+  const items = Array.isArray(invoice.items) ? invoice.items : []
+  const calculatedSubtotal = items.reduce((sum, item) => {
+    const qty = Number(item.quantity) || 0
+    const price = Number(item.unit_price) || 0
+    return sum + qty * price
+  }, 0)
+
+  const taxRate = Number(invoice.tax_rate) || 0
+  const calculatedTaxAmount = (calculatedSubtotal * taxRate) / 100
+  const calculatedTotal = calculatedSubtotal + calculatedTaxAmount
+
+  // If subtotal or total in DB was 0 or not calculated properly, fix them
+  if ((!invoice.subtotal || invoice.subtotal === 0) && calculatedSubtotal > 0) {
+    invoice.subtotal = calculatedSubtotal
+    invoice.tax_amount = calculatedTaxAmount
+    invoice.total = calculatedTotal
+
+    // Also asynchronously repair the row in Supabase so future queries have correct totals
+    supabaseAdmin
+      .from('invoices')
+      .update({
+        subtotal: calculatedSubtotal,
+        tax_amount: calculatedTaxAmount,
+        total: calculatedTotal
+      })
+      .eq('id', id)
+      .then(() => {})
+      .catch(err => console.error('Failed to auto-repair invoice totals in DB:', err))
+  }
+
+  return invoice
 }
 
 function wrapText(text: string, maxChars: number): string[] {
@@ -437,6 +468,22 @@ export async function POST(req: Request) {
     const totalsBoxLeft = RIGHT_BOUND - totalsBoxW
     let sumCursorY = bottomSectionY - 4
 
+    // Calculate values with fallback
+    const items = Array.isArray(invoice.items) ? invoice.items : []
+    const itemsSubtotal = items.reduce((sum, it) => {
+      const q = Number(it.quantity) || 0
+      const p = Number(it.unit_price) || 0
+      return sum + q * p
+    }, 0)
+    const taxRate = Number(invoice.tax_rate) || 0
+    const finalSubtotal = (invoice.subtotal && invoice.subtotal > 0) ? invoice.subtotal : itemsSubtotal
+    const finalTaxAmount = (invoice.tax_amount && invoice.tax_amount > 0)
+      ? invoice.tax_amount
+      : (finalSubtotal * taxRate) / 100
+    const finalTotal = (invoice.total && invoice.total > 0)
+      ? invoice.total
+      : (finalSubtotal + finalTaxAmount)
+
     // Subtotal
     page.drawText('Subtotal', {
       x: totalsBoxLeft + 8,
@@ -445,7 +492,7 @@ export async function POST(req: Request) {
       font,
       color: COLOR_TEXT_MUTED
     })
-    drawTextRight(formatCurrency(invoice.subtotal || 0), RIGHT_BOUND - 12, sumCursorY, {
+    drawTextRight(formatCurrency(finalSubtotal), RIGHT_BOUND - 12, sumCursorY, {
       font: boldFont,
       size: 9,
       color: COLOR_TEXT_MAIN
@@ -453,7 +500,7 @@ export async function POST(req: Request) {
 
     // Tax / PPN
     sumCursorY -= 18
-    const taxRateStr = invoice.tax_rate ? `Pajak / PPN (${invoice.tax_rate}%)` : 'Pajak / PPN (0%)'
+    const taxRateStr = taxRate > 0 ? `Pajak / PPN (${taxRate}%)` : 'Pajak / PPN (0%)'
     page.drawText(taxRateStr, {
       x: totalsBoxLeft + 8,
       y: sumCursorY,
@@ -461,7 +508,7 @@ export async function POST(req: Request) {
       font,
       color: COLOR_TEXT_MUTED
     })
-    drawTextRight(formatCurrency(invoice.tax_amount || 0), RIGHT_BOUND - 12, sumCursorY, {
+    drawTextRight(formatCurrency(finalTaxAmount), RIGHT_BOUND - 12, sumCursorY, {
       font,
       size: 9,
       color: COLOR_TEXT_MAIN
@@ -485,7 +532,7 @@ export async function POST(req: Request) {
       color: COLOR_WHITE
     })
 
-    drawTextRight(formatCurrency(invoice.total || 0), RIGHT_BOUND - 12, sumCursorY + 10, {
+    drawTextRight(formatCurrency(finalTotal), RIGHT_BOUND - 12, sumCursorY + 10, {
       font: boldFont,
       size: 12,
       color: COLOR_WHITE

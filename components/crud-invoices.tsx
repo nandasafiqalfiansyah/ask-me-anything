@@ -137,8 +137,15 @@ export default function CrudInvoices() {
     const pendingInvoices = invoices.filter(i => i.status === 'pending')
     const cancelledInvoices = invoices.filter(i => i.status === 'cancelled')
 
-    const totalPaidAmount = paidInvoices.reduce((acc, curr) => acc + (curr.total || 0), 0)
-    const totalPendingAmount = pendingInvoices.reduce((acc, curr) => acc + (curr.total || 0), 0)
+    const getInvoiceAmount = (inv: Invoice) => {
+      if (inv.total && inv.total > 0) return inv.total
+      const subtotal = (inv.items || []).reduce((s, it) => s + (Number(it.quantity) || 0) * (Number(it.unit_price) || 0), 0)
+      const taxRate = Number(inv.tax_rate) || 0
+      return subtotal + (subtotal * taxRate) / 100
+    }
+
+    const totalPaidAmount = paidInvoices.reduce((acc, curr) => acc + getInvoiceAmount(curr), 0)
+    const totalPendingAmount = pendingInvoices.reduce((acc, curr) => acc + getInvoiceAmount(curr), 0)
 
     return {
       totalCount,
@@ -221,30 +228,23 @@ export default function CrudInvoices() {
     }))
   }
 
-  const recalcTotals = useCallback(() => {
-    setForm(prev => {
-      const subtotal = prev.items.reduce((sum, item) => {
-        const qty = Number(item.quantity) || 0
-        const price = Number(item.unit_price) || 0
-        return sum + qty * price
-      }, 0)
+  // Reactive subtotal, tax amount, and total calculations
+  const calculatedSubtotal = useMemo(() => {
+    return form.items.reduce((sum, item) => {
+      const qty = Number(item.quantity) || 0
+      const price = Number(item.unit_price) || 0
+      return sum + qty * price
+    }, 0)
+  }, [form.items])
 
-      const taxRate = Number(prev.tax_rate) || 0
-      const taxAmount = (subtotal * taxRate) / 100
-      const total = subtotal + taxAmount
+  const calculatedTaxRate = Number(form.tax_rate) || 0
+  const calculatedTaxAmount = useMemo(() => {
+    return (calculatedSubtotal * calculatedTaxRate) / 100
+  }, [calculatedSubtotal, calculatedTaxRate])
 
-      return {
-        ...prev,
-        subtotal,
-        tax_amount: taxAmount,
-        total
-      }
-    })
-  }, [])
-
-  useEffect(() => {
-    recalcTotals()
-  }, [recalcTotals])
+  const calculatedTotal = useMemo(() => {
+    return calculatedSubtotal + calculatedTaxAmount
+  }, [calculatedSubtotal, calculatedTaxAmount])
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -273,6 +273,10 @@ export default function CrudInvoices() {
         client_name: form.client_name.trim(),
         client_email: form.client_email.trim(),
         client_address: form.client_address.trim() || null,
+        subtotal: calculatedSubtotal,
+        tax_rate: calculatedTaxRate,
+        tax_amount: calculatedTaxAmount,
+        total: calculatedTotal,
         notes: form.notes.trim() || null
       }
 
@@ -734,7 +738,7 @@ export default function CrudInvoices() {
                 <div className='flex items-center justify-between text-xs text-muted-foreground'>
                   <span>Subtotal Item</span>
                   <span className='font-mono font-semibold text-foreground'>
-                    {formatRupiah(form.subtotal)}
+                    {formatRupiah(calculatedSubtotal)}
                   </span>
                 </div>
 
@@ -753,14 +757,14 @@ export default function CrudInvoices() {
                     <span>%</span>
                   </div>
                   <span className='font-mono text-muted-foreground'>
-                    {formatRupiah(form.tax_amount)}
+                    {formatRupiah(calculatedTaxAmount)}
                   </span>
                 </div>
 
                 <div className='border-t border-border/80 pt-2 flex items-center justify-between text-sm font-bold text-foreground'>
                   <span>Total Tagihan</span>
                   <span className='font-mono text-base text-primary'>
-                    {formatRupiah(form.total)}
+                    {formatRupiah(calculatedTotal)}
                   </span>
                 </div>
               </div>
@@ -931,7 +935,15 @@ export default function CrudInvoices() {
                         Total Tagihan
                       </span>
                       <span className='font-mono text-base font-bold text-foreground'>
-                        {formatRupiah(invoice.total)}
+                        {formatRupiah(
+                          invoice.total && invoice.total > 0
+                            ? invoice.total
+                            : (invoice.items || []).reduce(
+                                (s, it) =>
+                                  s + (Number(it.quantity) || 0) * (Number(it.unit_price) || 0),
+                                0
+                              ) * (1 + (Number(invoice.tax_rate) || 0) / 100)
+                        )}
                       </span>
                     </div>
 

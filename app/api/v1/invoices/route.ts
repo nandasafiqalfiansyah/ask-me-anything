@@ -83,7 +83,28 @@ async function listInvoicesFromDb(): Promise<Invoice[]> {
     throw error
   }
 
-  return (data || []) as Invoice[]
+  return (data || []).map((inv: any) => {
+    const items = Array.isArray(inv.items) ? inv.items : []
+    const computedSubtotal = items.reduce((sum: number, it: any) => {
+      const q = Number(it.quantity) || 0
+      const p = Number(it.unit_price) || 0
+      return sum + q * p
+    }, 0)
+    const taxRate = Number(inv.tax_rate) || 0
+    const subtotal = (inv.subtotal && Number(inv.subtotal) > 0) ? Number(inv.subtotal) : computedSubtotal
+    const taxAmount = (inv.tax_amount !== null && inv.tax_amount !== undefined && Number(inv.tax_amount) > 0)
+      ? Number(inv.tax_amount)
+      : (subtotal * taxRate) / 100
+    const total = (inv.total && Number(inv.total) > 0) ? Number(inv.total) : (subtotal + taxAmount)
+
+    return {
+      ...inv,
+      subtotal,
+      tax_rate: taxRate,
+      tax_amount: taxAmount,
+      total
+    } as Invoice
+  })
 }
 
 export async function GET() {
@@ -114,6 +135,22 @@ export async function POST(req: Request) {
     const invoiceNumber = await getUnusedInvoiceNumber()
     const issueDate = body.issue_date?.trim() || new Date().toISOString().split('T')[0]
 
+    const items = Array.isArray(body.items) ? body.items : []
+    const computedSubtotal = items.reduce((sum, it) => {
+      const q = Number(it.quantity) || 0
+      const p = Number(it.unit_price) || 0
+      return sum + q * p
+    }, 0)
+    const taxRate = toNumber(body.tax_rate, 0)
+    const computedTaxAmount = (computedSubtotal * taxRate) / 100
+    const computedTotal = computedSubtotal + computedTaxAmount
+
+    const subtotal = toNumber(body.subtotal, 0) > 0 ? toNumber(body.subtotal, 0) : computedSubtotal
+    const taxAmount = (body.tax_amount !== undefined && toNumber(body.tax_amount, -1) >= 0)
+      ? toNumber(body.tax_amount, 0)
+      : computedTaxAmount
+    const total = toNumber(body.total, 0) > 0 ? toNumber(body.total, 0) : computedTotal
+
     const payload = {
       invoice_number: invoiceNumber,
       client_name: body.client_name.trim(),
@@ -121,11 +158,11 @@ export async function POST(req: Request) {
       client_address: body.client_address?.trim() || null,
       issue_date: issueDate,
       due_date: body.due_date?.trim() || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      items: Array.isArray(body.items) ? body.items : [],
-      subtotal: toNumber(body.subtotal, 0),
-      tax_rate: toNumber(body.tax_rate, 0),
-      tax_amount: toNumber(body.tax_amount, 0),
-      total: toNumber(body.total, 0),
+      items,
+      subtotal,
+      tax_rate: taxRate,
+      tax_amount: taxAmount,
+      total,
       notes: body.notes || null,
       status: body.status === 'paid' || body.status === 'cancelled' ? body.status : 'pending'
     }

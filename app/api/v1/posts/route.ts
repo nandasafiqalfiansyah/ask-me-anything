@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { revalidatePostPaths } from '@/lib/revalidatePosts'
+import { getPosts, getPostBySlug } from '@/lib/posts'
 import {
   createUniqueSlug,
   hasSupabaseServerConfig,
@@ -13,10 +14,28 @@ import {
 // GET /api/v1/posts — list all posts (dashboard: termasuk draft)
 export async function GET() {
   if (!hasSupabaseServerConfig()) {
-    return NextResponse.json(
-      { error: 'Supabase belum dikonfigurasi' },
-      { status: 503 }
-    )
+    try {
+      const filePosts = await getPosts()
+      const postsWithContent = await Promise.all(
+        filePosts.map(async p => {
+          const full = await getPostBySlug(p.slug)
+          return {
+            id: p.slug,
+            slug: p.slug,
+            title: p.title || p.slug,
+            summary: p.summary || '',
+            content: full?.content || '',
+            author: p.author || 'Nanda Safiq',
+            publishedAt: p.publishedAt || new Date().toISOString().split('T')[0],
+            published: true,
+            image: p.image || undefined
+          }
+        })
+      )
+      return NextResponse.json(postsWithContent)
+    } catch {
+      return NextResponse.json([])
+    }
   }
 
   try {

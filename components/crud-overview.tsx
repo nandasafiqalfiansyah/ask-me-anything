@@ -106,6 +106,17 @@ export function OverviewDummy({ onNavigate }: OverviewProps) {
           supabase.from('invoices').select('*', { count: 'exact', head: true })
         ])
 
+        let finalPostsCount = postsRes.count || 0
+        if (!finalPostsCount) {
+          try {
+            const pRes = await fetch('/api/v1/posts')
+            if (pRes.ok) {
+              const pData = await pRes.json()
+              if (Array.isArray(pData)) finalPostsCount = pData.length
+            }
+          } catch {}
+        }
+
         setStats({
           totalUsers: usersRes.count || 0,
           totalSkills: skillsRes.count || 0,
@@ -113,7 +124,7 @@ export function OverviewDummy({ onNavigate }: OverviewProps) {
           totalEducation: educationRes.count || 0,
           totalCertificates: certificatesRes.count || 0,
           totalProjects: projectsRes.count || 0,
-          totalPosts: postsRes.count || 0,
+          totalPosts: finalPostsCount,
           totalComments: commentsRes.count || 0,
           totalInvoices: invoicesRes.count || 0
         })
