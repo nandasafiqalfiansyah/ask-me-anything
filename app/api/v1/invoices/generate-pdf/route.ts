@@ -469,7 +469,6 @@ export async function POST(req: Request) {
     let sumCursorY = bottomSectionY - 4
 
     // Calculate values with fallback
-    const items = Array.isArray(invoice.items) ? invoice.items : []
     const itemsSubtotal = items.reduce((sum, it) => {
       const q = Number(it.quantity) || 0
       const p = Number(it.unit_price) || 0
