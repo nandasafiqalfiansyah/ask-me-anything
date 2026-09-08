@@ -67,8 +67,10 @@ async function getInvoiceFromDb(id: number): Promise<Invoice | null> {
         total: calculatedTotal
       })
       .eq('id', id)
-      .then(() => {})
-      .catch(err => console.error('Failed to auto-repair invoice totals in DB:', err))
+      .then(
+        () => {},
+        err => console.error('Failed to auto-repair invoice totals in DB:', err)
+      )
   }
 
   return invoice
