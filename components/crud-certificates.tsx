@@ -429,38 +429,59 @@ export default function CrudCertificates() {
 
   return (
     <div className='space-y-6'>
-      <div className='flex items-end justify-between gap-3'>
+      <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
         <div>
-          <h3 className='title text-left text-2xl font-bold sm:text-3xl'>
-            Certificates
-          </h3>
-          <p className='mt-3 text-sm text-muted-foreground'>
-            Manage certificates with drag & drop to reorder. Group by company
-            (e.g., Dicoding, Coursera) ✨
+          <div className='flex items-center gap-2'>
+            <h3 className='text-lg font-bold tracking-tight text-foreground sm:text-xl'>
+              Manajemen Sertifikat & Lisensi
+            </h3>
+            <span className='rounded-md bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary'>
+              {certificates.length} Sertifikat
+            </span>
+          </div>
+          <p className='text-xs text-muted-foreground mt-0.5'>
+            Daftar sertifikat keahlian dengan fitur drag-and-drop sort order dan auto-import Dicoding.
           </p>
         </div>
         {(loading || uploading) && (
-          <span className='text-xs text-muted-foreground'>
-            {uploading ? 'Uploading...' : 'Loading…'}
+          <span className='text-xs text-muted-foreground animate-pulse'>
+            {uploading ? 'Mengunggah file...' : 'Memuat data...'}
           </span>
         )}
       </div>
 
       {error && (
-        <div className='rounded-md border border-destructive/30 bg-destructive/10 p-2 text-sm text-destructive'>
+        <div className='rounded-2xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive'>
           {error}
         </div>
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className='space-y-4 rounded-lg border p-4'>
-        <h4 className='font-semibold'>
-          {editingId ? 'Edit Certificate' : 'Add New Certificate'}
-        </h4>
+      <form onSubmit={handleSubmit} className='space-y-5 rounded-3xl border border-border/80 bg-background/90 p-5 sm:p-7 shadow-sm backdrop-blur-md'>
+        <div className='flex items-center justify-between border-b border-border/70 pb-3'>
+          <h4 className='text-base font-bold text-foreground'>
+            {editingId ? 'Edit Sertifikat' : 'Tambah Sertifikat Baru'}
+          </h4>
+          {editingId && (
+            <Button
+              type='button'
+              variant='ghost'
+              size='sm'
+              onClick={() => {
+                setEditingId(null)
+                setFormData(initialFormData)
+                setPdfFile(null)
+              }}
+              className='rounded-xl text-xs'
+            >
+              Batal Edit
+            </Button>
+          )}
+        </div>
 
-        <div className='rounded-md border border-primary/20 bg-primary/5 p-3'>
-          <label className='mb-1 block text-sm font-medium'>
-            Import from Dicoding URL
+        <div className='rounded-2xl border border-primary/20 bg-primary/5 p-4'>
+          <label className='mb-1.5 block text-xs font-bold uppercase tracking-wider text-primary'>
+            Auto-Import dari URL Dicoding
           </label>
           <div className='flex flex-col gap-2 sm:flex-row'>
             <Input
@@ -468,20 +489,20 @@ export default function CrudCertificates() {
               value={importUrl}
               onChange={e => setImportUrl(e.target.value)}
               disabled={loading || importing}
+              className='rounded-xl text-xs'
             />
             <Button
               type='button'
               variant='secondary'
               onClick={handleImportDicoding}
               disabled={loading || importing}
-              className='sm:w-auto'
+              className='sm:w-auto rounded-xl text-xs font-semibold'
             >
-              {importing ? 'Importing...' : 'Import Dicoding'}
+              {importing ? 'Mengimport...' : 'Import Dicoding'}
             </Button>
           </div>
-          <p className='mt-1 text-xs text-muted-foreground'>
-            Import akan mengisi Title, Issuer, URL, Issued Date, dan PDF URL
-            jika tersedia dari halaman Dicoding.
+          <p className='mt-1.5 text-[0.72rem] text-muted-foreground'>
+            Sistem akan secara otomatis mengekstrak Judul, Penerbit, Tanggal Terbit, dan file PDF dari halaman sertifikat Dicoding.
           </p>
         </div>
 

@@ -343,33 +343,54 @@ export default function CrudEducation() {
 
   return (
     <div className='space-y-6'>
-      <div className='flex items-end justify-between gap-3'>
+      <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
         <div>
-          <h3 className='title text-left text-2xl font-bold sm:text-3xl'>
-            Education
-          </h3>
-          <p className='mt-3 text-sm text-muted-foreground'>
-            Kelola education dengan drag & drop untuk mengatur urutan ✨
+          <div className='flex items-center gap-2'>
+            <h3 className='text-lg font-bold tracking-tight text-foreground sm:text-xl'>
+              Riwayat Pendidikan & Kursus
+            </h3>
+            <span className='rounded-md bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary'>
+              {education.length} Pendidikan
+            </span>
+          </div>
+          <p className='text-xs text-muted-foreground mt-0.5'>
+            Daftar institusi, universitas, dan program pendidikan dengan drag-and-drop sort order.
           </p>
         </div>
         {(loading || uploading) && (
-          <span className='text-xs text-muted-foreground'>
-            {uploading ? 'Uploading...' : 'Loading…'}
+          <span className='text-xs text-muted-foreground animate-pulse'>
+            {uploading ? 'Mengunggah logo...' : 'Memuat data...'}
           </span>
         )}
       </div>
 
       {error && (
-        <div className='rounded-md border border-destructive/30 bg-destructive/10 p-2 text-sm text-destructive'>
+        <div className='rounded-2xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive'>
           {error}
         </div>
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className='space-y-4 rounded-lg border p-4'>
-        <h4 className='font-semibold'>
-          {editingId ? 'Edit Education' : 'Add New Education'}
-        </h4>
+      <form onSubmit={handleSubmit} className='space-y-5 rounded-3xl border border-border/80 bg-background/90 p-5 sm:p-7 shadow-sm backdrop-blur-md'>
+        <div className='flex items-center justify-between border-b border-border/70 pb-3'>
+          <h4 className='text-base font-bold text-foreground'>
+            {editingId ? 'Edit Pendidikan' : 'Tambah Pendidikan Baru'}
+          </h4>
+          {editingId && (
+            <Button
+              type='button'
+              variant='ghost'
+              size='sm'
+              onClick={() => {
+                setEditingId(null)
+                setFormData(initialFormData)
+              }}
+              className='rounded-xl text-xs'
+            >
+              Batal Edit
+            </Button>
+          )}
+        </div>
 
         <div className='grid gap-4 sm:grid-cols-2'>
           <div>
