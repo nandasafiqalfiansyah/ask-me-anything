@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: 'Nanda Safiq Alfiansyah Portfolio',
   description:
-    'Personal developer portfolio and blog featuring project showcases, certificates, work experience, interactive terminal, and dashboard.',
+    'Nanda Safiq adalah software engineer independen berfokus membangun aplikasi web modern performa tinggi, sistem backend terdistribusi yang scalable dan juga bisa dev Shopify.',
   icons: {
     icon: [
       { url: '/icon', sizes: '32x32', type: 'image/png' },

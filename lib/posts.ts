@@ -116,7 +116,10 @@ export async function getPosts(limit?: number): Promise<PostMetadata[]> {
 
   if (hasSupabaseServerConfig()) {
     try {
-      const rows = await listPostsFromDb()
+      const timeoutPromise = new Promise<any[]>((_, reject) =>
+        setTimeout(() => reject(new Error('Supabase posts query timed out')), 2500)
+      )
+      const rows = await Promise.race([listPostsFromDb(), timeoutPromise])
       const postList = limit ? rows.slice(0, limit) : rows
       const viewsMap = await getPostViewsMap(postList.map(post => post.slug))
 

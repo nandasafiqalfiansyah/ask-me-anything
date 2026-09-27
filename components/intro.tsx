@@ -11,9 +11,9 @@ import { useLanguage } from '@/lib/language-context'
 const skillBadges = [
   'Next.js & React',
   'TypeScript',
-  'TensorFlow & AI',
-  'Cloud Architecture',
-  'PostgreSQL'
+  'Distributed Backend',
+  'Shopify Dev',
+  'PostgreSQL & Cloud'
 ]
 
 export default function Intro() {

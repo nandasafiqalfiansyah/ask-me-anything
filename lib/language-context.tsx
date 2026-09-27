@@ -31,7 +31,7 @@ export const translations = {
     greeting: 'Halo, Saya Nanda Safiq.',
     hero_title: 'Software Engineer & Pengembang AI',
     hero_description:
-      'Lulusan Machine Learning dengan predikat Distinction dan Software Engineer yang berfokus membangun aplikasi web modern performa tinggi, sistem backend terdistribusi yang scalable, serta solusi berbasis AI.',
+      'Nanda Safiq adalah software engineer independen berfokus membangun aplikasi web modern performa tinggi, sistem backend terdistribusi yang scalable dan juga bisa dev Shopify.',
     btn_explore_projects: 'Jelajahi Proyek',
     btn_copy_email: 'Salin Email',
     btn_email_copied: 'Email Tersalin!',
@@ -226,7 +226,7 @@ export const translations = {
     greeting: "Hey, I'm Nanda Safiq.",
     hero_title: 'Software Engineer & AI Developer',
     hero_description:
-      'Machine Learning distinction graduate and Software Engineer specializing in building production-ready web applications, scalable distributed backends, and AI-driven solutions.',
+      'Nanda Safiq is an independent software engineer focused on building modern high-performance web applications, scalable distributed backend systems, and Shopify development.',
     btn_explore_projects: 'Explore Projects',
     btn_copy_email: 'Copy Email',
     btn_email_copied: 'Email Copied!',
@@ -421,7 +421,7 @@ export const translations = {
     greeting: 'こんにちは、ナンダ・サフィックです。',
     hero_title: 'ソフトウェアエンジニア & AI開発者',
     hero_description:
-      '機械学習の優秀修了生であり、高性能なモダンWebアプリケーション、スケーラブルな分散バックエンド、AIソリューションの構築を専門とするソフトウェアエンジニアです。',
+      'ナンダ・サフィックは、高性能なモダンWebアプリケーション、スケーラブルな分散バックエンドシステムの構築、およびShopify開発に注力する独立系ソフトウェアエンジニアです。',
     btn_explore_projects: 'プロジェクトを見る',
     btn_copy_email: 'メールをコピー',
     btn_email_copied: 'コピー完了！',

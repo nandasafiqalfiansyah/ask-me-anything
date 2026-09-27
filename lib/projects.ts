@@ -117,7 +117,12 @@ export async function getProjects(limit?: number): Promise<ProjectMetadata[]> {
         query = query.limit(limit)
       }
 
-      const { data: projects, error } = await query
+      const queryPromise = query as unknown as Promise<{ data: any[] | null; error: any }>
+      const timeoutPromise = new Promise<{ data: null; error: Error }>((_, reject) =>
+        setTimeout(() => reject(new Error('Supabase projects query timed out')), 2500)
+      )
+
+      const { data: projects, error } = await Promise.race([queryPromise, timeoutPromise])
 
       if (!error && projects && projects.length > 0) {
         return projects.map(project => ({
