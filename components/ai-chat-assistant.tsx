@@ -24,8 +24,13 @@ interface Message {
 
 export default function AIChatAssistant() {
   const { t, language } = useLanguage()
+  const [mounted, setMounted] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   
   const getInitialMessage = (): Message => ({
     id: 'welcome',
@@ -142,6 +147,8 @@ export default function AIChatAssistant() {
     setMessages([getInitialMessage()])
     setHasInteracted(false)
   }
+
+  if (!mounted) return null
 
   return (
     <aside

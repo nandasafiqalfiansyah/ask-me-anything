@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import authorImage from '@/public/images/authors/ndav.png'
+const authorImage = '/images/authors/ndav.png'
 import MacLogo from './mac-logo'
 import AvengersAvatar from './avengers-avatar'
 import { useLanguage } from '@/lib/language-context'

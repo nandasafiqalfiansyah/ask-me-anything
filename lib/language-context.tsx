@@ -111,6 +111,13 @@ export const translations = {
     cert_no_found: 'Belum ada sertifikat yang ditemukan',
     cert_no_preview: 'Pratinjau tidak tersedia',
     cert_description: 'Deskripsi',
+    cert_tab_visual: 'Sertifikat (Gambar)',
+    cert_tab_pdf: 'Dokumen PDF',
+    cert_open_fullscreen_pdf: 'Buka PDF Layar Penuh',
+    cert_download_pdf: 'Unduh PDF',
+    cert_copy_id: 'Salin ID',
+    cert_id_copied: 'ID Tersalin!',
+    cert_mobile_pdf_tip: 'Tampilan PDF resmi yang kompatibel untuk smartphone & desktop',
 
     // Posts & Search
     posts_all_articles: 'Semua Artikel',
@@ -306,6 +313,13 @@ export const translations = {
     cert_no_found: 'No certificates found',
     cert_no_preview: 'No preview available',
     cert_description: 'Description',
+    cert_tab_visual: 'Certificate (Image)',
+    cert_tab_pdf: 'PDF Document',
+    cert_open_fullscreen_pdf: 'Open Fullscreen PDF',
+    cert_download_pdf: 'Download PDF',
+    cert_copy_id: 'Copy ID',
+    cert_id_copied: 'ID Copied!',
+    cert_mobile_pdf_tip: 'Official PDF document compatible with mobile & desktop',
 
     // Posts & Search
     posts_all_articles: 'All Articles',
@@ -501,6 +515,13 @@ export const translations = {
     cert_no_found: '証明書が見つかりませんでした',
     cert_no_preview: 'プレビューがありません',
     cert_description: '説明',
+    cert_tab_visual: '証明書（画像）',
+    cert_tab_pdf: 'PDF書類',
+    cert_open_fullscreen_pdf: '全画面でPDFを開く',
+    cert_download_pdf: 'PDFをダウンロード',
+    cert_copy_id: 'IDをコピー',
+    cert_id_copied: 'IDをコピーしました！',
+    cert_mobile_pdf_tip: 'スマートフォン・PC両対応の公式PDFビュー',
 
     // Posts & Search
     posts_all_articles: 'すべての記事',

@@ -5,9 +5,9 @@ import PostsWithSearch from '@/components/posts-with-search'
 import { useLanguage } from '@/lib/language-context'
 
 export default function PostsPageClient({
-  initialPosts
+  initialPosts = []
 }: {
-  initialPosts: PostMetadata[]
+  initialPosts?: PostMetadata[]
 }) {
   const { t } = useLanguage()
 
@@ -23,7 +23,7 @@ export default function PostsPageClient({
           </p>
         </div>
 
-        <PostsWithSearch posts={initialPosts} />
+        <PostsWithSearch posts={initialPosts || []} />
       </div>
     </section>
   )

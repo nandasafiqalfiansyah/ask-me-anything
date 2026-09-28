@@ -5,44 +5,24 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
 import { useLanguage, TranslationKey } from '@/lib/language-context'
 import {
-  SiTypescript,
-  SiNextdotjs,
-  SiReact,
-  SiTailwindcss,
-  SiFramer,
-  SiNodedotjs,
-  SiExpress,
-  SiPostgresql,
-  SiSupabase,
-  SiPrisma,
-  SiPython,
-  SiTensorflow,
-  SiPytorch,
-  SiScikitlearn,
-  SiOpencv,
-  SiGooglecloud,
-  SiDocker,
-  SiGit,
-  SiGithub,
-  SiGithubactions,
-  SiLinux,
-  SiPostman,
-  SiGraphql,
-  SiMongodb,
-  SiRedis,
-  SiFastapi,
-  SiVercel,
-  SiJavascript,
-  SiHtml5,
-  SiCss,
-  SiGoogle
-} from 'react-icons/si'
-import {
-  MagnifyingGlassIcon,
-  Cross2Icon,
-  ViewGridIcon,
-  TokensIcon
-} from '@radix-ui/react-icons'
+  Code2,
+  Layers,
+  Palette,
+  Server,
+  Database,
+  Cpu,
+  Cloud,
+  Boxes,
+  GitBranch,
+  Terminal,
+  Workflow,
+  Zap,
+  Globe,
+  Search,
+  X,
+  LayoutGrid,
+  List
+} from 'lucide-react'
 
 export type SkillCategory = 'All' | 'Frontend' | 'Backend' | 'AI & ML' | 'Cloud & Tools'
 
@@ -72,266 +52,266 @@ const SKILL_METADATA: Record<
     level: 'Core Language',
     description: 'Type-safe scalable JavaScript with strict typing and interfaces',
     color: '#3178C6',
-    icon: SiTypescript
+    icon: Code2
   },
   'next.js': {
     category: 'Frontend',
     level: 'Primary Framework',
     description: 'App Router, Server Actions, SSR/SSG, and optimized routing',
     color: '#000000',
-    icon: SiNextdotjs
+    icon: Layers
   },
   'next.js 15': {
     category: 'Frontend',
     level: 'Primary Framework',
     description: 'App Router, Server Actions, Turbopack, and hybrid rendering',
     color: '#000000',
-    icon: SiNextdotjs
+    icon: Layers
   },
   react: {
     category: 'Frontend',
     level: 'Advanced',
     description: 'Custom hooks, state management, concurrent UI and component architecture',
     color: '#61DAFB',
-    icon: SiReact
+    icon: Layers
   },
   'tailwind css': {
     category: 'Frontend',
     level: 'Daily Driver',
     description: 'Utility-first styling, dark mode systems, and responsive UI design',
     color: '#06B6D4',
-    icon: SiTailwindcss
+    icon: Palette
   },
   'framer motion': {
     category: 'Frontend',
     level: 'Interactive UI',
     description: 'Physics-based 3D animations, layout transitions & micro-interactions',
     color: '#0055FF',
-    icon: SiFramer
+    icon: Zap
   },
   javascript: {
     category: 'Frontend',
     level: 'Core Language',
     description: 'ESNext features, async/await, DOM APIs, and closures',
     color: '#F7DF1E',
-    icon: SiJavascript
+    icon: Code2
   },
   html5: {
     category: 'Frontend',
     level: 'Semantic Web',
     description: 'Accessible semantic structures, SEO foundations & Web APIs',
     color: '#E34F26',
-    icon: SiHtml5
+    icon: Globe
   },
   css3: {
     category: 'Frontend',
     level: 'Styling Core',
     description: 'Flexbox, Grid, custom properties, media queries & keyframes',
     color: '#1572B6',
-    icon: SiCss
+    icon: Palette
   },
   css: {
     category: 'Frontend',
     level: 'Styling Core',
     description: 'Flexbox, Grid, custom properties, media queries & keyframes',
     color: '#1572B6',
-    icon: SiCss
+    icon: Palette
   },
   'node.js': {
     category: 'Backend',
     level: 'Backend Runtime',
     description: 'Asynchronous event-driven backend architectures and services',
     color: '#339933',
-    icon: SiNodedotjs
+    icon: Server
   },
   'express / hono': {
     category: 'Backend',
     level: 'Microservices',
     description: 'RESTful API endpoints, middleware routing, and edge computing',
     color: '#E5E7EB',
-    icon: SiExpress
+    icon: Server
   },
   express: {
     category: 'Backend',
     level: 'Microservices',
     description: 'RESTful APIs, routing controllers, and authentication middleware',
     color: '#E5E7EB',
-    icon: SiExpress
+    icon: Server
   },
   hono: {
     category: 'Backend',
     level: 'Edge Framework',
     description: 'Ultra-fast lightweight web framework for Cloudflare and edge runtimes',
     color: '#E36002',
-    icon: SiExpress
+    icon: Server
   },
   postgresql: {
     category: 'Backend',
     level: 'Relational DB',
     description: 'Complex relational schemas, ACID transactions, and index tuning',
     color: '#4169E1',
-    icon: SiPostgresql
+    icon: Database
   },
   supabase: {
     category: 'Backend',
     level: 'BaaS & Auth',
     description: 'PostgreSQL database, Row-Level Security (RLS), Realtime & Storage',
     color: '#3ECF8E',
-    icon: SiSupabase
+    icon: Database
   },
   'rest apis': {
     category: 'Backend',
     level: 'Architecture',
     description: 'Clean RESTful conventions, JSON schemas, and error handling',
     color: '#6366F1',
-    icon: SiFastapi
+    icon: Server
   },
   graphql: {
     category: 'Backend',
     level: 'API Query',
     description: 'Declarative data fetching, schema stitching & typed resolvers',
     color: '#E10098',
-    icon: SiGraphql
+    icon: Workflow
   },
   prisma: {
     category: 'Backend',
     level: 'ORM Tool',
     description: 'Type-safe database client, schema migrations, and queries',
     color: '#2D3748',
-    icon: SiPrisma
+    icon: Database
   },
   mongodb: {
     category: 'Backend',
     level: 'NoSQL Database',
     description: 'Document-oriented database, aggregation pipelines & Atlas hosting',
     color: '#47A248',
-    icon: SiMongodb
+    icon: Database
   },
   redis: {
     category: 'Backend',
     level: 'Caching Layer',
     description: 'In-memory key-value caching, rate limiting, and pub/sub messaging',
     color: '#DC382D',
-    icon: SiRedis
+    icon: Database
   },
   python: {
     category: 'AI & ML',
     level: 'AI Foundation',
     description: 'Data manipulation, algorithmic modeling, automation & scripting',
     color: '#3776AB',
-    icon: SiPython
+    icon: Code2
   },
   tensorflow: {
     category: 'AI & ML',
     level: 'Deep Learning',
     description: 'CNN, NLP neural models, transfer learning & Bangkit specialization',
     color: '#FF6F00',
-    icon: SiTensorflow
+    icon: Cpu
   },
   pytorch: {
     category: 'AI & ML',
     level: 'Model Building',
     description: 'Dynamic neural network computation, tensor operations & training',
     color: '#EE4C2C',
-    icon: SiPytorch
+    icon: Cpu
   },
   'scikit-learn': {
     category: 'AI & ML',
     level: 'Classical ML',
     description: 'Regression, classification, clustering, and data preprocessing pipelines',
     color: '#F7931E',
-    icon: SiScikitlearn
+    icon: Cpu
   },
   opencv: {
     category: 'AI & ML',
     level: 'Computer Vision',
     description: 'Image processing, contour analysis, object detection & feature extraction',
     color: '#5C3EE8',
-    icon: SiOpencv
+    icon: Cpu
   },
   'gemini & llm apis': {
     category: 'AI & ML',
     level: 'Generative AI',
     description: 'Structured multimodal prompts, function calling & Gemini models',
     color: '#4285F4',
-    icon: SiGoogle
+    icon: Zap
   },
   'google cloud (gcp)': {
     category: 'Cloud & Tools',
     level: 'Cloud Platform',
     description: 'Cloud Run, Compute Engine, Artifact Registry & Vertex AI deployments',
     color: '#4285F4',
-    icon: SiGooglecloud
+    icon: Cloud
   },
   gcp: {
     category: 'Cloud & Tools',
     level: 'Cloud Platform',
     description: 'Cloud Run, Compute Engine, Artifact Registry & Vertex AI deployments',
     color: '#4285F4',
-    icon: SiGooglecloud
+    icon: Cloud
   },
   docker: {
     category: 'Cloud & Tools',
     level: 'Containers',
     description: 'Containerized reproducible microservices & multi-stage builds',
     color: '#2496ED',
-    icon: SiDocker
+    icon: Boxes
   },
   'git & github': {
     category: 'Cloud & Tools',
     level: 'Version Control',
     description: 'Git flow, pull requests, branch protection & collaborative reviews',
     color: '#F05032',
-    icon: SiGit
+    icon: GitBranch
   },
   git: {
     category: 'Cloud & Tools',
     level: 'Version Control',
     description: 'Version control, atomic commits, rebasing & branch management',
     color: '#F05032',
-    icon: SiGit
+    icon: GitBranch
   },
   github: {
     category: 'Cloud & Tools',
     level: 'Collaboration',
     description: 'Code repositories, issue tracking, projects & code reviews',
     color: '#E5E7EB',
-    icon: SiGithub
+    icon: GitBranch
   },
   'ci/cd pipelines': {
     category: 'Cloud & Tools',
     level: 'DevOps Flow',
     description: 'Automated GitHub Actions workflows, tests, and deployment gates',
     color: '#2088FF',
-    icon: SiGithubactions
+    icon: Workflow
   },
   'github actions': {
     category: 'Cloud & Tools',
     level: 'DevOps Flow',
     description: 'Automated CI/CD pipelines, security audits, and deployment triggers',
     color: '#2088FF',
-    icon: SiGithubactions
+    icon: Workflow
   },
   linux: {
     category: 'Cloud & Tools',
     level: 'OS & Server',
     description: 'Bash scripting, system administration, and Unix tooling',
     color: '#FCC624',
-    icon: SiLinux
+    icon: Terminal
   },
   'postman / bruno': {
     category: 'Cloud & Tools',
     level: 'API Testing',
     description: 'Automated endpoint testing, environment variables & request suites',
     color: '#FF6C37',
-    icon: SiPostman
+    icon: Terminal
   },
   vercel: {
     category: 'Cloud & Tools',
     level: 'Deployment',
     description: 'Edge networks, preview deployments & serverless monitoring',
     color: '#000000',
-    icon: SiVercel
+    icon: Cloud
   }
 }
 
@@ -344,7 +324,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Primary Language',
     description: 'Type-safe scalable application development with strict typing',
     color: '#3178C6',
-    icon: SiTypescript
+    icon: Code2
   },
   {
     name: 'Next.js 15',
@@ -352,7 +332,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Primary Framework',
     description: 'App Router, Server Components, SSR/SSG & Turbopack',
     color: '#000000',
-    icon: SiNextdotjs
+    icon: Layers
   },
   {
     name: 'React',
@@ -360,7 +340,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Advanced',
     description: 'Component architecture, custom hooks & modern state management',
     color: '#61DAFB',
-    icon: SiReact
+    icon: Layers
   },
   {
     name: 'Tailwind CSS',
@@ -368,7 +348,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Daily Driver',
     description: 'Responsive utilities, modern dark/light system & styling',
     color: '#06B6D4',
-    icon: SiTailwindcss
+    icon: Palette
   },
   {
     name: 'Framer Motion',
@@ -376,7 +356,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Interactive UI',
     description: 'Physics-based 3D animations, gesture controls & layout springs',
     color: '#0055FF',
-    icon: SiFramer
+    icon: Zap
   },
   // Backend
   {
@@ -385,7 +365,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Backend Runtime',
     description: 'Asynchronous event-driven backend architectures and REST services',
     color: '#339933',
-    icon: SiNodedotjs
+    icon: Server
   },
   {
     name: 'Express / Hono',
@@ -393,7 +373,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Microservices',
     description: 'RESTful API routing controllers, middleware & edge performance',
     color: '#E5E7EB',
-    icon: SiExpress
+    icon: Server
   },
   {
     name: 'PostgreSQL',
@@ -401,7 +381,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Relational DB',
     description: 'Complex relational schemas, query indexing & ACID guarantees',
     color: '#4169E1',
-    icon: SiPostgresql
+    icon: Database
   },
   {
     name: 'Supabase',
@@ -409,7 +389,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'BaaS & Auth',
     description: 'PostgreSQL database, Row-Level Security, Realtime & Storage',
     color: '#3ECF8E',
-    icon: SiSupabase
+    icon: Database
   },
   {
     name: 'REST APIs',
@@ -417,7 +397,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Architecture',
     description: 'Clean RESTful endpoint conventions, validation & JSON schemas',
     color: '#6366F1',
-    icon: SiFastapi
+    icon: Server
   },
   // AI & ML
   {
@@ -426,7 +406,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'AI Foundation',
     description: 'Data manipulation, algorithmic modeling, automation & scripting',
     color: '#3776AB',
-    icon: SiPython
+    icon: Code2
   },
   {
     name: 'TensorFlow',
@@ -434,7 +414,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Deep Learning',
     description: 'CNN, NLP models, transfer learning & Bangkit Academy track',
     color: '#FF6F00',
-    icon: SiTensorflow
+    icon: Cpu
   },
   {
     name: 'PyTorch',
@@ -442,7 +422,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Model Building',
     description: 'Dynamic neural network computation, tensor operations & training',
     color: '#EE4C2C',
-    icon: SiPytorch
+    icon: Cpu
   },
   {
     name: 'Scikit-Learn',
@@ -450,7 +430,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Classical ML',
     description: 'Regression, classification, clustering, and data pipelines',
     color: '#F7931E',
-    icon: SiScikitlearn
+    icon: Cpu
   },
   {
     name: 'OpenCV',
@@ -458,7 +438,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Computer Vision',
     description: 'Image processing, object detection & computer vision filters',
     color: '#5C3EE8',
-    icon: SiOpencv
+    icon: Cpu
   },
   // Cloud & Tools
   {
@@ -467,7 +447,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Cloud Platform',
     description: 'Cloud Run, Compute Engine, Artifact Registry & Vertex AI',
     color: '#4285F4',
-    icon: SiGooglecloud
+    icon: Cloud
   },
   {
     name: 'Docker',
@@ -475,7 +455,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Containers',
     description: 'Containerized reproducible microservices & multi-stage builds',
     color: '#2496ED',
-    icon: SiDocker
+    icon: Boxes
   },
   {
     name: 'Git & GitHub',
@@ -483,7 +463,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Version Control',
     description: 'Git flow, pull requests, branch protection & collaboration',
     color: '#F05032',
-    icon: SiGit
+    icon: GitBranch
   },
   {
     name: 'CI/CD Pipelines',
@@ -491,7 +471,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'Automation',
     description: 'Automated GitHub Actions workflows, tests & deployment gates',
     color: '#2088FF',
-    icon: SiGithubactions
+    icon: Workflow
   },
   {
     name: 'Linux',
@@ -499,7 +479,7 @@ const DEFAULT_SKILLS_LIST: SkillItem[] = [
     level: 'OS & Server',
     description: 'Bash scripting, system administration & Unix server tooling',
     color: '#FCC624',
-    icon: SiLinux
+    icon: Terminal
   }
 ]
 
@@ -562,7 +542,7 @@ function resolveSkillMetadata(name: string, id?: number | string): SkillItem {
     level: 'Proficient',
     description: `Engineering capability in ${name} ecosystem`,
     color,
-    icon: TokensIcon as unknown as React.ComponentType<{ className?: string }>
+    icon: List as unknown as React.ComponentType<{ className?: string }>
   }
 }
 
@@ -681,7 +661,7 @@ export default function RecentSkill() {
                 }`}
                 title='Detailed Cards View'
               >
-                <ViewGridIcon className='h-3.5 w-3.5' />
+                <LayoutGrid className='h-3.5 w-3.5' />
                 <span className='hidden sm:inline'>{t('skills_view_grid')}</span>
               </button>
               <button
@@ -694,7 +674,7 @@ export default function RecentSkill() {
                 }`}
                 title='Compact Chips View'
               >
-                <TokensIcon className='h-3.5 w-3.5' />
+                <List className='h-3.5 w-3.5' />
                 <span className='hidden sm:inline'>{t('skills_view_chips')}</span>
               </button>
             </div>
@@ -746,7 +726,7 @@ export default function RecentSkill() {
 
           {/* Quick Search */}
           <div className='relative min-w-[200px] sm:w-56'>
-            <MagnifyingGlassIcon className='pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground' />
+            <Search className='pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground' />
             <input
               type='text'
               value={searchQuery}
@@ -760,7 +740,7 @@ export default function RecentSkill() {
                 onClick={() => setSearchQuery('')}
                 className='absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground'
               >
-                <Cross2Icon className='h-3 w-3' />
+                <X className='h-3 w-3' />
               </button>
             )}
           </div>
@@ -769,7 +749,7 @@ export default function RecentSkill() {
         {/* Dynamic Display Area */}
         {filteredSkills.length === 0 ? (
           <div className='flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-card/40 py-12 text-center'>
-            <TokensIcon className='mb-2 h-8 w-8 text-muted-foreground/60' />
+            <List className='mb-2 h-8 w-8 text-muted-foreground/60' />
             <p className='text-sm font-medium text-foreground'>{t('skills_no_match')}</p>
             <p className='mt-1 text-xs text-muted-foreground'>
               {t('skills_no_match_sub')}

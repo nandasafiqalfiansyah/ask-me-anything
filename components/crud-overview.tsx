@@ -5,6 +5,10 @@ import { supabase } from '../lib/supabaseClient'
 import { StatCard } from '@/components/ui/StatCard'
 import { Button } from '@/components/ui/button'
 import {
+  VisitorAnalyticsChart,
+  PerformanceAnalyticsChart
+} from '@/components/dashboard-analytics-charts'
+import {
   BarChart,
   Bar,
   XAxis,
@@ -369,8 +373,18 @@ export function OverviewDummy({ onNavigate }: OverviewProps) {
         </div>
       </div>
 
-      {/* Analytics & Charts */}
-      <div className='grid gap-6 lg:grid-cols-2'>
+      {/* Website Traffic & Visitor Analytics Chart */}
+      <VisitorAnalyticsChart />
+
+      {/* Performance & Core Web Vitals Chart */}
+      <PerformanceAnalyticsChart />
+
+      {/* Portfolio Content Analytics & System Charts */}
+      <div>
+        <h3 className='text-base font-semibold text-foreground sm:text-lg mb-4'>
+          Statistik Konten & Modul Portfolio
+        </h3>
+        <div className='grid gap-6 lg:grid-cols-2'>
         {/* Content Distribution */}
         <div className='rounded-2xl border border-border/70 bg-card/70 p-5 shadow-xs backdrop-blur-sm sm:p-6'>
           <div className='mb-4 flex items-center justify-between'>
@@ -497,6 +511,7 @@ export function OverviewDummy({ onNavigate }: OverviewProps) {
           )}
         </div>
       </div>
+    </div>
 
       {/* Certificate Acquisition Timeline & System Health */}
       <div className='grid gap-6 lg:grid-cols-3'>

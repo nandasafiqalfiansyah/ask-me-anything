@@ -30,6 +30,7 @@ export type PostMetadata = {
   published?: boolean
   slug: string
   viewCount?: number
+  tags?: string[]
 }
 
 function isValidSlug(slug: string): boolean {
